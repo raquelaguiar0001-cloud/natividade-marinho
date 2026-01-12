@@ -3,345 +3,192 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BioLab v5.0 - Gestão por Critérios</title>
+    <title>BioLab Universe v9.0</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Poppins:wght@600;800&display=swap');
-        :root { --primary: #4f46e5; --secondary: #10b981; --bg: #f1f5f9; --white: #ffffff; --text: #1e293b; --accent: #f59e0b; --danger: #ef4444; --success: #22c55e; }
-        body { font-family: 'Inter', sans-serif; margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
-        
-        /* SPLASH SCREEN */
-        #splash-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle at center, #1e293b 0%, #0f172a 100%); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 9999; color: white; transition: opacity 0.8s ease; }
-        .science-bg { position: absolute; width: 100%; height: 100%; overflow: hidden; pointer-events: none; }
-        .sci-icon { position: absolute; font-size: 2rem; opacity: 0.2; animation: float 10s infinite linear; }
-        @keyframes float { 0% { transform: translateY(110vh) rotate(0deg); } 100% { transform: translateY(-10vh) rotate(360deg); } }
-        .splash-card { background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); padding: 40px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.2); text-align: center; max-width: 500px; width: 90%; }
-        .btn-enter { background: #10b981; color: white; padding: 15px 40px; border: none; border-radius: 50px; font-size: 1.2rem; font-weight: bold; cursor: pointer; margin-top: 20px; }
-
-        /* MAIN APP */
-        #main-app { display: none; flex-direction: column; height: 100vh; }
-        header { background: var(--primary); color: white; padding: 10px 20px; display: flex; justify-content: space-between; align-items: center; }
-        .nav-container { background: #3730a3; display: flex; flex-direction: column; }
-        .tabs-row { display: flex; gap: 5px; padding: 5px 20px 0 20px; overflow-x: auto; align-items: center; }
-        .tab { padding: 8px 15px; background: rgba(255,255,255,0.1); color: white; border-radius: 8px 8px 0 0; cursor: pointer; border: none; white-space: nowrap; }
-        .tab.active { background: var(--bg); color: var(--primary); font-weight: bold; }
-        .tab.admin-tab { background: var(--accent); color: white; margin-left: auto; border-radius: 8px; margin-bottom: 5px; }
-
-        .bimester-row { background: #e2e8f0; display: flex; justify-content: center; gap: 15px; padding: 10px; }
-        .bim-btn { padding: 5px 15px; border-radius: 20px; border: 1px solid #94a3b8; cursor: pointer; background: white; font-size: 0.8rem; font-weight: bold; }
-        .bim-btn.active { background: var(--accent); color: white; border-color: var(--accent); }
-
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Rajdhani:wght@500;700&display=swap');
+        :root { --space-bg: #0f172a; --neon-green: #10b981; --neon-blue: #3b82f6; --neon-purple: #8b5cf6; --neon-pink: #ec4899; --glass: rgba(255, 255, 255, 0.05); --glass-border: rgba(255, 255, 255, 0.1); }
+        body { font-family: 'Rajdhani', sans-serif; margin: 0; background: var(--space-bg); color: #e2e8f0; height: 100vh; overflow: hidden; background-image: radial-gradient(circle at 50% 50%, #1e293b 0%, #0f172a 100%); }
+        .stars { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; }
+        #splash-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--space-bg); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 10000; transition: 0.8s; }
+        #main-app { display: none; flex-direction: column; height: 100vh; position: relative; z-index: 1; }
+        header { background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(10px); padding: 10px 25px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--glass-border); }
+        .nav-tabs { background: rgba(0,0,0,0.3); display: flex; gap: 8px; padding: 10px 20px 0; border-bottom: 1px solid var(--glass-border); }
+        .tab-btn { padding: 10px 20px; background: var(--glass); border: 1px solid var(--glass-border); color: white; border-radius: 10px 10px 0 0; cursor: pointer; transition: 0.3s; font-family: 'Orbitron', sans-serif; font-size: 0.7rem; }
+        .tab-btn.active { background: var(--neon-blue); border-color: var(--neon-blue); box-shadow: 0 -5px 15px rgba(59, 130, 246, 0.3); }
         .wrapper { display: flex; flex: 1; overflow: hidden; }
-        .sidebar { width: 350px; background: var(--white); border-right: 1px solid #e2e8f0; padding: 15px; overflow-y: auto; }
-        .main-content { flex: 1; padding: 20px; overflow-y: auto; background: #f8fafc; }
-
-        .admin-section { background: #f1f5f9; padding: 15px; border-radius: 10px; margin-bottom: 15px; border: 1px solid #e2e8f0; }
-        .criteria-item { display: flex; gap: 5px; margin-bottom: 8px; align-items: center; background: white; padding: 5px; border-radius: 5px; }
-
-        .student-card { background: white; padding: 12px; border-radius: 8px; margin-bottom: 10px; border: 1px solid #e2e8f0; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-        .criteria-label { font-size: 0.75rem; font-weight: bold; color: #64748b; margin-top: 8px; display: block; }
-        .check-group { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 5px; }
-        
-        .track { background: white; border: 4px solid #334155; border-radius: 15px; padding: 40px 80px 40px 20px; position: relative; min-height: 450px; }
-        .lane { height: 70px; border-bottom: 1px dashed #e2e8f0; position: relative; display: flex; align-items: center; }
-        .finish-line { position: absolute; right: 50px; top: 0; bottom: 0; width: 15px; background: repeating-linear-gradient(0deg, #000, #000 10px, #fff 10px, #fff 20px); }
-        .runner { position: absolute; left: 0; font-size: 35px; transition: left 0.8s cubic-bezier(0.34, 1.56, 0.64, 1); display: flex; flex-direction: column; align-items: center; }
-        .runner-info { font-size: 10px; font-weight: bold; background: var(--primary); color: white; padding: 2px 6px; border-radius: 10px; white-space: nowrap; margin-bottom: -2px; }
-
-        #report-screen { display: none; background: white; padding: 30px; border-radius: 15px; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
-        th { background: var(--primary); color: white; }
+        .sidebar { width: 360px; background: rgba(15, 23, 42, 0.7); border-right: 1px solid var(--glass-border); padding: 15px; overflow-y: auto; transition: 0.5s; }
+        .panel { background: var(--glass); border: 1px solid var(--glass-border); padding: 12px; border-radius: 12px; margin-bottom: 15px; }
+        .student-card { background: rgba(255,255,255,0.03); border: 1px solid var(--glass-border); padding: 12px; border-radius: 12px; margin-bottom: 10px; }
+        input, textarea { background: rgba(0,0,0,0.4); border: 1px solid var(--glass-border); color: white; padding: 6px 10px; border-radius: 6px; width: 100%; box-sizing: border-box; font-family: 'Rajdhani', sans-serif; margin-bottom: 8px; }
+        .btn-neon { background: var(--neon-purple); color: white; padding: 8px; width: 100%; border:none; border-radius:8px; cursor:pointer; font-family:'Orbitron'; font-size:0.7rem; }
+        .track-container { flex: 1; padding: 20px; position: relative; overflow-y: auto; display: flex; flex-direction: column; }
+        .track { background: rgba(0,0,0,0.5); border: 2px solid var(--neon-blue); border-radius: 20px; padding: 20px 100px 20px 20px; position: relative; min-height: 500px; flex: 1; }
+        .expanded .sidebar, .expanded header, .expanded .nav-tabs { display: none !important; }
+        .expanded .track { border: none; border-radius: 0; height: 100vh; }
+        .lane { height: 75px; border-bottom: 1px solid rgba(59, 130, 246, 0.1); position: relative; display: flex; align-items: center; }
+        .finish-line { position: absolute; right: 50px; top: 0; bottom: 0; width: 12px; background: linear-gradient(to bottom, var(--neon-green), var(--neon-blue)); box-shadow: 0 0 20px var(--neon-green); }
+        .runner { position: absolute; left: 0; font-size: 45px; transition: 1.2s cubic-bezier(0.18, 0.89, 0.32, 1.28); display: flex; flex-direction: column; align-items: center; z-index: 10; }
+        .runner-tag { font-size: 11px; font-weight: bold; background: rgba(15, 23, 42, 0.9); color: var(--neon-green); padding: 2px 10px; border-radius: 20px; white-space: nowrap; margin-bottom: 4px; border: 1px solid var(--neon-green); }
+        .check-grid { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 5px; }
+        .btn-expand { position: absolute; top: 25px; right: 25px; z-index: 100; background: var(--neon-blue); color: white; border: none; width: 45px; height: 45px; border-radius: 50%; cursor: pointer; font-size: 1.2rem; }
+        .sub-tab { padding: 4px 12px; font-size: 0.7rem; background: var(--glass); border: 1px solid var(--glass-border); color: #94a3b8; border-radius: 20px; cursor: pointer; margin-right: 5px; }
+        .sub-tab.active { color: white; border-color: var(--neon-purple); background: rgba(139, 92, 246, 0.2); }
     </style>
 </head>
 <body>
-
+    <canvas id="stars" class="stars"></canvas>
     <div id="splash-screen">
-        <div class="science-bg" id="science-bg"></div>
-        <div class="splash-card">
-            <h1 style="font-family: 'Poppins'; font-size: 2.5rem; color: #10b981;">🔬 BioLab Pro</h1>
-            <div id="setup-form">
-                <input type="text" id="school-input" placeholder="Nome da Escola" style="width:80%; padding:10px; margin-bottom:10px; border-radius:8px; border:none;">
-                <input type="text" id="teacher-input" placeholder="Nome do Professor(a)" style="width:80%; padding:10px; border-radius:8px; border:none;">
-            </div>
-            <div id="welcome-display" style="display:none;">
-                <h2 id="display-school"></h2>
-                <p id="display-teacher"></p>
-                <button onclick="editSetup()" style="color:#94a3b8; background:none; border:none; cursor:pointer; text-decoration:underline;">Trocar Professor/Escola</button>
-            </div>
-            <br>
-            <button class="btn-enter" onclick="enterApp()">ACESSAR DIÁRIO 🧪</button>
+        <div style="background: var(--glass); backdrop-filter: blur(15px); padding: 40px; border-radius: 30px; border: 1px solid var(--glass-border); text-align: center;">
+            <h1 style="font-family:'Orbitron'; color:var(--neon-green); margin:0;">BIOLAB V9</h1>
+            <input type="text" id="school-input" placeholder="INSTITUIÇÃO" style="margin-top:20px;">
+            <input type="text" id="teacher-input" placeholder="NOME DO PROFESSOR">
+            <button class="btn-neon" onclick="enterApp()" style="margin-top:15px; height:45px;">INICIAR MISSÃO 🚀</button>
         </div>
     </div>
 
     <div id="main-app">
         <header>
-            <div>
-                <h3 style="margin:0">🧬 BioLab - Ciências</h3>
-                <small id="header-info"></small>
-            </div>
-            <div>
-                <input type="text" id="subject-name" placeholder="Nome da Turma/Matéria" style="padding:8px; border-radius:5px; border:none;">
-                <button onclick="addSubject()" style="background:var(--success); color:white; border:none; padding:8px 15px; border-radius:5px; cursor:pointer; font-weight:bold;">+ Turma</button>
-            </div>
+            <div style="display:flex; align-items:center; gap:12px;"><div style="font-size: 1.8rem;">🔬</div><div><h2 style="margin:0; font-family:'Orbitron'; font-size:1rem; color:var(--neon-green);">BIOLAB CONTROL</h2><small id="header-info" style="color:var(--neon-blue); font-size:0.7rem;"></small></div></div>
+            <div style="display:flex; gap:8px;"><input type="text" id="new-class-name" placeholder="TURMA" style="width:120px; margin:0;"><button onclick="addClass()" class="btn-neon" style="width:80px;">+ TURMA</button></div>
         </header>
-
-        <div class="nav-container">
-            <div class="tabs-row" id="tabs-bar"></div>
-            <div class="bimester-row">
-                <button class="bim-btn active" onclick="setBim(1)">1º Bimestre</button>
-                <button class="bim-btn" onclick="setBim(2)">2º Bimestre</button>
-                <button class="bim-btn" onclick="setBim(3)">3º Bimestre</button>
-                <button class="bim-btn" onclick="setBim(4)">4º Bimestre</button>
-                <button class="tab admin-tab" onclick="toggleReport()">📊 Relatórios & Backup</button>
-            </div>
-        </div>
-
-        <div class="wrapper">
+        <div class="nav-tabs" id="tabs-bar"></div>
+        <div class="wrapper" id="app-wrapper">
             <aside class="sidebar">
-                <div class="admin-section">
-                    <strong>📋 Critérios de Avaliação</strong>
-                    <div id="criteria-list" style="margin: 10px 0;"></div>
-                    <div style="display:flex; gap:5px;">
-                        <input type="text" id="new-crit-name" placeholder="Ex: Prova" style="flex:1; padding:5px;">
-                        <input type="number" id="new-crit-val" placeholder="Pts" style="width:50px; padding:5px;">
-                        <button onclick="addCriteria()" style="background:var(--primary); color:white; border:none; padding:5px 10px; border-radius:4px; cursor:pointer;">+</button>
-                    </div>
-                    <small style="color:#64748b;">* Cada ponto gera 1 quadradinho.</small>
+                <div class="panel">
+                    <strong style="color:var(--neon-purple); font-size:0.8rem;">☄️ MATÉRIAS</strong>
+                    <div id="sub-tabs-bar" style="margin:8px 0; display:flex; overflow-x:auto;"></div>
+                    <div style="display:flex; gap:5px;"><input type="text" id="new-subj-name" placeholder="Nova" style="margin:0;"><button onclick="addSubj()" class="btn-neon" style="width:35px;">+</button></div>
                 </div>
-
-                <div class="admin-section">
-                    <strong>👥 Adicionar Alunos</strong>
-                    <textarea id="batch-names" placeholder="Um nome por linha" style="width:100%; height:60px; margin-top:5px;"></textarea>
-                    <button onclick="addStudents()" style="width:100%; background:var(--primary); color:white; border:none; padding:8px; border-radius:5px; cursor:pointer; margin-top:5px;">Importar Alunos</button>
+                <div class="panel">
+                    <strong style="color:var(--neon-green); font-size:0.8rem;">📊 CRITÉRIOS (Média = Soma / Qtd)</strong>
+                    <div id="criteria-list" style="margin:8px 0;"></div>
+                    <div style="display:flex; gap:5px;"><input type="text" id="crit-name" placeholder="Nome" style="margin:0;"><button onclick="addCrit()" class="btn-neon" style="width:100%;">+ NOVO CRITÉRIO</button></div>
                 </div>
-
-                <div id="student-checks"></div>
+                <div class="panel">
+                    <strong style="color:var(--neon-pink); font-size:0.8rem;">⚙️ ATIVIDADES DO BIMESTRE</strong>
+                    <input type="number" id="total-tasks-input" value="10" onchange="updateTotalTasks(this.value)" style="margin-top:5px;">
+                    <small style="font-size:0.6rem; opacity:0.7;">Define quantas caixas aparecem.</small>
+                </div>
+                <div class="panel">
+                    <strong style="color:var(--neon-blue); font-size:0.8rem;">👨‍🚀 ADICIONAR ALUNOS</strong>
+                    <textarea id="batch-names" placeholder="Nomes..." style="height:50px; margin-top:8px;"></textarea>
+                    <button onclick="importStudents()" class="btn-neon">ADICIONAR</button>
+                </div>
+                <div id="students-list"></div>
             </aside>
-
-            <main class="main-content">
-                <div id="race-screen">
-                    <div class="track" id="track"><div class="finish-line"></div></div>
-                </div>
-
-                <div id="report-screen">
-                    <h2>📊 Consolidação de Notas</h2>
-                    <button onclick="exportCSV()" style="background:var(--success); color:white; border:none; padding:10px 20px; border-radius:5px; cursor:pointer; font-weight:bold;">📥 Baixar Excel (CSV)</button>
-                    <button onclick="exportJSON()" style="background:var(--primary); color:white; border:none; padding:10px 20px; border-radius:5px; cursor:pointer; font-weight:bold; margin-left:10px;">💾 Backup do Sistema</button>
-                    <input type="file" id="import-json" accept=".json" onchange="importJSON(event)" style="margin-left:10px;">
-                    <table id="report-table">
-                        <thead><tr><th>Aluno</th><th>1º Bim</th><th>2º Bim</th><th>3º Bim</th><th>4º Bim</th><th>Média Final</th></tr></thead>
-                        <tbody id="report-body"></tbody>
-                    </table>
-                </div>
+            <main class="track-container">
+                <button class="btn-expand" onclick="toggleExpand()">⛶</button>
+                <div style="display:flex; justify-content:space-between; margin-bottom:15px;"><div id="bim-selector" style="display:flex; gap:5px;"><button class="sub-tab" onclick="setBim(1)" id="b1">1º BIM</button><button class="sub-tab" onclick="setBim(2)" id="b2">2º BIM</button><button class="sub-tab" onclick="setBim(3)" id="b3">3º BIM</button><button class="sub-tab" onclick="setBim(4)" id="b4">4º BIM</button></div></div>
+                <div class="track" id="track"><div class="finish-line"></div></div>
             </main>
         </div>
     </div>
 
     <script>
-        // --- LOGICA DE ESTADO ---
-        let state = JSON.parse(localStorage.getItem('biolab_v5')) || {
-            subjects: [],
-            students: [],
-            activeSub: -1,
-            activeBim: 1
-        };
+        let state = JSON.parse(localStorage.getItem('biolab_v9')) || { classes: [], activeClassIdx: -1, activeBim: 1 };
+        const emojis = ['🚀','🛸','🛰️','👨‍🚀','👽','👾','🧪','🧬','⚛️','🪐','☄️','🌟'];
+        function save() { localStorage.setItem('biolab_v9', JSON.stringify(state)); }
 
-        const icons = ['🧬', '⚛️', '🪐', '🔬', '🌱', '🧪', '🌡️', '🧠'];
-        function createIcons() {
-            const bg = document.getElementById('science-bg');
-            for(let i=0; i<15; i++) {
-                const el = document.createElement('div'); el.className = 'sci-icon'; el.innerText = icons[Math.floor(Math.random()*icons.length)];
-                el.style.left = Math.random() * 100 + 'vw'; el.style.animationDelay = Math.random() * 10 + 's'; bg.appendChild(el);
-            }
-        }
-        createIcons();
-
-        function save() { localStorage.setItem('biolab_v5', JSON.stringify(state)); }
+        const canvas = document.getElementById('stars'); const ctx = canvas.getContext('2d');
+        function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+        window.onresize = resize; resize();
+        let stars = Array(150).fill().map(() => ({ x: Math.random()*canvas.width, y: Math.random()*canvas.height, r: Math.random()*1.2, v: Math.random()*0.4 }));
+        function animate() { ctx.clearRect(0,0,canvas.width,canvas.height); ctx.fillStyle = "white"; stars.forEach(s => { ctx.beginPath(); ctx.arc(s.x, s.y, s.r, 0, Math.PI*2); ctx.fill(); s.y += s.v; if(s.y > canvas.height) s.y = 0; }); requestAnimationFrame(animate); }
+        animate();
 
         function enterApp() {
-            const s = document.getElementById('school-input').value;
-            const t = document.getElementById('teacher-input').value;
-            if(!localStorage.getItem('school')) {
-                if(!s || !t) return alert("Preencha os dados!");
-                localStorage.setItem('school', s); localStorage.setItem('teacher', t);
-            }
-            document.getElementById('splash-screen').style.opacity = '0';
-            setTimeout(() => { 
-                document.getElementById('splash-screen').style.display = 'none';
-                document.getElementById('main-app').style.display = 'flex';
-                render();
-            }, 500);
+            const sch = document.getElementById('school-input').value; const tea = document.getElementById('teacher-input').value;
+            if(sch && tea) { localStorage.setItem('sch', sch); localStorage.setItem('tea', tea); }
+            if(localStorage.getItem('sch')) { document.getElementById('splash-screen').style.display='none'; document.getElementById('main-app').style.display='flex'; render(); }
         }
 
-        function checkSetup() {
-            const s = localStorage.getItem('school'); const t = localStorage.getItem('teacher');
-            if(s) {
-                document.getElementById('setup-form').style.display='none';
-                document.getElementById('welcome-display').style.display='block';
-                document.getElementById('display-school').innerText = s;
-                document.getElementById('display-teacher').innerText = t;
-                document.getElementById('header-info').innerText = `${s} | Prof. ${t}`;
-            }
-        }
-        window.onload = checkSetup;
+        function toggleExpand() { document.getElementById('app-wrapper').classList.toggle('expanded'); }
 
-        function editSetup() { localStorage.clear(); location.reload(); }
-
-        // --- SISTEMA DE TURMAS E CRITÉRIOS ---
-        function addSubject() {
-            const name = document.getElementById('subject-name').value;
-            if(name) {
-                state.subjects.push({ name, criteria: {1:[], 2:[], 3:[], 4:[]} });
-                state.activeSub = state.subjects.length - 1;
-                document.getElementById('subject-name').value = '';
-                save(); render();
+        function addClass() {
+            const n = document.getElementById('new-class-name').value;
+            if(n) {
+                state.classes.push({ name: n, subjects: ["Geral"], activeSubjIdx: 0, totalTasks: 10, criteria: [{name: "Atividades", fixed: true}], students: [] });
+                state.activeClassIdx = state.classes.length - 1; render(); save();
             }
         }
 
-        function addCriteria() {
-            if(state.activeSub === -1) return alert("Crie uma turma primeiro!");
-            const name = document.getElementById('new-crit-name').value;
-            const val = parseInt(document.getElementById('new-crit-val').value);
-            if(name && val) {
-                state.subjects[state.activeSub].criteria[state.activeBim].push({ name, val });
-                document.getElementById('new-crit-name').value = '';
-                document.getElementById('new-crit-val').value = '';
-                save(); render();
-            }
+        function updateTotalTasks(val) { if(state.activeClassIdx !== -1) { state.classes[state.activeClassIdx].totalTasks = parseInt(val) || 1; save(); render(); } }
+
+        function addCrit() {
+            const n = document.getElementById('crit-name').value;
+            if(n && state.activeClassIdx !== -1) { state.classes[state.activeClassIdx].criteria.push({name: n, fixed: false}); document.getElementById('crit-name').value = ''; save(); render(); }
         }
 
-        function removeCriteria(idx) {
-            state.subjects[state.activeSub].criteria[state.activeBim].splice(idx, 1);
+        function addSubj() { const n = document.getElementById('new-subj-name').value; if(n && state.activeClassIdx !== -1) { state.classes[state.activeClassIdx].subjects.push(n); save(); render(); } }
+
+        function importStudents() {
+            const names = document.getElementById('batch-names').value.split('\n').filter(x => x.trim());
+            if(state.activeClassIdx === -1) return;
+            names.forEach(n => { state.classes[state.activeClassIdx].students.push({ name: n, emoji: emojis[Math.floor(Math.random()*emojis.length)], scores: {} }); });
+            document.getElementById('batch-names').value = ''; save(); render();
+        }
+
+        function updateScore(stuIdx, critName, val, isAct = false, actIdx = null) {
+            const cls = state.classes[state.activeClassIdx]; const stu = cls.students[stuIdx];
+            const key = `${cls.activeSubjIdx}_${state.activeBim}_${critName}`;
+            if(isAct) { if(!stu.scores[key]) stu.scores[key] = []; const idx = stu.scores[key].indexOf(actIdx); idx > -1 ? stu.scores[key].splice(idx, 1) : stu.scores[key].push(actIdx); }
+            else { stu.scores[key] = parseFloat(val) || 0; }
             save(); render();
         }
 
-        function addStudents() {
-            const names = document.getElementById('batch-names').value.split('\n').filter(n => n.trim() !== "");
-            names.forEach(n => {
-                const emoji = icons[Math.floor(Math.random()*icons.length)];
-                state.students.push({ name: n, emoji, scores: {} });
+        function calculateGrade(stu) {
+            const cls = state.classes[state.activeClassIdx]; if(!cls) return 0;
+            let sumGrades = 0;
+            cls.criteria.forEach(c => {
+                const key = `${cls.activeSubjIdx}_${state.activeBim}_${c.name}`;
+                if(c.fixed) {
+                    const done = stu.scores[key] ? stu.scores[key].length : 0;
+                    const score = Math.min(10, (done / cls.totalTasks) * 10);
+                    sumGrades += score;
+                } else { sumGrades += (stu.scores[key] || 0); }
             });
-            document.getElementById('batch-names').value = '';
-            save(); render();
+            return sumGrades / cls.criteria.length;
         }
-
-        function togglePoint(stuIdx, critName, ptIdx) {
-            const subName = state.subjects[state.activeSub].name;
-            const bim = state.activeBim;
-            const stu = state.students[stuIdx];
-            if(!stu.scores[subName]) stu.scores[subName] = {};
-            if(!stu.scores[subName][bim]) stu.scores[subName][bim] = {};
-            if(!stu.scores[subName][bim][critName]) stu.scores[subName][bim][critName] = [];
-            
-            const arr = stu.scores[subName][bim][critName];
-            const found = arr.indexOf(ptIdx);
-            found > -1 ? arr.splice(found, 1) : arr.push(ptIdx);
-            save(); render();
-        }
-
-        function calcNote(stu, subIdx, bim) {
-            if(subIdx === -1) return 0;
-            const sub = state.subjects[subIdx];
-            const crits = sub.criteria[bim];
-            let total = 0;
-            crits.forEach(c => {
-                const points = (stu.scores[sub.name] && stu.scores[sub.name][bim] && stu.scores[sub.name][bim][c.name]) ? stu.scores[sub.name][bim][c.name].length : 0;
-                total += points;
-            });
-            return total;
-        }
-
-        function setBim(b) { state.activeBim = b; render(); }
 
         function render() {
-            const tabContainer = document.getElementById('tabs-bar');
-            const critList = document.getElementById('criteria-list');
-            const stuChecks = document.getElementById('student-checks');
-            const track = document.getElementById('track');
-
-            // Abas
-            tabContainer.innerHTML = state.subjects.map((s, i) => `
-                <button class="tab ${i === state.activeSub ? 'active' : ''}" onclick="state.activeSub=${i}; render()">${s.name}</button>
-            `).join('');
-
-            // Botões Bimestre
-            document.querySelectorAll('.bim-btn').forEach((b, i) => b.className = (i+1 === state.activeBim) ? 'bim-btn active' : 'bim-btn');
-
-            if(state.activeSub !== -1) {
-                const sub = state.subjects[state.activeSub];
-                const crits = sub.criteria[state.activeBim];
-                
-                // Lista de Critérios na Sidebar
-                critList.innerHTML = crits.map((c, i) => `
-                    <div class="criteria-item">
-                        <span style="flex:1; font-size:0.8rem;">${c.name} (${c.val} pts)</span>
-                        <button onclick="removeCriteria(${i})" style="background:none; border:none; color:red; cursor:pointer;">×</button>
-                    </div>
-                `).join('');
-
-                // Checkboxes dos Alunos
-                stuChecks.innerHTML = state.students.map((stu, si) => {
-                    const nota = calcNote(stu, state.activeSub, state.activeBim);
-                    let html = `<div class="student-card"><strong>${stu.name}</strong> <span style="float:right; color:var(--primary); font-weight:bold;">${nota.toFixed(1)}</span>`;
-                    crits.forEach(c => {
-                        html += `<span class="criteria-label">${c.name}</span><div class="check-group">`;
-                        for(let i=0; i<c.val; i++) {
-                            const checked = (stu.scores[sub.name] && stu.scores[sub.name][state.activeBim] && stu.scores[sub.name][state.activeBim][c.name] && stu.scores[sub.name][state.activeBim][c.name].includes(i)) ? 'checked' : '';
-                            html += `<input type="checkbox" ${checked} onclick="togglePoint(${si}, '${c.name}', ${i})">`;
+            const cls = state.classes[state.activeClassIdx];
+            document.getElementById('header-info').innerText = `${localStorage.getItem('sch')} | ${localStorage.getItem('tea')}`;
+            document.getElementById('tabs-bar').innerHTML = state.classes.map((c, i) => `<button class="tab-btn ${i===state.activeClassIdx?'active':''}" onclick="state.activeClassIdx=${i}; render()">${c.name}</button>`).join('');
+            for(let i=1; i<=4; i++) document.getElementById('b'+i).className = (state.activeBim === i) ? 'sub-tab active' : 'sub-tab';
+            if(cls) {
+                document.getElementById('total-tasks-input').value = cls.totalTasks;
+                document.getElementById('sub-tabs-bar').innerHTML = cls.subjects.map((s, i) => `<button class="sub-tab ${i===cls.activeSubjIdx?'active':''}" onclick="state.classes[state.activeClassIdx].activeSubjIdx=${i}; render()">${s}</button>`).join('');
+                document.getElementById('criteria-list').innerHTML = cls.criteria.map((c, i) => `<div style="display:flex; justify-content:space-between; font-size:0.7rem; background:var(--glass); padding:5px; margin-bottom:4px;"><span>${c.name}</span>${!c.fixed?`<button onclick="state.classes[state.activeClassIdx].criteria.splice(${i},1); save(); render();" style="color:red; background:none; border:none; cursor:pointer;">×</button>`:''}</div>`).join('');
+                document.getElementById('students-list').innerHTML = cls.students.map((stu, si) => {
+                    const grade = calculateGrade(stu);
+                    let html = `<div class="student-card"><input type="text" value="${stu.name}" oninput="state.classes[state.activeClassIdx].students[${si}].name=this.value; save(); updateTrackOnly();" style="color:var(--neon-green); font-weight:bold; border:none; background:none; padding:0;"><div style="font-size:0.8rem; margin-top:5px;">Média: <b style="color:var(--neon-blue)">${grade.toFixed(1)}</b></div>`;
+                    cls.criteria.forEach(c => {
+                        const key = `${cls.activeSubjIdx}_${state.activeBim}_${c.name}`;
+                        if(c.fixed) {
+                            html += `<small style="font-size:0.6rem; color:var(--neon-pink)">Atividades:</small><div class="check-grid">`;
+                            for(let i=0; i<cls.totalTasks; i++) { const chk = (stu.scores[key] && stu.scores[key].includes(i)) ? 'checked' : ''; html += `<input type="checkbox" ${chk} onclick="updateScore(${si}, '${c.name}', 0, true, ${i})">`; }
+                            html += `</div>`;
+                        } else {
+                            html += `<div style="display:flex; align-items:center; margin-top:5px;"><small style="flex:1; font-size:0.65rem;">${c.name}:</small><input type="number" value="${stu.scores[key]||0}" onchange="updateScore(${si}, '${c.name}', this.value)" style="width:45px; margin:0; padding:2px;"></div>`;
                         }
-                        html += `</div>`;
                     });
-                    html += `</div>`;
-                    return html;
+                    return html + `</div>`;
                 }).join('');
-
-                // Pista de Corrida
-                track.querySelectorAll('.lane').forEach(l => l.remove());
-                state.students.forEach(stu => {
-                    const nota = calcNote(stu, state.activeSub, state.activeBim);
-                    const lane = document.createElement('div'); lane.className = 'lane';
-                    lane.innerHTML = `<div class="runner" style="left: ${(nota/10)*85}%"><div class="runner-info">${stu.name} | ${nota.toFixed(1)}</div>${stu.emoji}</div>`;
-                    track.appendChild(lane);
-                });
+                updateTrackOnly();
             }
         }
 
-        function toggleReport() {
-            const s = document.getElementById('report-screen'); const r = document.getElementById('race-screen');
-            if(s.style.display === 'block') { s.style.display = 'none'; r.style.display = 'block'; }
-            else { s.style.display = 'block'; r.style.display = 'none'; genReport(); }
-        }
-
-        function genReport() {
-            const body = document.getElementById('report-body'); body.innerHTML = '';
-            if(state.activeSub === -1) return;
-            state.students.forEach(stu => {
-                const b1 = calcNote(stu, state.activeSub, 1), b2 = calcNote(stu, state.activeSub, 2), b3 = calcNote(stu, state.activeSub, 3), b4 = calcNote(stu, state.activeSub, 4);
-                const avg = (b1+b2+b3+b4)/4;
-                body.innerHTML += `<tr><td>${stu.name}</td><td>${b1.toFixed(1)}</td><td>${b2.toFixed(1)}</td><td>${b3.toFixed(1)}</td><td>${b4.toFixed(1)}</td><td><b>${avg.toFixed(1)}</b></td></tr>`;
+        function updateTrackOnly() {
+            const cls = state.classes[state.activeClassIdx]; const track = document.getElementById('track');
+            track.querySelectorAll('.lane').forEach(l => l.remove());
+            cls.students.forEach(stu => {
+                const grade = calculateGrade(stu);
+                const lane = document.createElement('div'); lane.className = 'lane';
+                lane.innerHTML = `<div class="runner" style="left: ${(grade/10)*88}%"><div class="runner-tag">${stu.name} | ${grade.toFixed(1)}</div>${stu.emoji}</div>`;
+                track.appendChild(lane);
             });
         }
-
-        function exportCSV() {
-            let csv = "Aluno;1Bim;2Bim;3Bim;4Bim;MediaFinal\n";
-            state.students.forEach(stu => {
-                const b1 = calcNote(stu, state.activeSub, 1), b2 = calcNote(stu, state.activeSub, 2), b3 = calcNote(stu, state.activeSub, 3), b4 = calcNote(stu, state.activeSub, 4);
-                csv += `${stu.name};${b1.toFixed(1)};${b2.toFixed(1)};${b3.toFixed(1)};${b4.toFixed(1)};${((b1+b2+b3+b4)/4).toFixed(1)}\n`;
-            });
-            const blob = new Blob(["\ufeff"+csv], {type: 'text/csv;charset=utf-8;'});
-            const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = "Boletim_Biolab.csv"; a.click();
-        }
-
-        function exportJSON() {
-            const blob = new Blob([JSON.stringify(state)], {type:'application/json'});
-            const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = "backup_biolab.json"; a.click();
-        }
-
-        function importJSON(e) {
-            const reader = new FileReader();
-            reader.onload = (ev) => { state = JSON.parse(ev.target.result); save(); location.reload(); };
-            reader.readAsText(e.target.files[0]);
-        }
+        window.onload = () => { if(localStorage.getItem('sch')) enterApp(); };
     </script>
 </body>
 </html>
