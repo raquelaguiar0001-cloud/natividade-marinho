@@ -3,43 +3,53 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BioLab - Diário de Ciências</title>
+    <title>BioLab v5.0 - Gestão por Critérios</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Poppins:wght@600;800&display=swap');
         :root { --primary: #4f46e5; --secondary: #10b981; --bg: #f1f5f9; --white: #ffffff; --text: #1e293b; --accent: #f59e0b; --danger: #ef4444; --success: #22c55e; }
         body { font-family: 'Inter', sans-serif; margin: 0; overflow: hidden; height: 100vh; background: var(--bg); }
+        
+        /* SPLASH SCREEN */
         #splash-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle at center, #1e293b 0%, #0f172a 100%); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 9999; color: white; transition: opacity 0.8s ease; }
         .science-bg { position: absolute; width: 100%; height: 100%; overflow: hidden; pointer-events: none; }
         .sci-icon { position: absolute; font-size: 2rem; opacity: 0.2; animation: float 10s infinite linear; }
-        @keyframes float { 0% { transform: translateY(110vh) rotate(0deg); opacity: 0; } 10% { opacity: 0.3; } 90% { opacity: 0.3; } 100% { transform: translateY(-10vh) rotate(360deg); opacity: 0; } }
-        .splash-card { background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); padding: 40px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.2); text-align: center; max-width: 500px; width: 90%; z-index: 10; }
-        .splash-card h1 { font-family: 'Poppins', sans-serif; font-size: 2.5rem; margin-bottom: 10px; color: #10b981; }
-        .setup-fields { display: flex; flex-direction: column; gap: 15px; margin-top: 20px; }
-        .setup-fields input { padding: 12px; border-radius: 8px; border: none; background: rgba(255,255,255,0.9); font-size: 1rem; text-align: center; color: #1e293b; }
-        .btn-enter { background: #10b981; color: white; padding: 15px 40px; border: none; border-radius: 50px; font-size: 1.2rem; font-weight: bold; cursor: pointer; margin-top: 30px; }
-        #main-app { display: none; flex-direction: column; height: 100vh; overflow: hidden; }
+        @keyframes float { 0% { transform: translateY(110vh) rotate(0deg); } 100% { transform: translateY(-10vh) rotate(360deg); } }
+        .splash-card { background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); padding: 40px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.2); text-align: center; max-width: 500px; width: 90%; }
+        .btn-enter { background: #10b981; color: white; padding: 15px 40px; border: none; border-radius: 50px; font-size: 1.2rem; font-weight: bold; cursor: pointer; margin-top: 20px; }
+
+        /* MAIN APP */
+        #main-app { display: none; flex-direction: column; height: 100vh; }
         header { background: var(--primary); color: white; padding: 10px 20px; display: flex; justify-content: space-between; align-items: center; }
         .nav-container { background: #3730a3; display: flex; flex-direction: column; }
         .tabs-row { display: flex; gap: 5px; padding: 5px 20px 0 20px; overflow-x: auto; align-items: center; }
-        .tab { padding: 8px 15px; background: rgba(255,255,255,0.1); color: white; border-radius: 8px 8px 0 0; cursor: pointer; border: none; }
+        .tab { padding: 8px 15px; background: rgba(255,255,255,0.1); color: white; border-radius: 8px 8px 0 0; cursor: pointer; border: none; white-space: nowrap; }
         .tab.active { background: var(--bg); color: var(--primary); font-weight: bold; }
-        .tab.admin-tab { background: var(--accent); color: white; margin-left: auto; margin-bottom: 5px; border-radius: 8px; }
-        .bimester-row { background: #e2e8f0; display: flex; justify-content: center; gap: 20px; padding: 10px; border-bottom: 2px solid #cbd5e1; }
-        .bim-btn { padding: 5px 15px; border-radius: 20px; border: 1px solid #94a3b8; cursor: pointer; background: white; font-weight: 600; }
+        .tab.admin-tab { background: var(--accent); color: white; margin-left: auto; border-radius: 8px; margin-bottom: 5px; }
+
+        .bimester-row { background: #e2e8f0; display: flex; justify-content: center; gap: 15px; padding: 10px; }
+        .bim-btn { padding: 5px 15px; border-radius: 20px; border: 1px solid #94a3b8; cursor: pointer; background: white; font-size: 0.8rem; font-weight: bold; }
         .bim-btn.active { background: var(--accent); color: white; border-color: var(--accent); }
+
         .wrapper { display: flex; flex: 1; overflow: hidden; }
-        .sidebar { width: 380px; background: var(--white); border-right: 1px solid #e2e8f0; padding: 15px; overflow-y: auto; }
-        .main-content { flex: 1; padding: 20px; overflow-y: auto; }
-        .track { background: white; border: 4px solid #334155; border-radius: 15px; padding: 40px 80px 40px 20px; position: relative; min-height: 400px; }
-        .lane { height: 65px; border-bottom: 1px dashed #e2e8f0; position: relative; display: flex; align-items: center; }
+        .sidebar { width: 350px; background: var(--white); border-right: 1px solid #e2e8f0; padding: 15px; overflow-y: auto; }
+        .main-content { flex: 1; padding: 20px; overflow-y: auto; background: #f8fafc; }
+
+        .admin-section { background: #f1f5f9; padding: 15px; border-radius: 10px; margin-bottom: 15px; border: 1px solid #e2e8f0; }
+        .criteria-item { display: flex; gap: 5px; margin-bottom: 8px; align-items: center; background: white; padding: 5px; border-radius: 5px; }
+
+        .student-card { background: white; padding: 12px; border-radius: 8px; margin-bottom: 10px; border: 1px solid #e2e8f0; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .criteria-label { font-size: 0.75rem; font-weight: bold; color: #64748b; margin-top: 8px; display: block; }
+        .check-group { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 5px; }
+        
+        .track { background: white; border: 4px solid #334155; border-radius: 15px; padding: 40px 80px 40px 20px; position: relative; min-height: 450px; }
+        .lane { height: 70px; border-bottom: 1px dashed #e2e8f0; position: relative; display: flex; align-items: center; }
         .finish-line { position: absolute; right: 50px; top: 0; bottom: 0; width: 15px; background: repeating-linear-gradient(0deg, #000, #000 10px, #fff 10px, #fff 20px); }
-        .runner { position: absolute; left: 0; font-size: 35px; transition: left 1s cubic-bezier(0.34, 1.56, 0.64, 1); display: flex; flex-direction: column; align-items: center; }
-        .runner-info { font-size: 11px; font-weight: bold; background: var(--primary); color: white; padding: 2px 6px; border-radius: 10px; white-space: nowrap; margin-bottom: -2px; }
-        .check-grid { display: flex; flex-wrap: wrap; gap: 3px; margin-top: 8px; }
-        .student-item { background: #fff; padding: 10px; border-radius: 8px; margin-bottom: 10px; border: 1px solid #e2e8f0; }
+        .runner { position: absolute; left: 0; font-size: 35px; transition: left 0.8s cubic-bezier(0.34, 1.56, 0.64, 1); display: flex; flex-direction: column; align-items: center; }
+        .runner-info { font-size: 10px; font-weight: bold; background: var(--primary); color: white; padding: 2px 6px; border-radius: 10px; white-space: nowrap; margin-bottom: -2px; }
+
         #report-screen { display: none; background: white; padding: 30px; border-radius: 15px; }
         table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
         th { background: var(--primary); color: white; }
     </style>
 </head>
@@ -48,65 +58,76 @@
     <div id="splash-screen">
         <div class="science-bg" id="science-bg"></div>
         <div class="splash-card">
-            <h1>🔬 BioLab Explorer</h1>
-            <p style="color: #94a3b8;">Sistema de Gestão de Ciências</p>
-            <div id="setup-form" class="setup-fields">
-                <input type="text" id="school-input" placeholder="Nome da Escola">
-                <input type="text" id="teacher-input" placeholder="Nome do(a) Professor(a)">
+            <h1 style="font-family: 'Poppins'; font-size: 2.5rem; color: #10b981;">🔬 BioLab Pro</h1>
+            <div id="setup-form">
+                <input type="text" id="school-input" placeholder="Nome da Escola" style="width:80%; padding:10px; margin-bottom:10px; border-radius:8px; border:none;">
+                <input type="text" id="teacher-input" placeholder="Nome do Professor(a)" style="width:80%; padding:10px; border-radius:8px; border:none;">
             </div>
-            <div id="welcome-display" style="display: none; margin-top: 20px;">
-                <div style="font-size: 1.2rem;">Escola: <b id="display-school"></b></div>
-                <div style="font-size: 1.2rem;">Prof: <b id="display-teacher"></b></div>
-                <button onclick="editSetup()" style="background:none; border:none; color:#94a3b8; cursor:pointer; text-decoration:underline;">Alterar dados</button>
+            <div id="welcome-display" style="display:none;">
+                <h2 id="display-school"></h2>
+                <p id="display-teacher"></p>
+                <button onclick="editSetup()" style="color:#94a3b8; background:none; border:none; cursor:pointer; text-decoration:underline;">Trocar Professor/Escola</button>
             </div>
-            <button class="btn-enter" onclick="enterApp()">INICIAR LABORATÓRIO 🧪</button>
+            <br>
+            <button class="btn-enter" onclick="enterApp()">ACESSAR DIÁRIO 🧪</button>
         </div>
     </div>
 
     <div id="main-app">
         <header>
             <div>
-                <h2 style="margin:0">🧬 Diário de Ciências</h2>
-                <div style="font-size:0.8rem;"><span id="header-school"></span> | <span id="header-teacher"></span></div>
+                <h3 style="margin:0">🧬 BioLab - Ciências</h3>
+                <small id="header-info"></small>
             </div>
             <div>
-                <input type="text" id="subject-name" placeholder="Nova Matéria" style="padding: 8px; border-radius: 5px; border: none;">
-                <button onclick="addSubject()" style="background:var(--success); color:white; border:none; padding:8px 12px; border-radius:5px; cursor:pointer;">+ Matéria</button>
+                <input type="text" id="subject-name" placeholder="Nome da Turma/Matéria" style="padding:8px; border-radius:5px; border:none;">
+                <button onclick="addSubject()" style="background:var(--success); color:white; border:none; padding:8px 15px; border-radius:5px; cursor:pointer; font-weight:bold;">+ Turma</button>
             </div>
         </header>
 
         <div class="nav-container">
-            <div class="tabs-row">
-                <div id="tabs-bar" style="display:flex; gap:5px"></div>
-                <button class="tab admin-tab" onclick="toggleReportScreen()">📊 Relatórios & Backup</button>
-            </div>
-            <div class="bimester-row" id="bim-row">
-                <button class="bim-btn active" onclick="setBimester(1)">1º Bimestre</button>
-                <button class="bim-btn" onclick="setBimester(2)">2º Bimestre</button>
-                <button class="bim-btn" onclick="setBimester(3)">3º Bimestre</button>
-                <button class="bim-btn" onclick="setBimester(4)">4º Bimestre</button>
+            <div class="tabs-row" id="tabs-bar"></div>
+            <div class="bimester-row">
+                <button class="bim-btn active" onclick="setBim(1)">1º Bimestre</button>
+                <button class="bim-btn" onclick="setBim(2)">2º Bimestre</button>
+                <button class="bim-btn" onclick="setBim(3)">3º Bimestre</button>
+                <button class="bim-btn" onclick="setBim(4)">4º Bimestre</button>
+                <button class="tab admin-tab" onclick="toggleReport()">📊 Relatórios & Backup</button>
             </div>
         </div>
 
         <div class="wrapper">
-            <aside class="sidebar" id="sidebar">
-                <div style="background:#f8fafc; padding:10px; border-radius:8px; border:1px solid #e2e8f0; margin-bottom:15px;">
-                    <strong>➕ Alunos</strong>
-                    <textarea id="batch-names" style="width:100%; height:60px; margin:5px 0; border-radius:6px; border:1px solid #cbd5e1;" placeholder="Nomes (um por linha)"></textarea>
-                    <button onclick="addBatchStudents()" style="width:100%; background:var(--primary); color:white; border:none; padding:8px; border-radius:5px; cursor:pointer;">Importar</button>
+            <aside class="sidebar">
+                <div class="admin-section">
+                    <strong>📋 Critérios de Avaliação</strong>
+                    <div id="criteria-list" style="margin: 10px 0;"></div>
+                    <div style="display:flex; gap:5px;">
+                        <input type="text" id="new-crit-name" placeholder="Ex: Prova" style="flex:1; padding:5px;">
+                        <input type="number" id="new-crit-val" placeholder="Pts" style="width:50px; padding:5px;">
+                        <button onclick="addCriteria()" style="background:var(--primary); color:white; border:none; padding:5px 10px; border-radius:4px; cursor:pointer;">+</button>
+                    </div>
+                    <small style="color:#64748b;">* Cada ponto gera 1 quadradinho.</small>
                 </div>
-                <div id="config-materia" style="background:#f8fafc; padding:10px; border-radius:8px; border:1px solid #e2e8f0; margin-bottom:15px;"></div>
-                <div id="sidebar-list"></div>
+
+                <div class="admin-section">
+                    <strong>👥 Adicionar Alunos</strong>
+                    <textarea id="batch-names" placeholder="Um nome por linha" style="width:100%; height:60px; margin-top:5px;"></textarea>
+                    <button onclick="addStudents()" style="width:100%; background:var(--primary); color:white; border:none; padding:8px; border-radius:5px; cursor:pointer; margin-top:5px;">Importar Alunos</button>
+                </div>
+
+                <div id="student-checks"></div>
             </aside>
+
             <main class="main-content">
                 <div id="race-screen">
                     <div class="track" id="track"><div class="finish-line"></div></div>
                 </div>
+
                 <div id="report-screen">
-                    <h2>📊 Central de Dados</h2>
-                    <button onclick="downloadCSV()" style="background:var(--success); color:white; border:none; padding:10px; border-radius:5px; cursor:pointer;">📥 Baixar Excel</button>
-                    <button onclick="exportFullData()" style="background:var(--primary); color:white; border:none; padding:10px; border-radius:5px; cursor:pointer;">💾 Exportar Backup</button>
-                    <input type="file" id="import-file" accept=".json" onchange="importFullData(event)" style="margin-left:10px;">
+                    <h2>📊 Consolidação de Notas</h2>
+                    <button onclick="exportCSV()" style="background:var(--success); color:white; border:none; padding:10px 20px; border-radius:5px; cursor:pointer; font-weight:bold;">📥 Baixar Excel (CSV)</button>
+                    <button onclick="exportJSON()" style="background:var(--primary); color:white; border:none; padding:10px 20px; border-radius:5px; cursor:pointer; font-weight:bold; margin-left:10px;">💾 Backup do Sistema</button>
+                    <input type="file" id="import-json" accept=".json" onchange="importJSON(event)" style="margin-left:10px;">
                     <table id="report-table">
                         <thead><tr><th>Aluno</th><th>1º Bim</th><th>2º Bim</th><th>3º Bim</th><th>4º Bim</th><th>Média Final</th></tr></thead>
                         <tbody id="report-body"></tbody>
@@ -117,158 +138,210 @@
     </div>
 
     <script>
-        const scienceIcons = ['🧬', '⚛️', '🪐', '🔬', '🌱', '🧪', '🌡️', '🧠'];
-        function createFloatingIcons() {
+        // --- LOGICA DE ESTADO ---
+        let state = JSON.parse(localStorage.getItem('biolab_v5')) || {
+            subjects: [],
+            students: [],
+            activeSub: -1,
+            activeBim: 1
+        };
+
+        const icons = ['🧬', '⚛️', '🪐', '🔬', '🌱', '🧪', '🌡️', '🧠'];
+        function createIcons() {
             const bg = document.getElementById('science-bg');
             for(let i=0; i<15; i++) {
-                const icon = document.createElement('div');
-                icon.className = 'sci-icon';
-                icon.innerText = scienceIcons[Math.floor(Math.random()*scienceIcons.length)];
-                icon.style.left = Math.random() * 100 + 'vw';
-                icon.style.animationDelay = Math.random() * 8 + 's';
-                bg.appendChild(icon);
+                const el = document.createElement('div'); el.className = 'sci-icon'; el.innerText = icons[Math.floor(Math.random()*icons.length)];
+                el.style.left = Math.random() * 100 + 'vw'; el.style.animationDelay = Math.random() * 10 + 's'; bg.appendChild(el);
             }
         }
-        createFloatingIcons();
+        createIcons();
 
-        function checkSetup() {
-            const s = localStorage.getItem('schoolName');
-            const t = localStorage.getItem('teacherName');
-            if(s && t) {
-                document.getElementById('setup-form').style.display = 'none';
-                document.getElementById('welcome-display').style.display = 'block';
-                document.getElementById('display-school').innerText = s;
-                document.getElementById('display-teacher').innerText = t;
-                document.getElementById('header-school').innerText = s;
-                document.getElementById('header-teacher').innerText = t;
-            }
-        }
+        function save() { localStorage.setItem('biolab_v5', JSON.stringify(state)); }
 
         function enterApp() {
-            const s = document.getElementById('school-input').value.trim();
-            const t = document.getElementById('teacher-input').value.trim();
-            if(!localStorage.getItem('schoolName')) {
-                if(!s || !t) return alert("Preencha os campos!");
-                localStorage.setItem('schoolName', s); localStorage.setItem('teacherName', t);
+            const s = document.getElementById('school-input').value;
+            const t = document.getElementById('teacher-input').value;
+            if(!localStorage.getItem('school')) {
+                if(!s || !t) return alert("Preencha os dados!");
+                localStorage.setItem('school', s); localStorage.setItem('teacher', t);
             }
             document.getElementById('splash-screen').style.opacity = '0';
-            setTimeout(() => {
+            setTimeout(() => { 
                 document.getElementById('splash-screen').style.display = 'none';
                 document.getElementById('main-app').style.display = 'flex';
-                document.body.style.overflow = 'auto';
-                checkSetup(); render();
-            }, 800);
+                render();
+            }, 500);
         }
 
-        function editSetup() {
-            localStorage.removeItem('schoolName'); localStorage.removeItem('teacherName');
-            document.getElementById('setup-form').style.display = 'flex';
-            document.getElementById('welcome-display').style.display = 'none';
+        function checkSetup() {
+            const s = localStorage.getItem('school'); const t = localStorage.getItem('teacher');
+            if(s) {
+                document.getElementById('setup-form').style.display='none';
+                document.getElementById('welcome-display').style.display='block';
+                document.getElementById('display-school').innerText = s;
+                document.getElementById('display-teacher').innerText = t;
+                document.getElementById('header-info').innerText = `${s} | Prof. ${t}`;
+            }
         }
+        window.onload = checkSetup;
 
-        let emojiPool = ['🏃‍♂️','🏃‍♀️','🚀','🏇','🛹','⛷️','🏄‍♂️','🏄‍♀️','🐱‍🏍','🦄','🦁','🐯','🦒','🦘','🏎️','🏍️','🛸','🏆','🔥','🧪','🧬'];
-        let state = JSON.parse(localStorage.getItem('diarioDataV4')) || { subjects: [], students: [], activeSubjectIdx: -1, activeBim: 1 };
+        function editSetup() { localStorage.clear(); location.reload(); }
 
-        function saveData() { localStorage.setItem('diarioDataV4', JSON.stringify(state)); }
-        function saveAndRender() { saveData(); render(); }
-
+        // --- SISTEMA DE TURMAS E CRITÉRIOS ---
         function addSubject() {
-            const n = document.getElementById('subject-name').value.trim();
-            if(n) { state.subjects.push({ name: n, tasksPerBim: [5, 5, 5, 5] }); state.activeSubjectIdx = state.subjects.length - 1; document.getElementById('subject-name').value = ''; saveAndRender(); }
+            const name = document.getElementById('subject-name').value;
+            if(name) {
+                state.subjects.push({ name, criteria: {1:[], 2:[], 3:[], 4:[]} });
+                state.activeSub = state.subjects.length - 1;
+                document.getElementById('subject-name').value = '';
+                save(); render();
+            }
         }
 
-        function addBatchStudents() {
-            const names = document.getElementById('batch-names').value.split('\n').map(n => n.trim()).filter(n => n !== "");
-            names.forEach(name => {
-                const emoji = emojiPool.length > 0 ? emojiPool.splice(Math.floor(Math.random()*emojiPool.length), 1)[0] : '👤';
-                state.students.push({ name, emoji, scores: {} });
+        function addCriteria() {
+            if(state.activeSub === -1) return alert("Crie uma turma primeiro!");
+            const name = document.getElementById('new-crit-name').value;
+            const val = parseInt(document.getElementById('new-crit-val').value);
+            if(name && val) {
+                state.subjects[state.activeSub].criteria[state.activeBim].push({ name, val });
+                document.getElementById('new-crit-name').value = '';
+                document.getElementById('new-crit-val').value = '';
+                save(); render();
+            }
+        }
+
+        function removeCriteria(idx) {
+            state.subjects[state.activeSub].criteria[state.activeBim].splice(idx, 1);
+            save(); render();
+        }
+
+        function addStudents() {
+            const names = document.getElementById('batch-names').value.split('\n').filter(n => n.trim() !== "");
+            names.forEach(n => {
+                const emoji = icons[Math.floor(Math.random()*icons.length)];
+                state.students.push({ name: n, emoji, scores: {} });
             });
-            document.getElementById('batch-names').value = ''; saveAndRender();
+            document.getElementById('batch-names').value = '';
+            save(); render();
         }
 
-        function toggleTask(si, ti) {
-            const sub = state.subjects[state.activeSubjectIdx].name;
+        function togglePoint(stuIdx, critName, ptIdx) {
+            const subName = state.subjects[state.activeSub].name;
             const bim = state.activeBim;
-            const stu = state.students[si];
-            if(!stu.scores[sub]) stu.scores[sub] = {}; if(!stu.scores[sub][bim]) stu.scores[sub][bim] = [];
-            const tks = stu.scores[sub][bim];
-            const idx = tks.indexOf(ti); idx > -1 ? tks.splice(idx, 1) : tks.push(ti);
-            saveAndRender();
+            const stu = state.students[stuIdx];
+            if(!stu.scores[subName]) stu.scores[subName] = {};
+            if(!stu.scores[subName][bim]) stu.scores[subName][bim] = {};
+            if(!stu.scores[subName][bim][critName]) stu.scores[subName][bim][critName] = [];
+            
+            const arr = stu.scores[subName][bim][critName];
+            const found = arr.indexOf(ptIdx);
+            found > -1 ? arr.splice(found, 1) : arr.push(ptIdx);
+            save(); render();
         }
 
-        function calculateGrade(stu, si, b) {
-            if(si === -1 || !state.subjects[si]) return 0;
-            const sub = state.subjects[si].name;
-            const tot = state.subjects[si].tasksPerBim[b-1];
-            const don = (stu.scores[sub] && stu.scores[sub][b]) ? stu.scores[sub][b].length : 0;
-            return (don / tot) * 10;
+        function calcNote(stu, subIdx, bim) {
+            if(subIdx === -1) return 0;
+            const sub = state.subjects[subIdx];
+            const crits = sub.criteria[bim];
+            let total = 0;
+            crits.forEach(c => {
+                const points = (stu.scores[sub.name] && stu.scores[sub.name][bim] && stu.scores[sub.name][bim][c.name]) ? stu.scores[sub.name][bim][c.name].length : 0;
+                total += points;
+            });
+            return total;
         }
 
-        function toggleReportScreen() {
-            const r = document.getElementById('report-screen'), s = document.getElementById('race-screen'), b = document.getElementById('bim-row'), side = document.getElementById('sidebar');
-            if(r.style.display === 'block') { r.style.display = 'none'; s.style.display = 'block'; b.style.visibility = 'visible'; side.style.display = 'block'; }
-            else { r.style.display = 'block'; s.style.display = 'none'; b.style.visibility = 'hidden'; side.style.display = 'none'; generateReportTable(); }
+        function setBim(b) { state.activeBim = b; render(); }
+
+        function render() {
+            const tabContainer = document.getElementById('tabs-bar');
+            const critList = document.getElementById('criteria-list');
+            const stuChecks = document.getElementById('student-checks');
+            const track = document.getElementById('track');
+
+            // Abas
+            tabContainer.innerHTML = state.subjects.map((s, i) => `
+                <button class="tab ${i === state.activeSub ? 'active' : ''}" onclick="state.activeSub=${i}; render()">${s.name}</button>
+            `).join('');
+
+            // Botões Bimestre
+            document.querySelectorAll('.bim-btn').forEach((b, i) => b.className = (i+1 === state.activeBim) ? 'bim-btn active' : 'bim-btn');
+
+            if(state.activeSub !== -1) {
+                const sub = state.subjects[state.activeSub];
+                const crits = sub.criteria[state.activeBim];
+                
+                // Lista de Critérios na Sidebar
+                critList.innerHTML = crits.map((c, i) => `
+                    <div class="criteria-item">
+                        <span style="flex:1; font-size:0.8rem;">${c.name} (${c.val} pts)</span>
+                        <button onclick="removeCriteria(${i})" style="background:none; border:none; color:red; cursor:pointer;">×</button>
+                    </div>
+                `).join('');
+
+                // Checkboxes dos Alunos
+                stuChecks.innerHTML = state.students.map((stu, si) => {
+                    const nota = calcNote(stu, state.activeSub, state.activeBim);
+                    let html = `<div class="student-card"><strong>${stu.name}</strong> <span style="float:right; color:var(--primary); font-weight:bold;">${nota.toFixed(1)}</span>`;
+                    crits.forEach(c => {
+                        html += `<span class="criteria-label">${c.name}</span><div class="check-group">`;
+                        for(let i=0; i<c.val; i++) {
+                            const checked = (stu.scores[sub.name] && stu.scores[sub.name][state.activeBim] && stu.scores[sub.name][state.activeBim][c.name] && stu.scores[sub.name][state.activeBim][c.name].includes(i)) ? 'checked' : '';
+                            html += `<input type="checkbox" ${checked} onclick="togglePoint(${si}, '${c.name}', ${i})">`;
+                        }
+                        html += `</div>`;
+                    });
+                    html += `</div>`;
+                    return html;
+                }).join('');
+
+                // Pista de Corrida
+                track.querySelectorAll('.lane').forEach(l => l.remove());
+                state.students.forEach(stu => {
+                    const nota = calcNote(stu, state.activeSub, state.activeBim);
+                    const lane = document.createElement('div'); lane.className = 'lane';
+                    lane.innerHTML = `<div class="runner" style="left: ${(nota/10)*85}%"><div class="runner-info">${stu.name} | ${nota.toFixed(1)}</div>${stu.emoji}</div>`;
+                    track.appendChild(lane);
+                });
+            }
         }
 
-        function generateReportTable() {
-            const b = document.getElementById('report-body'); b.innerHTML = '';
-            if(state.activeSubjectIdx === -1) return;
+        function toggleReport() {
+            const s = document.getElementById('report-screen'); const r = document.getElementById('race-screen');
+            if(s.style.display === 'block') { s.style.display = 'none'; r.style.display = 'block'; }
+            else { s.style.display = 'block'; r.style.display = 'none'; genReport(); }
+        }
+
+        function genReport() {
+            const body = document.getElementById('report-body'); body.innerHTML = '';
+            if(state.activeSub === -1) return;
             state.students.forEach(stu => {
-                const b1 = calculateGrade(stu, state.activeSubjectIdx, 1), b2 = calculateGrade(stu, state.activeSubjectIdx, 2), b3 = calculateGrade(stu, state.activeSubjectIdx, 3), b4 = calculateGrade(stu, state.activeSubjectIdx, 4);
+                const b1 = calcNote(stu, state.activeSub, 1), b2 = calcNote(stu, state.activeSub, 2), b3 = calcNote(stu, state.activeSub, 3), b4 = calcNote(stu, state.activeSub, 4);
                 const avg = (b1+b2+b3+b4)/4;
-                b.innerHTML += `<tr><td>${stu.name}</td><td>${b1.toFixed(1)}</td><td>${b2.toFixed(1)}</td><td>${b3.toFixed(1)}</td><td>${b4.toFixed(1)}</td><td><strong>${avg.toFixed(1)}</strong></td></tr>`;
+                body.innerHTML += `<tr><td>${stu.name}</td><td>${b1.toFixed(1)}</td><td>${b2.toFixed(1)}</td><td>${b3.toFixed(1)}</td><td>${b4.toFixed(1)}</td><td><b>${avg.toFixed(1)}</b></td></tr>`;
             });
         }
 
-        function downloadCSV() {
-            if(state.activeSubjectIdx === -1) return;
+        function exportCSV() {
             let csv = "Aluno;1Bim;2Bim;3Bim;4Bim;MediaFinal\n";
             state.students.forEach(stu => {
-                const b1 = calculateGrade(stu, state.activeSubjectIdx, 1).toFixed(1), b2 = calculateGrade(stu, state.activeSubjectIdx, 2).toFixed(1), b3 = calculateGrade(stu, state.activeSubjectIdx, 3).toFixed(1), b4 = calculateGrade(stu, state.activeSubjectIdx, 4).toFixed(1);
-                const avg = ((parseFloat(b1)+parseFloat(b2)+parseFloat(b3)+parseFloat(b4))/4).toFixed(1);
-                csv += `${stu.name};${b1};${b2};${b3};${b4};${avg}\n`;
+                const b1 = calcNote(stu, state.activeSub, 1), b2 = calcNote(stu, state.activeSub, 2), b3 = calcNote(stu, state.activeSub, 3), b4 = calcNote(stu, state.activeSub, 4);
+                csv += `${stu.name};${b1.toFixed(1)};${b2.toFixed(1)};${b3.toFixed(1)};${b4.toFixed(1)};${((b1+b2+b3+b4)/4).toFixed(1)}\n`;
             });
-            const blob = new Blob(["\ufeff" + csv], { type: 'text/csv;charset=utf-8;' });
-            const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = "Relatorio_Ciencias.csv"; a.click();
+            const blob = new Blob(["\ufeff"+csv], {type: 'text/csv;charset=utf-8;'});
+            const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = "Boletim_Biolab.csv"; a.click();
         }
 
-        function exportFullData() {
-            const blob = new Blob([JSON.stringify(state)], { type: 'application/json' });
+        function exportJSON() {
+            const blob = new Blob([JSON.stringify(state)], {type:'application/json'});
             const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = "backup_biolab.json"; a.click();
         }
 
-        function importFullData(e) {
+        function importJSON(e) {
             const reader = new FileReader();
-            reader.onload = (ev) => { state = JSON.parse(ev.target.result); saveAndRender(); location.reload(); };
+            reader.onload = (ev) => { state = JSON.parse(ev.target.result); save(); location.reload(); };
             reader.readAsText(e.target.files[0]);
         }
-
-        function setBimester(b) { state.activeBim = b; saveAndRender(); }
-
-        function render() {
-            const t = document.getElementById('tabs-bar'), l = document.getElementById('sidebar-list'), tr = document.getElementById('track'), c = document.getElementById('config-materia');
-            t.innerHTML = state.subjects.map((s, i) => `<button class="tab ${i === state.activeSubjectIdx ? 'active' : ''}" onclick="state.activeSubjectIdx=${i}; saveAndRender()">${s.name}</button>`).join('');
-            document.querySelectorAll('.bim-btn').forEach((bn, i) => bn.className = (i+1 === state.activeBim) ? 'bim-btn active' : 'bim-btn');
-            if(state.activeSubjectIdx !== -1) {
-                const s = state.subjects[state.activeSubjectIdx];
-                c.innerHTML = `<strong>Atividades (${state.activeBim}º Bim)</strong> <input type="number" value="${s.tasksPerBim[state.activeBim-1]}" onchange="state.subjects[state.activeSubjectIdx].tasksPerBim[state.activeBim-1]=parseInt(this.value); saveAndRender()" style="width:40px">`;
-            }
-            l.innerHTML = ''; tr.querySelectorAll('.lane').forEach(ln => ln.remove());
-            state.students.forEach((stu, si) => {
-                const g = calculateGrade(stu, state.activeSubjectIdx, state.activeBim);
-                let cks = '';
-                if(state.activeSubjectIdx !== -1) {
-                    const tot = state.subjects[state.activeSubjectIdx].tasksPerBim[state.activeBim-1], sub = state.subjects[state.activeSubjectIdx].name;
-                    const don = (stu.scores[sub] && stu.scores[sub][state.activeBim]) ? stu.scores[sub][state.activeBim] : [];
-                    for(let i=0; i<tot; i++) cks += `<input type="checkbox" ${don.includes(i)?'checked':''} onclick="toggleTask(${si}, ${i})">`;
-                }
-                l.innerHTML += `<div class="student-item"><strong>${stu.name}</strong> <span style="float:right">${g.toFixed(1)}</span><div class="check-grid">${cks}</div></div>`;
-                const lane = document.createElement('div'); lane.className = 'lane';
-                lane.innerHTML = `<div class="runner" style="left: ${(g/10)*85}%"><div class="runner-info">${stu.name} | ${g.toFixed(1)}</div>${stu.emoji}</div>`;
-                tr.appendChild(lane);
-            });
-        }
-        window.onload = checkSetup;
     </script>
 </body>
 </html>
