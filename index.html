@@ -3,221 +3,193 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bio-Lab Master v12.1: Cosmic Campus</title>
+    <title>Bio-Lab Master v12.2</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;700&family=Orbitron:wght@600;900&display=swap');
+        :root { --rainbow: linear-gradient(90deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #8f00ff); --neon-blue: #00d2ff; --neon-pink: #ff00e0; }
+        body { margin: 0; padding: 0; height: 100vh; overflow: hidden; font-family: 'Fredoka', sans-serif; background: #050a18; color: white; }
         
-        :root {
-            --rainbow: linear-gradient(90deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #8f00ff);
-            --neon-blue: #00d2ff;
-            --neon-pink: #ff00e0;
-            --glass: rgba(255, 255, 255, 0.1);
-        }
-
-        body {
-            margin: 0; padding: 0; height: 100vh; overflow: hidden;
-            font-family: 'Fredoka', sans-serif;
-            background: #050a18 url('https://images.unsplash.com/photo-1462331940025-496dfbfc7564?q=80&w=2022&auto=format&fit=crop') center/cover no-repeat;
-            color: white;
-        }
-
-        /* TELA DE SPLASH / APRESENTAÇÃO */
-        #splash-screen {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(5, 10, 24, 0.9); backdrop-filter: blur(10px);
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            z-index: 10000; transition: opacity 0.5s;
-        }
-        .splash-card {
-            padding: 50px; border-radius: 40px; border: 4px solid transparent;
-            background: linear-gradient(#050a18, #050a18) padding-box, var(--rainbow) border-box;
-            text-align: center; box-shadow: 0 0 50px rgba(0, 210, 255, 0.4);
-        }
-        .splash-card h1 { font-family: 'Orbitron'; font-size: 3rem; margin: 0; background: var(--rainbow); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-
-        /* INTERFACE PRINCIPAL */
-        #main-app { display: none; flex-direction: column; height: 100vh; position: relative; z-index: 1; }
+        /* FUNDO DINÂMICO */
+        .stars-bg { position: fixed; width: 100%; height: 100%; background: radial-gradient(circle at center, #1b2735 0%, #090a0f 100%); z-index: -1; }
         
-        header {
-            padding: 15px 30px; display: flex; justify-content: space-between; align-items: center;
-            background: rgba(0, 0, 0, 0.5); border-bottom: 3px solid transparent; border-image: var(--rainbow) 1;
-        }
-
-        .editable:hover { cursor: pointer; background: rgba(255,255,255,0.1); border-radius: 5px; }
-
+        /* TELA DE APRESENTAÇÃO */
+        #splash-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(5, 10, 24, 0.98); display: flex; align-items: center; justify-content: center; z-index: 10000; }
+        .splash-card { padding: 40px; border-radius: 30px; border: 3px solid var(--neon-blue); text-align: center; background: #050a18; box-shadow: 0 0 30px var(--neon-blue); width: 90%; max-width: 400px; }
+        
+        /* APP PRINCIPAL */
+        #main-app { display: none; flex-direction: column; height: 100vh; }
+        header { padding: 10px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--neon-blue); background: rgba(0,0,0,0.5); }
         .wrapper { display: flex; flex: 1; overflow: hidden; padding: 10px; gap: 10px; }
+        .sidebar { width: 320px; overflow-y: auto; background: rgba(255,255,255,0.05); padding: 10px; border-radius: 15px; }
         
-        /* SIDEBAR ESTILO NEON */
-        .sidebar { width: 350px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
-        .panel { 
-            background: rgba(0, 0, 0, 0.4); border: 2px solid var(--neon-blue); border-radius: 20px; 
-            overflow: hidden; backdrop-filter: blur(10px);
-        }
-        .panel-header { padding: 12px; background: rgba(0, 210, 255, 0.2); font-weight: 700; display: flex; justify-content: space-between; cursor: pointer; }
-        .panel-content { padding: 15px; }
-        .panel.closed .panel-content { display: none; }
-
-        .btn-cosmic {
-            background: var(--rainbow); border: none; padding: 10px; border-radius: 12px;
-            color: white; font-weight: 900; cursor: pointer; transition: 0.3s; width: 100%;
-        }
-        .btn-cosmic:hover { transform: scale(1.02); filter: brightness(1.2); }
-
-        /* TRACK ESTILO IMAGEM */
-        .track-container { flex: 1; display: flex; flex-direction: column; background: rgba(0,0,0,0.3); border-radius: 30px; border: 2px solid rgba(255,255,255,0.1); padding: 20px; }
-        .track { flex: 1; position: relative; overflow-y: auto; background: url('https://www.transparenttextures.com/patterns/stardust.png'); }
+        /* PISTA DE CORRIDA */
+        .track-container { flex: 1; position: relative; background: rgba(0,0,0,0.3); border-radius: 20px; padding: 20px; overflow-y: auto; }
+        .rainbow-bridge { position: absolute; right: 60px; top: 0; bottom: 0; width: 40px; background: var(--rainbow); opacity: 0.3; border-radius: 20px; }
+        .lane { height: 70px; border-bottom: 1px solid rgba(255,255,255,0.1); position: relative; display: flex; align-items: center; }
+        .runner { position: absolute; transition: 1s ease-in-out; display: flex; flex-direction: column; align-items: center; }
+        .runner-tag { background: white; color: black; font-size: 10px; padding: 2px 6px; border-radius: 5px; font-weight: bold; margin-bottom: 2px; white-space: nowrap; }
         
-        .rainbow-bridge { 
-            position: absolute; right: 80px; top: 10%; bottom: 10%; width: 60px; 
-            background: var(--rainbow); opacity: 0.6; border-radius: 100px; filter: blur(5px);
-        }
-        .finish-line { position: absolute; right: 100px; top: 0; bottom: 0; width: 10px; border-right: 5px dashed white; }
-
-        .lane { height: 75px; border-bottom: 1px solid rgba(255,255,255,0.05); position: relative; display: flex; align-items: center; }
-        .runner { position: absolute; transition: 1.5s cubic-bezier(0.18, 0.89, 0.32, 1.28); display: flex; flex-direction: column; align-items: center; }
-        .runner-tag { background: white; color: black; font-size: 10px; font-weight: 800; padding: 2px 8px; border-radius: 10px; margin-bottom: 5px; white-space: nowrap; }
-        .runner-emoji { font-size: 40px; filter: drop-shadow(0 0 10px white); }
-
-        /* ALUNOS NO SIDEBAR */
-        .student-card { background: var(--glass); border-left: 5px solid var(--neon-pink); padding: 10px; border-radius: 10px; margin-bottom: 8px; }
-        input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--neon-blue); }
-        .check-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; margin-top: 5px; }
-
-        .nav-tabs { display: flex; gap: 5px; padding-bottom: 10px; }
-        .tab-btn { background: var(--glass); border: 2px solid var(--neon-blue); color: white; padding: 8px 15px; border-radius: 15px; cursor: pointer; }
-        .tab-btn.active { background: var(--neon-blue); color: black; font-weight: 800; }
+        /* COMPONENTES */
+        .panel { background: rgba(255,255,255,0.1); border-radius: 10px; margin-bottom: 10px; padding: 10px; }
+        .btn-cosmic { background: var(--rainbow); border: none; color: white; padding: 10px; border-radius: 8px; font-weight: bold; cursor: pointer; width: 100%; margin-top: 5px; }
+        .student-card { background: rgba(0,0,0,0.3); border: 1px solid var(--neon-pink); padding: 8px; border-radius: 10px; margin-bottom: 8px; }
+        .editable { cursor: pointer; border-bottom: 1px dashed var(--neon-blue); }
+        input, textarea { background: #000; color: #fff; border: 1px solid var(--neon-blue); padding: 5px; border-radius: 5px; width: 100%; box-sizing: border-box; }
+        .check-grid { display: flex; flex-wrap: wrap; gap: 3px; margin-top: 5px; }
     </style>
 </head>
 <body>
+    <div class="stars-bg"></div>
 
     <div id="splash-screen">
         <div class="splash-card">
-            <h1>BIO-LAB MASTER</h1>
-            <p style="letter-spacing: 5px; font-weight: 700;">COSMIC CAMPUS EDITION</p>
-            <div style="margin-top: 30px;">
-                <input type="text" id="sch-in" placeholder="NOME DA ESCOLA" style="padding: 12px; border-radius: 10px; border: none; width: 250px;">
-                <input type="text" id="tea-in" placeholder="PROFESSOR(A)" style="padding: 12px; border-radius: 10px; border: none; width: 250px; margin-top: 10px;">
-                <br><br>
-                <button class="btn-cosmic" onclick="enterApp()" style="width: 250px;">ENTRAR NO LAB 🚀</button>
-            </div>
+            <h1 style="font-family:'Orbitron'; color:var(--neon-blue); margin:0;">BIO-LAB</h1>
+            <p>COSMIC CAMPUS v12.2</p>
+            <input type="text" id="sch-in" placeholder="NOME DA ESCOLA" style="margin-bottom:10px;">
+            <input type="text" id="tea-in" placeholder="PROFESSOR(A)">
+            <button class="btn-cosmic" onclick="enterApp()">ENTRAR 🚀</button>
         </div>
     </div>
 
     <div id="main-app">
         <header>
-            <div style="display:flex; align-items:center; gap:15px;">
-                <span style="font-size: 2.5rem;">🧪</span>
-                <div>
-                    <h2 class="editable" id="header-school" onclick="editHeader('sch')">Escola</h2>
-                    <small class="editable" id="header-teacher" onclick="editHeader('tea')">Professor(a)</small>
-                </div>
+            <div>
+                <span class="editable" id="h-sch" onclick="editAny('Escola', 'h-sch', 'sch')">Escola</span> | 
+                <span class="editable" id="h-tea" onclick="editAny('Professor', 'h-tea', 'tea')">Profª</span>
             </div>
-            <div style="display:flex; gap:15px; align-items:center;">
-                <button class="btn-cosmic" onclick="showSplash()" style="padding: 5px 15px; font-size: 12px;">MODO APRESENTAÇÃO</button>
-                <input type="text" id="new-class-name" placeholder="Nova Turma..." style="padding:8px; border-radius:10px; border:none;">
-                <button onclick="addClass()" class="btn-cosmic" style="width: auto;">+ TURMA</button>
+            <div style="display:flex; gap:10px;">
+                <button onclick="showSplash()" style="font-size:10px; cursor:pointer;">MODO APRESENTAÇÃO</button>
+                <button onclick="exportExcel()" style="background:green; color:white; border:none; padding:5px; border-radius:5px; cursor:pointer;">Excel</button>
             </div>
         </header>
 
-        <div class="nav-tabs" id="tabs-bar" style="padding: 10px 30px;"></div>
-
         <div class="wrapper">
             <aside class="sidebar">
-                <div class="panel" id="p1">
-                    <div class="panel-header" onclick="this.parentElement.classList.toggle('closed')">📚 DISCIPLINAS <span>▼</span></div>
-                    <div class="panel-content">
-                        <div id="sub-tabs-bar" style="display:flex; flex-wrap:wrap; gap:5px; margin-bottom:10px;"></div>
-                        <input type="text" id="new-subj" placeholder="Adicionar Matéria..." onkeypress="if(event.key==='Enter') addSubj()">
-                    </div>
+                <div class="panel">
+                    <b>TURMAS</b>
+                    <div id="class-tabs"></div>
+                    <input type="text" id="new-cl" placeholder="+ Turma" onkeypress="if(event.key==='Enter') addClass()">
                 </div>
-
-                <div class="panel" id="p2">
-                    <div class="panel-header" onclick="this.parentElement.classList.toggle('closed')">📋 AVALIAÇÕES <span>▼</span></div>
-                    <div class="panel-content">
-                        <div id="crit-list"></div>
-                        <input type="text" id="new-crit" placeholder="Ex: Maquete, Prova..." onkeypress="if(event.key==='Enter') addCrit()">
+                
+                <div id="student-zone" style="display:none;">
+                    <div class="panel">
+                        <b>MATÉRIAS/ALUNOS</b>
+                        <div id="subj-tabs" style="margin:5px 0;"></div>
+                        <textarea id="names-in" placeholder="Cole nomes e clique importar" style="height:50px;"></textarea>
+                        <button class="btn-cosmic" onclick="importStudents()">IMPORTAR</button>
                     </div>
+                    <div id="stu-list"></div>
                 </div>
-
-                <div class="panel" id="p3">
-                    <div class="panel-header" onclick="this.parentElement.classList.toggle('closed')">👥 ADICIONAR ALUNOS <span>▼</span></div>
-                    <div class="panel-content">
-                        <textarea id="batch-names" placeholder="Cole a lista de nomes..." style="width:100%; height:80px; background:rgba(0,0,0,0.5); color:white; border:1px solid var(--neon-blue); border-radius:10px;"></textarea>
-                        <button onclick="importStudents()" class="btn-cosmic" style="margin-top:10px;">IMPORTAR TODOS</button>
-                    </div>
-                </div>
-
-                <div id="students-list"></div>
             </aside>
 
             <main class="track-container">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-                    <div id="bim-selector" style="display:flex; gap:10px;">
-                        <button class="tab-btn" onclick="setBim(1)" id="b1">1º BIM</button>
-                        <button class="tab-btn" onclick="setBim(2)" id="b2">2º BIM</button>
-                        <button class="tab-btn" onclick="setBim(3)" id="b3">3º BIM</button>
-                        <button class="tab-btn" onclick="setBim(4)" id="b4">4º BIM</button>
-                    </div>
-                    <button onclick="exportExcel()" class="btn-cosmic" style="width: 150px; background: #22c55e;">📊 SALVAR EXCEL</button>
-                </div>
-                
+                <div id="bim-nav" style="margin-bottom:10px; display:flex; gap:5px;"></div>
                 <div class="track" id="track">
                     <div class="rainbow-bridge"></div>
-                    <div class="finish-line"></div>
                 </div>
             </main>
         </div>
     </div>
 
     <script>
-        let state = JSON.parse(localStorage.getItem('biolab_v12.1')) || { classes: [], activeClassIdx: -1, activeBim: 1 };
-        const emojis = ['🚀','🛸','👨‍🚀','👽','👾','🧪','🧬','⚛️','🪐','🌟','🌈','☄️'];
+        let state = JSON.parse(localStorage.getItem('biolab_v12.2')) || { classes: [], activeClassIdx: -1, activeBim: 1 };
+        const emojis = ['🚀','🧬','🧪','🌟','🛸','👾'];
 
-        function save() { localStorage.setItem('biolab_v12.1', JSON.stringify(state)); }
+        function save() { localStorage.setItem('biolab_v12.2', JSON.stringify(state)); }
 
-        function showSplash() { document.getElementById('splash-screen').style.display = 'flex'; document.getElementById('splash-screen').style.opacity = '1'; }
-        
+        function showSplash() { document.getElementById('splash-screen').style.display='flex'; }
+
         function enterApp() {
-            const sch = document.getElementById('sch-in').value || localStorage.getItem('sch');
-            const tea = document.getElementById('tea-in').value || localStorage.getItem('tea');
-            if(sch) { localStorage.setItem('sch', sch); document.getElementById('header-school').innerText = sch; }
-            if(tea) { localStorage.setItem('tea', tea); document.getElementById('header-teacher').innerText = tea; }
-            document.getElementById('splash-screen').style.opacity = '0';
-            setTimeout(() => { document.getElementById('splash-screen').style.display = 'none'; document.getElementById('main-app').style.display = 'flex'; }, 500);
+            const s = document.getElementById('sch-in').value || localStorage.getItem('sch') || 'Escola';
+            const t = document.getElementById('tea-in').value || localStorage.getItem('tea') || 'Professora';
+            localStorage.setItem('sch', s); localStorage.setItem('tea', t);
+            document.getElementById('h-sch').innerText = s;
+            document.getElementById('h-tea').innerText = t;
+            document.getElementById('splash-screen').style.display='none';
+            document.getElementById('main-app').style.display='flex';
             render();
         }
 
-        function editHeader(type) {
-            let newVal = prompt("Editar nome:", type === 'sch' ? localStorage.getItem('sch') : localStorage.getItem('tea'));
-            if(newVal) {
-                localStorage.setItem(type, newVal);
-                document.getElementById(type === 'sch' ? 'header-school' : 'header-teacher').innerText = newVal;
+        function editAny(label, elementId, storageKey) {
+            let val = prompt("Editar " + label, document.getElementById(elementId).innerText);
+            if(val) { 
+                document.getElementById(elementId).innerText = val;
+                if(storageKey) localStorage.setItem(storageKey, val);
             }
         }
 
-        function editStudentName(si) {
-            let cls = state.classes[state.activeClassIdx];
-            let newName = prompt("Editar nome do aluno:", cls.students[si].name);
-            if(newName) { cls.students[si].name = newName; save(); render(); }
+        function editStudent(idx) {
+            let n = prompt("Nome do aluno:", state.classes[state.activeClassIdx].students[idx].name);
+            if(n) { state.classes[state.activeClassIdx].students[idx].name = n; save(); render(); }
         }
 
         function addClass() {
-            const n = document.getElementById('new-class-name').value;
-            if(n) { state.classes.push({ name: n, subjects: ["Ciências"], activeSubjIdx: 0, criteria: [{name: "Atividades", fixed: true}], students: [] }); state.activeClassIdx = state.classes.length - 1; document.getElementById('new-class-name').value=''; save(); render(); }
-        }
-
-        function addSubj() {
-            const n = document.getElementById('new-subj').value;
-            if(n && state.activeClassIdx !== -1) { state.classes[state.activeClassIdx].subjects.push(n); document.getElementById('new-subj').value=''; save(); render(); }
-        }
-
-        function addCrit() {
-            const n = document.getElementById('new-crit').value;
-            if(n && state.activeClassIdx !== -1) { state.classes[state.activeClassIdx].criteria.push({name: n, fixed: false}); document.getElementById('new-crit').value=''; save(); render(); }
+            let n = document.getElementById('new-cl').value;
+            if(n) { state.classes.push({name:n, subjects:['Ciências'], activeSubjIdx:0, students:[]}); state.activeClassIdx = state.classes.length-1; document.getElementById('new-cl').value=''; save(); render(); }
         }
 
         function importStudents() {
-            const names = document.getElementById('batch-names').value.split('\n').filter(x => x.trim());
-            if(state.activeClassIdx === -1) return;
-            names.forEach(n => { state.classes[state.activeClassIdx].students.push({ name: n.trim(), emoji: emojis[Math.floor(Math.random()*emojis.length)], scores: {} }); });
-            state.classes[state.activeClassIdx].
+            let raw = document.getElementById('names-in').value.split('\n').filter(x=>x.trim());
+            raw.forEach(n => state.classes[state.activeClassIdx].students.push({name:n.trim(), emoji:emojis[Math.floor(Math.random()*emojis.length)], scores:{}}));
+            state.classes[state.activeClassIdx].students.sort((a,b)=>a.name.localeCompare(b.name));
+            document.getElementById('names-in').value=''; save(); render();
+        }
+
+        function getScore(stu) {
+            let cls = state.classes[state.activeClassIdx];
+            let key = `${cls.activeSubjIdx}_${state.activeBim}`;
+            return (stu.scores[key] || []).length;
+        }
+
+        function render() {
+            const cls = state.classes[state.activeClassIdx];
+            document.getElementById('class-tabs').innerHTML = state.classes.map((c,i)=>`<button onclick="state.activeClassIdx=${i};render()" style="${i===state.activeClassIdx?'border:2px solid gold':''}">${c.name}</button>`).join(' ');
+            
+            if(cls) {
+                document.getElementById('student-zone').style.display='block';
+                document.getElementById('subj-tabs').innerHTML = cls.subjects.map((s,i)=>`<span class="editable" onclick="state.classes[state.activeClassIdx].activeSubjIdx=${i};render()" style="margin-right:10px;${i===cls.activeSubjIdx?'color:cyan;font-weight:bold':''}">${s}</span>`).join('');
+                document.getElementById('bim-nav').innerHTML = [1,2,3,4].map(b => `<button onclick="state.activeBim=${b};render()" style="${b===state.activeBim?'background:cyan;color:black':''}">${b}º BIM</button>`).join(' ');
+                
+                // Lista lateral
+                document.getElementById('stu-list').innerHTML = cls.students.map((s,i) => {
+                    let key = `${cls.activeSubjIdx}_${state.activeBim}`;
+                    let checks = '';
+                    for(let j=0; j<10; j++) {
+                        let chk = (s.scores[key] && s.scores[key].includes(j)) ? 'checked' : '';
+                        checks += `<input type="checkbox" ${chk} onclick="toggleCheck(${i}, '${key}', ${j})">`;
+                    }
+                    return `<div class="student-card"><span class="editable" onclick="editStudent(${i})">${s.name}</span><div class="check-grid">${checks}</div></div>`;
+                }).join('');
+
+                // Track
+                let t = document.getElementById('track');
+                t.querySelectorAll('.lane').forEach(l=>l.remove());
+                cls.students.forEach(s => {
+                    let sc = getScore(s);
+                    let lane = document.createElement('div'); lane.className='lane';
+                    lane.innerHTML = `<div class="runner" style="left:${sc*9}%"><div class="runner-tag">${s.name}</div><div style="font-size:30px">${s.emoji}</div></div>`;
+                    t.appendChild(lane);
+                });
+            }
+        }
+
+        function toggleCheck(si, key, val) {
+            let s = state.classes[state.activeClassIdx].students[si];
+            if(!s.scores[key]) s.scores[key] = [];
+            let i = s.scores[key].indexOf(val);
+            if(i > -1) s.scores[key].splice(i,1); else s.scores[key].push(val);
+            save(); render();
+        }
+
+        function exportExcel() {
+            let cls = state.classes[state.activeClassIdx];
+            let csv = `Relatorio;${cls.name}\nAluno;Nota\n`;
+            cls.students.forEach(s => csv += `${s.name};${getScore(s)}\n`);
+            let blob = new Blob(["\ufeff"+csv], {type:'text/csv'});
+            let a = document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=`${cls.name}.csv`; a.click();
+        }
+
+        window.onload = () => { if(localStorage.getItem('sch')) enterApp(); };
+    </script>
+</body>
+</html>
