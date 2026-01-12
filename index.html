@@ -148,4 +148,48 @@
             document.getElementById('header-info').innerText = `${localStorage.getItem('sch') || 'Escola'} | Profª ${localStorage.getItem('tea') || 'Docente'}`;
             document.getElementById('tabs-bar').innerHTML = state.classes.map((c, i) => `<button class="tab-btn ${i===state.activeClassIdx?'active':''}" onclick="state.activeClassIdx=${i}; render()">${c.name}</button>`).join('');
             if(cls) {
-                document.
+                document.getElementById('sub-tabs-bar').innerHTML = cls.subjects.map((s, i) => `<button class="sub-tab ${i===cls.activeSubjIdx?'active':''}" onclick="state.classes[state.activeClassIdx].activeSubjIdx=${i}; render()">${s}</button>`).join('');
+                document.getElementById('criteria-list').innerHTML = cls.criteria.map((c, i) => `<div style="font-size:0.7rem; margin-bottom:5px;">${c.name} <span onclick="state.classes[state.activeClassIdx].criteria.splice(${i},1); render(); save();" style="color:red; cursor:pointer;">[x]</span></div>`).join('');
+                document.getElementById('students-list').innerHTML = cls.students.map((stu, si) => {
+                    const grade = calculateGrade(stu);
+                    let html = `<div class="student-card"><b>${stu.name}</b> (Média: ${grade.toFixed(1)})`;
+                    cls.criteria.forEach(c => {
+                        const key = `${cls.activeSubjIdx}_${state.activeBim}_${c.name}`;
+                        if(c.fixed) {
+                            html += `<div class="check-grid">`;
+                            for(let i=0; i<cls.totalTasks; i++) {
+                                const chk = (stu.scores[key] && stu.scores[key].includes(i)) ? 'checked' : '';
+                                html += `<input type="checkbox" ${chk} onclick="if(!state.classes[${state.activeClassIdx}].students[${si}].scores['${key}']) state.classes[${state.activeClassIdx}].students[${si}].scores['${key}']=[]; const idx=state.classes[${state.activeClassIdx}].students[${si}].scores['${key}'].indexOf(${i}); idx>-1?state.classes[${state.activeClassIdx}].students[${si}].scores['${key}'].splice(idx,1):state.classes[${state.activeClassIdx}].students[${si}].scores['${key}'].push(${i}); render(); save();">`;
+                            }
+                            html += `</div>`;
+                        } else {
+                            html += `<input type="number" placeholder="${c.name}" value="${stu.scores[key]||''}" onchange="state.classes[${state.activeClassIdx}].students[${si}].scores['${key}']=parseFloat(this.value)||0; render(); save();" style="margin-top:5px;">`;
+                        }
+                    });
+                    return html + `</div>`;
+                }).join('');
+                const track = document.getElementById('track'); track.querySelectorAll('.lane').forEach(l => l.remove());
+                cls.students.forEach(stu => {
+                    const grade = calculateGrade(stu);
+                    const lane = document.createElement('div'); lane.className = 'lane';
+                    lane.innerHTML = `<div class="runner" style="left: ${(grade/10)*85}%"><div class="runner-tag">${stu.name}</div>${stu.emoji}</div>`;
+                    track.appendChild(lane);
+                });
+            }
+        }
+
+        function exportToExcel() {
+            const cls = state.classes[state.activeClassIdx];
+            let csv = `Escola: ${localStorage.getItem('sch')}\nProfessora: ${localStorage.getItem('tea')}\nTurma: ${cls.name}\n\nAluno;Media\n`;
+            cls.students.forEach(s => { csv += `${s.name};${calculateGrade(s).toFixed(1)}\n`; });
+            const blob = new Blob(["\ufeff" + csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement("a"); link.href = URL.createObjectURL(blob);
+            link.download = `Relatorio_${cls.name}.csv`; link.click();
+        }
+
+        function downloadBackup() { const b = new Blob([JSON.stringify(state)], {type:'application/json'}); const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = "backup.json"; a.click(); }
+        
+        window.onload = () => { if(localStorage.getItem('sch')) enterApp(); };
+    </script>
+</body>
+</html>
