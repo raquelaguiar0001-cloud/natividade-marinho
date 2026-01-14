@@ -3,203 +3,148 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bio-Lab Master v16.1 - Estável</title>
+    <title>Bio-Lab Master v16.2 - Proteção Total</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Orbitron:wght@700&display=swap');
-        
         * { box-sizing: border-box; -webkit-font-smoothing: antialiased; }
-
-        body {
-            font-family: 'Fredoka', sans-serif;
-            margin: 0; height: 100vh; overflow: hidden;
-            background: radial-gradient(circle, #ffffff 0%, #d0e1f9 100%);
-            font-size: 19px; color: #1a2a3a;
-        }
-
+        body { font-family: 'Fredoka', sans-serif; margin: 0; height: 100vh; overflow: hidden; background: radial-gradient(circle, #ffffff 0%, #d0e1f9 100%); color: #1a2a3a; }
         #main-app { display: flex; flex-direction: column; height: 100vh; }
-
-        header {
-            background: white; padding: 10px 25px; display: flex; justify-content: space-between;
-            align-items: center; border-bottom: 5px solid #00d2ff; box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            z-index: 10;
-        }
-
-        .identity { text-align: center; flex: 1; }
-        .school-info { font-family: 'Orbitron', sans-serif; font-size: 1.1rem; color: #1a2a3a; cursor: pointer; }
-
+        header { background: white; padding: 10px 25px; display: flex; justify-content: space-between; align-items: center; border-bottom: 5px solid #00d2ff; box-shadow: 0 4px 15px rgba(0,0,0,0.1); z-index: 10; }
         .wrapper { display: flex; flex: 1; overflow: hidden; padding: 15px; gap: 15px; }
         .sidebar { width: 380px; display: flex; flex-direction: column; gap: 8px; flex-shrink: 0; }
-        
-        .panel { background: white; border-radius: 12px; border: 2px solid #00d2ff; overflow: hidden; transition: 0.3s; }
-        .panel-header { 
-            padding: 10px 15px; background: #f0faff; cursor: pointer; 
-            display: flex; justify-content: space-between; align-items: center;
-            font-weight: 700; font-size: 0.75rem; color: #0088aa; text-transform: uppercase;
-        }
-        .panel.closed .panel-content { display: none; }
+        .panel { background: white; border-radius: 12px; border: 2px solid #00d2ff; overflow: hidden; }
+        .panel-header { padding: 10px 15px; background: #f0faff; cursor: pointer; display: flex; justify-content: space-between; font-weight: 700; font-size: 0.75rem; color: #0088aa; }
         .panel-content { padding: 12px; border-top: 1px solid #e0f0f0; }
-
-        .students-scroll { flex: 1; overflow-y: auto; padding-right: 5px; margin-top: 5px; }
-        .student-card { background: white; border-radius: 10px; margin-bottom: 6px; border: 2px solid #eee; }
-        .card-header { padding: 8px 12px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; font-weight: 700; font-size: 0.95rem; }
-        .card-body { padding: 12px; border-top: 1px solid #eee; background: #fcfcfc; display: none; }
-        .student-card.open .card-body { display: block; border-left: 6px solid #2ecc71; }
-
-        .track-container { flex: 1; background: #0b131a; border-radius: 30px; padding: 15px; position: relative; border: 6px solid #fff; box-shadow: inset 0 0 50px #000; overflow-y: auto; }
-        
+        .closed .panel-content { display: none; }
+        .students-scroll { flex: 1; overflow-y: auto; margin-top: 5px; }
+        .student-card { background: white; border-radius: 10px; margin-bottom: 6px; border: 2px solid #eee; padding: 8px; cursor: pointer; }
+        .track-container { flex: 1; background: #0b131a; border-radius: 30px; padding: 15px; position: relative; border: 6px solid #fff; overflow-y: auto; }
         body.fullscreen-mode .sidebar, body.fullscreen-mode header { display: none !important; }
-        body.fullscreen-mode .track-container { border-radius: 0; border: none; }
-
         .lane { border-bottom: 1px dashed rgba(255,255,255,0.08); position: relative; display: flex; align-items: center; }
-        .runner { position: absolute; transition: 2s cubic-bezier(0.17, 0.67, 0.83, 0.67); display: flex; align-items: center; gap: 8px; }
-        
-        .runner-tag { background: white; padding: 2px 6px; border-radius: 5px; font-weight: 900; border: 2px solid #00d2ff; white-space: nowrap; }
-        .score-bad { color: #e74c3c; } .score-good { color: #27ae60; } 
-        .runner-emoji { cursor: pointer; filter: drop-shadow(0 0 5px #00d2ff); line-height: 1; }
-
-        .check-grid { display: flex; flex-wrap: wrap; gap: 4px; }
-        .check-box { width: 32px; height: 32px; border: 2px solid #ddd; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 13px; cursor: pointer; background: white; font-weight: bold; }
+        .runner { position: absolute; transition: 2s; display: flex; align-items: center; gap: 8px; }
+        .runner-tag { background: white; padding: 2px 6px; border-radius: 5px; font-weight: 900; border: 2px solid #00d2ff; white-space: nowrap; font-size: 10px; }
+        .check-grid { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 5px; }
+        .check-box { width: 28px; height: 28px; border: 2px solid #ddd; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 11px; cursor: pointer; }
         .check-box.active { background: #2ecc71; color: white; border-color: #27ae60; }
-
-        .indicator { background: #1a2a3a; color: #00d2ff; padding: 8px 15px; border-radius: 10px; font-family: 'Orbitron'; font-size: 0.7rem; border: 2px solid #00d2ff; }
-        .backup-bar { background: #f8f9fa; padding: 6px; border-radius: 10px; display: flex; gap: 6px; border: 1px dashed #ccc; align-items: center; }
-        .btn-mini { padding: 3px 6px; font-size: 10px; cursor: pointer; border-radius: 4px; border: 1px solid #ddd; font-weight: bold; background: white; }
-
-        #fs-controls { position: fixed; top: 20px; right: 20px; display: none; background: rgba(255,255,255,0.9); padding: 10px; border-radius: 15px; border: 3px solid #00d2ff; z-index: 1000; gap: 10px; }
+        #fs-controls { position: fixed; top: 20px; right: 20px; display: none; background: white; padding: 10px; border-radius: 15px; border: 3px solid #00d2ff; z-index: 1000; gap: 10px; }
         body.fullscreen-mode #fs-controls { display: flex; }
     </style>
 </head>
 <body>
 
     <div id="fs-controls">
-        <button onclick="changeZoom(5)" class="btn-mini" style="font-size: 20px;">+</button>
-        <button onclick="changeZoom(-5)" class="btn-mini" style="font-size: 20px;">-</button>
-        <button onclick="toggleFS()" style="background:#e74c3c; color:white; border:none; padding:8px 15px; border-radius:8px; font-weight:bold; cursor:pointer;">SAIR</button>
+        <button onclick="changeZoom(5)">➕</button>
+        <button onclick="changeZoom(-5)">➖</button>
+        <button onclick="toggleFS()" style="background:red; color:white;">SAIR</button>
     </div>
 
     <div id="main-app">
         <header>
-            <div class="indicator" id="info-turma">TURMA: ---</div>
-            <div class="identity">
-                <div class="school-info" onclick="editL('sch')"><span id="disp-sch">ESCOLA</span></div>
-                <div style="font-size: 0.8rem; font-weight: bold; color: #7f8c8d;" onclick="editL('tea')">PROF: <span id="disp-tea">NOME</span></div>
+            <div id="info-turma" style="font-weight:bold; background:#1a2a3a; color:#00d2ff; padding:5px 10px; border-radius:8px;">TURMA: ---</div>
+            <div style="text-align:center;">
+                <b onclick="editL('sch')" id="disp-sch">ESCOLA</b><br>
+                <small onclick="editL('tea')" id="disp-tea">PROFESSOR</small>
             </div>
             <div style="display:flex; gap:10px;">
-                <button onclick="toggleFS()" style="background:#9b59b6; border:none; color:white; padding:10px 15px; border-radius:10px; font-weight:bold; cursor:pointer; font-size: 0.8rem;">📺 TELA CHEIA</button>
-                <button onclick="exportExcel()" style="background:#27ae60; border:none; color:white; padding:10px 15px; border-radius:10px; font-weight:bold; cursor:pointer; font-size: 0.8rem;">📊 EXCEL</button>
+                <button onclick="toggleFS()" style="background:#9b59b6; color:white; border:none; padding:8px; border-radius:8px; cursor:pointer;">📺 TELA CHEIA</button>
+                <button onclick="exportExcel()" style="background:#27ae60; color:white; border:none; padding:8px; border-radius:8px; cursor:pointer;">📊 EXCEL</button>
             </div>
         </header>
 
         <div class="wrapper">
             <aside class="sidebar">
-                <div class="backup-bar">
-                    <button class="btn-mini" onclick="createBackup()">CRIAR BACKUP</button>
-                    <button class="btn-mini" onclick="document.getElementById('fileIn').click()">RESTAURAR</button>
+                <div style="background:#fff; padding:10px; border-radius:12px; border:2px solid #ccc; display:flex; gap:5px;">
+                    <button onclick="createBackup()" style="flex:1; font-size:10px;">💾 SALVAR BACKUP</button>
+                    <button onclick="document.getElementById('fileIn').click()" style="flex:1; font-size:10px;">📂 ABRIR BACKUP</button>
                     <input type="file" id="fileIn" style="display:none" onchange="restoreBackup(event)">
                 </div>
 
                 <div class="panel" id="p-turmas">
-                    <div class="panel-header" onclick="toggleP('p-turmas')">🏫 TURMAS <span id="icon-p-turmas">▲</span></div>
+                    <div class="panel-header" onclick="this.parentElement.classList.toggle('closed')">🏫 TURMAS E CONFIGS <span>↕</span></div>
                     <div class="panel-content">
-                        <div id="class-tabs" style="display:flex; gap:4px; flex-wrap:wrap; margin-bottom:10px;"></div>
-                        <input type="text" id="in-cl" placeholder="+ Turma e Enter" onkeypress="if(event.key==='Enter') addC()" style="width:100%; padding:8px; border-radius:6px;">
-                        <div id="subj-tabs" style="display:flex; gap:4px; flex-wrap:wrap; margin:10px 0;"></div>
-                        <input type="text" id="in-sb" placeholder="+ Matéria e Enter" onkeypress="if(event.key==='Enter') addS()" style="width:100%; padding:8px; border-radius:6px;">
-                    </div>
-                </div>
-
-                <div class="panel closed" id="p-crit">
-                    <div class="panel-header" onclick="toggleP('p-crit')">📋 CRITÉRIOS <span id="icon-p-crit">▼</span></div>
-                    <div class="panel-content">
-                        Vistos: <input type="number" id="tot-at" value="10" onchange="upTot(this.value)" style="width:50px;">
-                        <div id="crit-list" style="margin:10px 0;"></div>
-                        <input type="text" id="in-cr" placeholder="Critério..." style="width:70%; padding:5px;">
-                        <button onclick="addCrit()">+</button>
+                        <div id="class-tabs" style="display:flex; gap:3px; flex-wrap:wrap; margin-bottom:8px;"></div>
+                        <input type="text" id="in-cl" placeholder="+ Nova Turma e Enter" onkeypress="if(event.key==='Enter') addC()" style="width:100%; padding:5px;">
+                        <div id="subj-tabs" style="display:flex; gap:3px; margin-top:8px;"></div>
+                        <input type="text" id="in-sb" placeholder="+ Nova Matéria" onkeypress="if(event.key==='Enter') addS()" style="width:100%; padding:5px; margin-top:5px;">
+                        <button onclick="if(confirm('Limpar tudo? Faça backup antes!')){localStorage.clear(); location.reload();}" style="width:100%; margin-top:10px; font-size:9px; background:#ffeded; color:red; border:1px solid red;">⚠️ LIMPAR SISTEMA (RESET)</button>
                     </div>
                 </div>
 
                 <div class="panel closed" id="p-alun">
-                    <div class="panel-header" onclick="toggleP('p-alun')">👥 ALUNOS <span id="icon-p-alun">▼</span></div>
+                    <div class="panel-header" onclick="this.parentElement.classList.toggle('closed')">👥 LISTA DE ALUNOS <span>↕</span></div>
                     <div class="panel-content">
-                        <textarea id="in-nm" placeholder="Nomes..." style="width:100%; height:40px;"></textarea>
-                        <button onclick="impSt()" style="width:100%; padding:8px; margin-top:5px;">IMPORTAR</button>
+                        <textarea id="in-nm" placeholder="Cole os nomes (um por linha)..." style="width:100%; height:50px;"></textarea>
+                        <button onclick="impSt()" style="width:100%; margin-top:5px;">IMPORTAR LISTA</button>
                     </div>
                 </div>
 
-                <div id="count-label" style="font-size: 0.75rem; font-weight: bold; color: #666; margin: 10px 0 0 5px;">LISTA DE ALUNOS:</div>
+                <div id="count-label" style="font-size:11px; font-weight:bold; margin-top:10px;">ALUNOS:</div>
                 <div class="students-scroll" id="stu-list"></div>
             </aside>
 
             <main class="track-container">
-                <div id="bim-tabs" style="display:flex; gap:8px; margin-bottom:15px; justify-content:center;"></div>
-                <div class="track" id="track"></div>
+                <div id="bim-tabs" style="display:flex; gap:5px; justify-content:center; margin-bottom:10px;"></div>
+                <div id="track"></div>
             </main>
         </div>
     </div>
 
     <script>
         let state = { cs: [], ci: -1, b: 1, zoom: 45 };
-        try {
-            const saved = localStorage.getItem('biolab_v15');
-            if(saved) state = Object.assign(state, JSON.parse(saved));
-        } catch(e) { console.error("Erro ao carregar dados"); }
+        const emojis = ['🚀','⚛️','🧬','🧪','🪐','🛸','👾','🌿','🦠','🔭','👨‍🔬','👩‍🔬','🌍','☀️','💎','🌡️'];
 
-        const emojis = ['🚀','⚛️','🧬','🧪','🪐','🛸','👾','🌿','🦠','🔭','👨‍🔬','👩‍🔬','🌍','☀️','💎','🌡️','🛰️'];
+        function load() {
+            try {
+                const data = localStorage.getItem('biolab_v15');
+                if(data) {
+                    const parsed = JSON.parse(data);
+                    state = Object.assign(state, parsed);
+                }
+            } catch(e) { console.error("Erro ao carregar dados."); }
+            render();
+        }
 
         function save() { localStorage.setItem('biolab_v15', JSON.stringify(state)); }
-        function toggleP(id) { document.getElementById(id).classList.toggle('closed'); }
-        function toggleFS() { document.body.classList.toggle('fullscreen-mode'); render(); }
-        function changeZoom(val) { state.zoom = Math.max(20, Math.min(120, (state.zoom || 45) + val)); save(); render(); }
-        function editL(k) { let n = prompt("Editar:", localStorage.getItem(k)); if(n){ localStorage.setItem(k,n); location.reload(); }}
 
-        function addC() { let v = document.getElementById('in-cl').value; if(v){ state.cs.push({n:v, ss:['Ciências'], si:0, totA: 10, crits:[], st:[]}); state.ci=state.cs.length-1; document.getElementById('in-cl').value=''; save(); render(); }}
+        function addC() { let v = document.getElementById('in-cl').value; if(v){ state.cs.push({n:v, ss:['Ciências'], si:0, totA:10, crits:[], st:[]}); state.ci=state.cs.length-1; document.getElementById('in-cl').value=''; save(); render(); }}
         function addS() { let v = document.getElementById('in-sb').value; if(v && state.ci>-1){ state.cs[state.ci].ss.push(v); document.getElementById('in-sb').value=''; save(); render(); }}
-        function delSubj(idx) { if(confirm("Excluir matéria?")){ state.cs[state.ci].ss.splice(idx,1); save(); render(); }}
-
         function impSt() {
             let names = document.getElementById('in-nm').value.split('\n').filter(x=>x.trim());
-            if(state.ci===-1) return alert("Crie uma turma!");
-            names.forEach(n => state.cs[state.ci].st.push({n:n.trim(), sc:{}, open: false, em: emojis[Math.floor(Math.random()*emojis.length)]}));
+            if(state.ci===-1) return alert("Crie uma turma primeiro!");
+            names.forEach(n => state.cs[state.ci].st.push({n:n.trim(), sc:{}, open:false, em:emojis[Math.floor(Math.random()*emojis.length)]}));
             state.cs[state.ci].st.sort((a,b)=>a.n.localeCompare(b.n));
             document.getElementById('in-nm').value=''; save(); render();
         }
 
         function getScore(stu) {
             const c = state.cs[state.ci]; if(!c) return 0;
-            let sum = 0, kA = `${c.si}_${state.b}_ativ`;
-            sum += c.totA > 0 ? ((stu.sc[kA] || []).length / c.totA) * 10 : 0;
-            c.crits.forEach(cr => sum += parseFloat(stu.sc[`${c.si}_${state.b}_${cr.n}`] || 0));
-            return sum / (c.crits.length + 1);
+            let kA = `${c.si}_${state.b}_ativ`, vists = (stu.sc[kA] || []).length;
+            return (vists / (c.totA || 10)) * 10;
         }
 
         function render() {
             const c = state.cs[state.ci];
             document.getElementById('disp-sch').innerText = localStorage.getItem('sch') || 'ESCOLA';
-            document.getElementById('disp-tea').innerText = localStorage.getItem('tea') || 'PROFESSOR(A)';
+            document.getElementById('disp-tea').innerText = localStorage.getItem('tea') || 'PROFESSOR';
             
             if(c) {
-                document.getElementById('count-label').innerText = `LISTA DE ALUNOS (${c.st.length}):`;
                 document.getElementById('info-turma').innerText = `TURMA: ${c.n}`;
-                document.getElementById('info-materia').innerText = `MATÉRIA: ${c.ss[c.si] || '---'}`;
-                
+                document.getElementById('count-label').innerText = `ALUNOS: ${c.st.length}`;
                 document.getElementById('class-tabs').innerHTML = state.cs.map((x,i)=>`<button onclick="state.ci=${i};render();save();" style="background:${i===state.ci?'#00d2ff':'#eee'}">${x.n}</button>`).join('');
-                document.getElementById('subj-tabs').innerHTML = c.ss.map((s,i)=>`<div style="background:${i===c.si?'#2ecc71':'#eee'}"><span onclick="state.cs[state.ci].si=${i};render();save();">${s}</span> <span onclick="delSubj(${i})" style="color:red; cursor:pointer">✖</span></div>`).join('');
+                document.getElementById('subj-tabs').innerHTML = c.ss.map((s,i)=>`<button onclick="state.cs[state.ci].si=${i};render();save();" style="background:${i===c.si?'#2ecc71':'#eee'}">${s}</button>`).join('');
                 
                 document.getElementById('stu-list').innerHTML = c.st.map((stu, si) => {
                     let kA = `${c.si}_${state.b}_ativ`, chs = '';
                     for(let i=0; i<c.totA; i++) chs += `<div class="check-box ${(stu.sc[kA]||[]).includes(i)?'active':''}" onclick="tglA(${si},'${kA}',${i})">${i+1}</div>`;
-                    return `<div class="student-card ${stu.open?'open':''}">
-                        <div class="card-header" onclick="toggleStu(${si})">${stu.n}</div>
-                        <div class="card-body"><div class="check-grid">${chs}</div></div>
-                    </div>`;
+                    return `<div class="student-card"><b>${stu.n}</b><div class="check-grid">${chs}</div></div>`;
                 }).join('');
 
                 const track = document.getElementById('track'); track.innerHTML = '';
                 const z = state.zoom || 45;
-                c.st.forEach((stu, si) => {
+                c.st.forEach((stu) => {
                     let g = getScore(stu);
                     let lane = document.createElement('div'); lane.className='lane'; lane.style.height = z + 'px';
-                    lane.innerHTML = `<div class="runner" style="left:${g*8.5}%"><div class="runner-emoji" style="font-size:${z*0.7}px">${stu.em}</div><div class="runner-tag" style="font-size:${z*0.3}px">${stu.n} | ${g.toFixed(1)}</div></div>`;
+                    lane.innerHTML = `<div class="runner" style="left:${g*8.5}%"><div style="font-size:${z*0.7}px">${stu.em}</div><div class="runner-tag">${stu.n} | ${g.toFixed(1)}</div></div>`;
                     track.appendChild(lane);
                 });
             }
@@ -212,23 +157,14 @@
             if(p > -1) a.splice(p, 1); else a.push(idx);
             save(); render();
         }
-        function toggleStu(si) { state.cs[state.ci].st[si].open = !state.cs[state.ci].st[si].open; render(); }
-        function addCrit() { let v = document.getElementById('in-cr').value; if(v){ state.cs[state.ci].crits.push({n:v}); save(); render(); }}
-        function upTot(v) { state.cs[state.ci].totA = parseInt(v); save(); render(); }
-        function createBackup() { 
-            const blob = new Blob([JSON.stringify({state, sch:localStorage.getItem('sch'), tea:localStorage.getItem('tea')})], {type:'application/json'});
-            const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `Backup_BioLab.json`; a.click();
-        }
-        function restoreBackup(e) {
-            const reader = new FileReader();
-            reader.onload = (ev) => { const data = JSON.parse(ev.target.result); state = data.state; save(); render(); alert("OK!"); };
-            reader.readAsText(e.target.files[0]);
-        }
-        function exportExcel() {
-            let csv = `ALUNO;NOTA\n` + state.cs[state.ci].st.map(s => `${s.n};${getScore(s).toFixed(1)}`).join('\n');
-            let a = document.createElement('a'); a.href = URL.createObjectURL(new Blob(["\ufeff"+csv], {type:'text/csv'})); a.download = `Notas.csv`; a.click();
-        }
-        window.onload = render;
+        function toggleFS() { document.body.classList.toggle('fullscreen-mode'); render(); }
+        function changeZoom(v) { state.zoom = Math.max(20, (state.zoom||45)+v); save(); render(); }
+        function editL(k) { let n=prompt("Editar:", localStorage.getItem(k)); if(n){localStorage.setItem(k,n); render();}}
+        function createBackup() { let b=new Blob([JSON.stringify({state,sch:localStorage.getItem('sch'),tea:localStorage.getItem('tea')})],{type:'application/json'}); let a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download='Backup.json'; a.click(); }
+        function restoreBackup(e) { let r=new FileReader(); r.onload=(ev)=>{ let d=JSON.parse(ev.target.result); state=d.state; localStorage.setItem('sch',d.sch); localStorage.setItem('tea',d.tea); save(); render(); }; r.readAsText(e.target.files[0]); }
+        function exportExcel() { let csv="ALUNO;NOTA\n"+state.cs[state.ci].st.map(s=>`${s.n};${getScore(s).toFixed(1)}`).join('\n'); window.open('data:text/csv;charset=utf-8,'+escape(csv)); }
+
+        window.onload = load;
     </script>
 </body>
 </html>
