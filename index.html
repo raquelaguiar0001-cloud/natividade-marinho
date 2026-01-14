@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bio-Lab Master v16.3 - Estabilidade Total</title>
+    <title>Bio-Lab Master v16.5 - Seguro e Editável</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Orbitron:wght@700&display=swap');
         * { box-sizing: border-box; -webkit-font-smoothing: antialiased; }
@@ -17,7 +17,7 @@
         .panel-content { padding: 12px; border-top: 1px solid #e0f0f0; }
         .closed .panel-content { display: none; }
         .students-scroll { flex: 1; overflow-y: auto; margin-top: 5px; }
-        .student-card { background: white; border-radius: 10px; margin-bottom: 6px; border: 2px solid #eee; padding: 10px; }
+        .student-card { background: white; border-radius: 10px; margin-bottom: 8px; border: 2px solid #eee; padding: 10px; position: relative; }
         .track-container { flex: 1; background: #0b131a; border-radius: 30px; padding: 15px; position: relative; border: 6px solid #fff; overflow-y: auto; }
         body.fullscreen-mode .sidebar, body.fullscreen-mode header { display: none !important; }
         .lane { border-bottom: 1px dashed rgba(255,255,255,0.08); position: relative; display: flex; align-items: center; }
@@ -28,6 +28,8 @@
         .check-box.active { background: #2ecc71; color: white; border-color: #27ae60; }
         #fs-controls { position: fixed; top: 20px; right: 20px; display: none; background: white; padding: 10px; border-radius: 15px; border: 3px solid #00d2ff; z-index: 1000; gap: 10px; }
         body.fullscreen-mode #fs-controls { display: flex; }
+        .btn-edit { background: #f1c40f; color: black; border: none; padding: 2px 8px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: bold; }
+        .btn-del { background: #e74c3c; color: white; border: none; padding: 2px 8px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -35,7 +37,7 @@
     <div id="fs-controls">
         <button onclick="changeZoom(5)">➕</button>
         <button onclick="changeZoom(-5)">➖</button>
-        <button onclick="toggleFS()" style="background:red; color:white;">SAIR</button>
+        <button onclick="toggleFS()" style="background:red; color:white; border:none; padding:5px 15px; border-radius:8px; cursor:pointer;">SAIR</button>
     </div>
 
     <div id="main-app">
@@ -54,8 +56,8 @@
         <div class="wrapper">
             <aside class="sidebar">
                 <div style="background:#fff; padding:10px; border-radius:12px; border:2px solid #ccc; display:flex; gap:5px;">
-                    <button onclick="createBackup()" style="flex:1; font-size:10px;">💾 SALVAR BACKUP</button>
-                    <button onclick="document.getElementById('fileIn').click()" style="flex:1; font-size:10px;">📂 ABRIR BACKUP</button>
+                    <button onclick="createBackup()" style="flex:1; font-size:10px; cursor:pointer;">💾 SALVAR BACKUP</button>
+                    <button onclick="document.getElementById('fileIn').click()" style="flex:1; font-size:10px; cursor:pointer;">📂 ABRIR BACKUP</button>
                     <input type="file" id="fileIn" style="display:none" onchange="restoreBackup(event)">
                 </div>
 
@@ -76,16 +78,15 @@
                         <strong>Outros Critérios:</strong>
                         <div id="crit-list" style="margin:8px 0;"></div>
                         <input type="text" id="in-cr" placeholder="Ex: Prova, Trabalho..." style="width:70%; padding:5px;">
-                        <button onclick="addCrit()">+</button>
-                        <button onclick="if(confirm('Resetar sistema?')){localStorage.clear(); location.reload();}" style="width:100%; margin-top:15px; font-size:9px; color:red;">⚠️ RESETAR TUDO</button>
+                        <button onclick="addCrit()" style="cursor:pointer;">+</button>
                     </div>
                 </div>
 
                 <div class="panel closed" id="p-alun">
                     <div class="panel-header" onclick="this.parentElement.classList.toggle('closed')">👥 IMPORTAR ALUNOS <span>↕</span></div>
                     <div class="panel-content">
-                        <textarea id="in-nm" placeholder="Nomes..." style="width:100%; height:50px;"></textarea>
-                        <button onclick="impSt()" style="width:100%; margin-top:5px;">IMPORTAR</button>
+                        <textarea id="in-nm" placeholder="Nomes (um por linha)..." style="width:100%; height:50px;"></textarea>
+                        <button onclick="impSt()" style="width:100%; margin-top:5px; cursor:pointer;">IMPORTAR</button>
                     </div>
                 </div>
 
@@ -127,6 +128,15 @@
             document.getElementById('in-nm').value=''; save(); render();
         }
 
+        function editStu(si) {
+            let n = prompt("Editar nome do aluno:", state.cs[state.ci].st[si].n);
+            if(n && n.trim() !== "") { state.cs[state.ci].st[si].n = n.trim(); save(); render(); }
+        }
+
+        function delStu(si) {
+            if(confirm("Tem certeza que deseja excluir este aluno?")) { state.cs[state.ci].st.splice(si,1); save(); render(); }
+        }
+
         function getScore(stu) {
             const c = state.cs[state.ci]; if(!c) return 0;
             let sum = 0, kA = `${c.si}_${state.b}_ativ`;
@@ -144,18 +154,27 @@
                 document.getElementById('info-turma').innerText = `TURMA: ${c.n}`;
                 document.getElementById('count-label').innerText = `ALUNOS: ${c.st.length}`;
                 document.getElementById('tot-at').value = c.totA;
-                document.getElementById('class-tabs').innerHTML = state.cs.map((x,i)=>`<button onclick="state.ci=${i};render();save();" style="background:${i===state.ci?'#00d2ff':'#eee'}">${x.n}</button>`).join('');
-                document.getElementById('subj-tabs').innerHTML = c.ss.map((s,i)=>`<button onclick="state.cs[state.ci].si=${i};render();save();" style="background:${i===c.si?'#2ecc71':'#eee'}">${s}</button>`).join('');
-                document.getElementById('crit-list').innerHTML = c.crits.map((cr,i)=>`<div>🧪 ${cr.n} <span onclick="state.cs[state.ci].crits.splice(${i},1);save();render();" style="color:red;cursor:pointer">✖</span></div>`).join('');
+                document.getElementById('class-tabs').innerHTML = state.cs.map((x,i)=>`<button onclick="state.ci=${i};render();save();" style="background:${i===state.ci?'#00d2ff':'#eee'}; border:none; border-radius:4px; padding:3px 8px; cursor:pointer; font-weight:bold; font-size:10px;">${x.n}</button>`).join('');
+                document.getElementById('subj-tabs').innerHTML = c.ss.map((s,i)=>`<button onclick="state.cs[state.ci].si=${i};render();save();" style="background:${i===c.si?'#2ecc71':'#eee'}; border:none; border-radius:4px; padding:3px 8px; cursor:pointer; color:${i===c.si?'white':'black'}; font-size:10px;">${s}</button>`).join('');
+                document.getElementById('crit-list').innerHTML = c.crits.map((cr,i)=>`<div style="font-size:12px; margin-bottom:4px;">🧪 ${cr.n} <span onclick="state.cs[state.ci].crits.splice(${i},1);save();render();" style="color:red;cursor:pointer;font-weight:bold;">[✖]</span></div>`).join('');
                 
                 document.getElementById('stu-list').innerHTML = c.st.map((stu, si) => {
                     let kA = `${c.si}_${state.b}_ativ`, chs = '';
                     for(let i=0; i<c.totA; i++) chs += `<div class="check-box ${(stu.sc[kA]||[]).includes(i)?'active':''}" onclick="tglA(${si},'${kA}',${i})">${i+1}</div>`;
                     let critsHTML = c.crits.map(cr => {
                         let k = `${c.si}_${state.b}_${cr.n}`;
-                        return `<div style="font-size:10px;margin-top:5px;">${cr.n}: <input type="number" value="${stu.sc[k]||0}" onchange="upSc(${si},'${k}',this.value)" style="width:40px;"></div>`;
+                        return `<div style="font-size:11px; margin-top:6px;">${cr.n}: <input type="number" value="${stu.sc[k]||0}" onchange="upSc(${si},'${k}',this.value)" style="width:45px; border-radius:4px; border:1px solid #ccc;"></div>`;
                     }).join('');
-                    return `<div class="student-card"><b>${stu.n}</b><div class="check-grid">${chs}</div>${critsHTML}</div>`;
+                    return `<div class="student-card">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                            <b style="font-size:14px;">${stu.n}</b>
+                            <div style="display:flex; gap:4px;">
+                                <button class="btn-edit" onclick="editStu(${si})">✎</button>
+                                <button class="btn-del" onclick="delStu(${si})">🗑</button>
+                            </div>
+                        </div>
+                        <div class="check-grid">${chs}</div>${critsHTML}
+                    </div>`;
                 }).join('');
 
                 const track = document.getElementById('track'); track.innerHTML = '';
@@ -163,11 +182,11 @@
                 c.st.forEach((stu) => {
                     let g = getScore(stu);
                     let lane = document.createElement('div'); lane.className='lane'; lane.style.height = z + 'px';
-                    lane.innerHTML = `<div class="runner" style="left:${g*8.5}%"><div style="font-size:${z*0.7}px">${stu.em}</div><div class="runner-tag">${stu.n} | ${g.toFixed(1)}</div></div>`;
+                    lane.innerHTML = `<div class="runner" style="left:${g*8.5}%"><div style="font-size:${z*0.7}px; cursor:pointer;" onclick="nextEm(this)">${stu.em}</div><div class="runner-tag">${stu.n} | ${g.toFixed(1)}</div></div>`;
                     track.appendChild(lane);
                 });
             }
-            document.getElementById('bim-tabs').innerHTML = [1,2,3,4].map(b=>`<button onclick="state.b=${b};render();save();" style="background:${b===state.b?'#00d2ff':'white'}">${b}º BIM</button>`).join('');
+            document.getElementById('bim-tabs').innerHTML = [1,2,3,4].map(b=>`<button onclick="state.b=${b};render();save();" style="background:${b===state.b?'#00d2ff':'white'}; border:none; padding:8px 15px; border-radius:8px; cursor:pointer; font-weight:bold; box-shadow:0 2px 4px rgba(0,0,0,0.1);">${b}º BIM</button>`).join('');
         }
 
         function tglA(si, k, idx) {
@@ -179,14 +198,15 @@
         function upSc(si, k, v) { state.cs[state.ci].st[si].sc[k] = parseFloat(v); save(); render(); }
         function toggleFS() { document.body.classList.toggle('fullscreen-mode'); render(); }
         function changeZoom(v) { state.zoom = Math.max(20, (state.zoom||45)+v); save(); render(); }
-        function editL(k) { let n=prompt("Editar:", localStorage.getItem(k)); if(n){localStorage.setItem(k,n); render();}}
+        function editL(k) { let n=prompt("Editar informação:", localStorage.getItem(k)); if(n){localStorage.setItem(k,n); render();}}
         function createBackup() { let b=new Blob([JSON.stringify({state,sch:localStorage.getItem('sch'),tea:localStorage.getItem('tea')})],{type:'application/json'}); let a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download='Backup_Biolab.json'; a.click(); }
-        function restoreBackup(e) { let r=new FileReader(); r.onload=(ev)=>{ let d=JSON.parse(ev.target.result); state=d.state; localStorage.setItem('sch',d.sch); localStorage.setItem('tea',d.tea); save(); render(); }; r.readAsText(e.target.files[0]); }
+        function restoreBackup(e) { let r=new FileReader(); r.onload=(ev)=>{ try { let d=JSON.parse(ev.target.result); state=d.state; localStorage.setItem('sch',d.sch); localStorage.setItem('tea',d.tea); save(); render(); alert("Dados restaurados!"); } catch(err) { alert("Erro ao ler backup."); } }; r.readAsText(e.target.files[0]); }
         function exportExcel() { 
             let csv = "ALUNO;NOTA\n" + state.cs[state.ci].st.map(s => `${s.n};${getScore(s).toFixed(1)}`).join('\n');
             let blob = new Blob(["\ufeff"+csv], {type: 'text/csv;charset=utf-8;'});
-            let url = URL.createObjectURL(blob); let a = document.createElement('a'); a.href = url; a.download = 'Relatorio_Alunos.csv'; a.click();
+            let url = URL.createObjectURL(blob); let a = document.createElement('a'); a.href = url; a.download = 'Relatorio_Notas.csv'; a.click();
         }
+        function nextEm(el) { let cur = emojis.indexOf(el.innerText); el.innerText = emojis[(cur + 1) % emojis.length]; }
 
         window.onload = load;
     </script>
