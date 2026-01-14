@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bio-Lab Master v16.2 - Proteção Total</title>
+    <title>Bio-Lab Master v16.3 - Estabilidade Total</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Orbitron:wght@700&display=swap');
         * { box-sizing: border-box; -webkit-font-smoothing: antialiased; }
@@ -17,14 +17,14 @@
         .panel-content { padding: 12px; border-top: 1px solid #e0f0f0; }
         .closed .panel-content { display: none; }
         .students-scroll { flex: 1; overflow-y: auto; margin-top: 5px; }
-        .student-card { background: white; border-radius: 10px; margin-bottom: 6px; border: 2px solid #eee; padding: 8px; cursor: pointer; }
+        .student-card { background: white; border-radius: 10px; margin-bottom: 6px; border: 2px solid #eee; padding: 10px; }
         .track-container { flex: 1; background: #0b131a; border-radius: 30px; padding: 15px; position: relative; border: 6px solid #fff; overflow-y: auto; }
         body.fullscreen-mode .sidebar, body.fullscreen-mode header { display: none !important; }
         .lane { border-bottom: 1px dashed rgba(255,255,255,0.08); position: relative; display: flex; align-items: center; }
         .runner { position: absolute; transition: 2s; display: flex; align-items: center; gap: 8px; }
         .runner-tag { background: white; padding: 2px 6px; border-radius: 5px; font-weight: 900; border: 2px solid #00d2ff; white-space: nowrap; font-size: 10px; }
         .check-grid { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 5px; }
-        .check-box { width: 28px; height: 28px; border: 2px solid #ddd; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 11px; cursor: pointer; }
+        .check-box { width: 28px; height: 28px; border: 2px solid #ddd; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 11px; cursor: pointer; background: white; }
         .check-box.active { background: #2ecc71; color: white; border-color: #27ae60; }
         #fs-controls { position: fixed; top: 20px; right: 20px; display: none; background: white; padding: 10px; border-radius: 15px; border: 3px solid #00d2ff; z-index: 1000; gap: 10px; }
         body.fullscreen-mode #fs-controls { display: flex; }
@@ -60,21 +60,32 @@
                 </div>
 
                 <div class="panel" id="p-turmas">
-                    <div class="panel-header" onclick="this.parentElement.classList.toggle('closed')">🏫 TURMAS E CONFIGS <span>↕</span></div>
+                    <div class="panel-header" onclick="this.parentElement.classList.toggle('closed')">🏫 TURMAS E MATÉRIAS <span>↕</span></div>
                     <div class="panel-content">
                         <div id="class-tabs" style="display:flex; gap:3px; flex-wrap:wrap; margin-bottom:8px;"></div>
-                        <input type="text" id="in-cl" placeholder="+ Nova Turma e Enter" onkeypress="if(event.key==='Enter') addC()" style="width:100%; padding:5px;">
-                        <div id="subj-tabs" style="display:flex; gap:3px; margin-top:8px;"></div>
-                        <input type="text" id="in-sb" placeholder="+ Nova Matéria" onkeypress="if(event.key==='Enter') addS()" style="width:100%; padding:5px; margin-top:5px;">
-                        <button onclick="if(confirm('Limpar tudo? Faça backup antes!')){localStorage.clear(); location.reload();}" style="width:100%; margin-top:10px; font-size:9px; background:#ffeded; color:red; border:1px solid red;">⚠️ LIMPAR SISTEMA (RESET)</button>
+                        <input type="text" id="in-cl" placeholder="+ Turma e Enter" onkeypress="if(event.key==='Enter') addC()" style="width:100%; padding:5px;">
+                        <div id="subj-tabs" style="display:flex; gap:3px; margin-top:8px; flex-wrap:wrap;"></div>
+                        <input type="text" id="in-sb" placeholder="+ Matéria e Enter" onkeypress="if(event.key==='Enter') addS()" style="width:100%; padding:5px; margin-top:5px;">
+                    </div>
+                </div>
+
+                <div class="panel closed" id="p-crit">
+                    <div class="panel-header" onclick="this.parentElement.classList.toggle('closed')">📋 CRITÉRIOS DE NOTA <span>↕</span></div>
+                    <div class="panel-content">
+                        Vistos (Total): <input type="number" id="tot-at" value="10" onchange="upTot(this.value)" style="width:50px; margin-bottom:10px;"><br>
+                        <strong>Outros Critérios:</strong>
+                        <div id="crit-list" style="margin:8px 0;"></div>
+                        <input type="text" id="in-cr" placeholder="Ex: Prova, Trabalho..." style="width:70%; padding:5px;">
+                        <button onclick="addCrit()">+</button>
+                        <button onclick="if(confirm('Resetar sistema?')){localStorage.clear(); location.reload();}" style="width:100%; margin-top:15px; font-size:9px; color:red;">⚠️ RESETAR TUDO</button>
                     </div>
                 </div>
 
                 <div class="panel closed" id="p-alun">
-                    <div class="panel-header" onclick="this.parentElement.classList.toggle('closed')">👥 LISTA DE ALUNOS <span>↕</span></div>
+                    <div class="panel-header" onclick="this.parentElement.classList.toggle('closed')">👥 IMPORTAR ALUNOS <span>↕</span></div>
                     <div class="panel-content">
-                        <textarea id="in-nm" placeholder="Cole os nomes (um por linha)..." style="width:100%; height:50px;"></textarea>
-                        <button onclick="impSt()" style="width:100%; margin-top:5px;">IMPORTAR LISTA</button>
+                        <textarea id="in-nm" placeholder="Nomes..." style="width:100%; height:50px;"></textarea>
+                        <button onclick="impSt()" style="width:100%; margin-top:5px;">IMPORTAR</button>
                     </div>
                 </div>
 
@@ -96,30 +107,32 @@
         function load() {
             try {
                 const data = localStorage.getItem('biolab_v15');
-                if(data) {
-                    const parsed = JSON.parse(data);
-                    state = Object.assign(state, parsed);
-                }
-            } catch(e) { console.error("Erro ao carregar dados."); }
+                if(data) state = Object.assign(state, JSON.parse(data));
+            } catch(e) {}
             render();
         }
 
         function save() { localStorage.setItem('biolab_v15', JSON.stringify(state)); }
 
-        function addC() { let v = document.getElementById('in-cl').value; if(v){ state.cs.push({n:v, ss:['Ciências'], si:0, totA:10, crits:[], st:[]}); state.ci=state.cs.length-1; document.getElementById('in-cl').value=''; save(); render(); }}
-        function addS() { let v = document.getElementById('in-sb').value; if(v && state.ci>-1){ state.cs[state.ci].ss.push(v); document.getElementById('in-sb').value=''; save(); render(); }}
+        function addC() { let v=document.getElementById('in-cl').value; if(v){ state.cs.push({n:v, ss:['Ciências'], si:0, totA:10, crits:[], st:[]}); state.ci=state.cs.length-1; document.getElementById('in-cl').value=''; save(); render(); }}
+        function addS() { let v=document.getElementById('in-sb').value; if(v && state.ci>-1){ state.cs[state.ci].ss.push(v); document.getElementById('in-sb').value=''; save(); render(); }}
+        function addCrit() { let v=document.getElementById('in-cr').value; if(v && state.ci>-1){ state.cs[state.ci].crits.push({n:v}); document.getElementById('in-cr').value=''; save(); render(); }}
+        function upTot(v) { if(state.ci>-1){ state.cs[state.ci].totA=parseInt(v); save(); render(); }}
+
         function impSt() {
             let names = document.getElementById('in-nm').value.split('\n').filter(x=>x.trim());
-            if(state.ci===-1) return alert("Crie uma turma primeiro!");
-            names.forEach(n => state.cs[state.ci].st.push({n:n.trim(), sc:{}, open:false, em:emojis[Math.floor(Math.random()*emojis.length)]}));
+            if(state.ci===-1) return alert("Crie uma turma!");
+            names.forEach(n => state.cs[state.ci].st.push({n:n.trim(), sc:{}, em:emojis[Math.floor(Math.random()*emojis.length)]}));
             state.cs[state.ci].st.sort((a,b)=>a.n.localeCompare(b.n));
             document.getElementById('in-nm').value=''; save(); render();
         }
 
         function getScore(stu) {
             const c = state.cs[state.ci]; if(!c) return 0;
-            let kA = `${c.si}_${state.b}_ativ`, vists = (stu.sc[kA] || []).length;
-            return (vists / (c.totA || 10)) * 10;
+            let sum = 0, kA = `${c.si}_${state.b}_ativ`;
+            sum += ( (stu.sc[kA] || []).length / (c.totA || 10) ) * 10;
+            c.crits.forEach(cr => sum += parseFloat(stu.sc[`${c.si}_${state.b}_${cr.n}`] || 0));
+            return sum / (c.crits.length + 1);
         }
 
         function render() {
@@ -130,13 +143,19 @@
             if(c) {
                 document.getElementById('info-turma').innerText = `TURMA: ${c.n}`;
                 document.getElementById('count-label').innerText = `ALUNOS: ${c.st.length}`;
+                document.getElementById('tot-at').value = c.totA;
                 document.getElementById('class-tabs').innerHTML = state.cs.map((x,i)=>`<button onclick="state.ci=${i};render();save();" style="background:${i===state.ci?'#00d2ff':'#eee'}">${x.n}</button>`).join('');
                 document.getElementById('subj-tabs').innerHTML = c.ss.map((s,i)=>`<button onclick="state.cs[state.ci].si=${i};render();save();" style="background:${i===c.si?'#2ecc71':'#eee'}">${s}</button>`).join('');
+                document.getElementById('crit-list').innerHTML = c.crits.map((cr,i)=>`<div>🧪 ${cr.n} <span onclick="state.cs[state.ci].crits.splice(${i},1);save();render();" style="color:red;cursor:pointer">✖</span></div>`).join('');
                 
                 document.getElementById('stu-list').innerHTML = c.st.map((stu, si) => {
                     let kA = `${c.si}_${state.b}_ativ`, chs = '';
                     for(let i=0; i<c.totA; i++) chs += `<div class="check-box ${(stu.sc[kA]||[]).includes(i)?'active':''}" onclick="tglA(${si},'${kA}',${i})">${i+1}</div>`;
-                    return `<div class="student-card"><b>${stu.n}</b><div class="check-grid">${chs}</div></div>`;
+                    let critsHTML = c.crits.map(cr => {
+                        let k = `${c.si}_${state.b}_${cr.n}`;
+                        return `<div style="font-size:10px;margin-top:5px;">${cr.n}: <input type="number" value="${stu.sc[k]||0}" onchange="upSc(${si},'${k}',this.value)" style="width:40px;"></div>`;
+                    }).join('');
+                    return `<div class="student-card"><b>${stu.n}</b><div class="check-grid">${chs}</div>${critsHTML}</div>`;
                 }).join('');
 
                 const track = document.getElementById('track'); track.innerHTML = '';
@@ -157,12 +176,17 @@
             if(p > -1) a.splice(p, 1); else a.push(idx);
             save(); render();
         }
+        function upSc(si, k, v) { state.cs[state.ci].st[si].sc[k] = parseFloat(v); save(); render(); }
         function toggleFS() { document.body.classList.toggle('fullscreen-mode'); render(); }
         function changeZoom(v) { state.zoom = Math.max(20, (state.zoom||45)+v); save(); render(); }
         function editL(k) { let n=prompt("Editar:", localStorage.getItem(k)); if(n){localStorage.setItem(k,n); render();}}
-        function createBackup() { let b=new Blob([JSON.stringify({state,sch:localStorage.getItem('sch'),tea:localStorage.getItem('tea')})],{type:'application/json'}); let a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download='Backup.json'; a.click(); }
+        function createBackup() { let b=new Blob([JSON.stringify({state,sch:localStorage.getItem('sch'),tea:localStorage.getItem('tea')})],{type:'application/json'}); let a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download='Backup_Biolab.json'; a.click(); }
         function restoreBackup(e) { let r=new FileReader(); r.onload=(ev)=>{ let d=JSON.parse(ev.target.result); state=d.state; localStorage.setItem('sch',d.sch); localStorage.setItem('tea',d.tea); save(); render(); }; r.readAsText(e.target.files[0]); }
-        function exportExcel() { let csv="ALUNO;NOTA\n"+state.cs[state.ci].st.map(s=>`${s.n};${getScore(s).toFixed(1)}`).join('\n'); window.open('data:text/csv;charset=utf-8,'+escape(csv)); }
+        function exportExcel() { 
+            let csv = "ALUNO;NOTA\n" + state.cs[state.ci].st.map(s => `${s.n};${getScore(s).toFixed(1)}`).join('\n');
+            let blob = new Blob(["\ufeff"+csv], {type: 'text/csv;charset=utf-8;'});
+            let url = URL.createObjectURL(blob); let a = document.createElement('a'); a.href = url; a.download = 'Relatorio_Alunos.csv'; a.click();
+        }
 
         window.onload = load;
     </script>
