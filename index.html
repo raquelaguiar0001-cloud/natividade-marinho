@@ -171,20 +171,8 @@
         }
 
         function addC() { let v=document.getElementById('in-cl').value; if(v){ state.cs.push({n:v, ss:['Ciências'], si:0, totA:10, crits:[], st:[]}); state.ci=state.cs.length-1; document.getElementById('in-cl').value=''; save(); render(); }}
-        
-        function addS() { 
-            let v=document.getElementById('in-sb').value; 
-            if(v && state.ci>-1){ state.cs[state.ci].ss.push(v); document.getElementById('in-sb').value=''; save(); render(); }
-        }
-
-        function delS(idx) {
-            if(confirm("Excluir esta matéria e todas as notas dela?")) {
-                state.cs[state.ci].ss.splice(idx, 1);
-                state.cs[state.ci].si = 0;
-                save(); render();
-            }
-        }
-
+        function addS() { let v=document.getElementById('in-sb').value; if(v && state.ci>-1){ state.cs[state.ci].ss.push(v); document.getElementById('in-sb').value=''; save(); render(); }}
+        function delS(idx) { if(confirm("Excluir esta matéria?")) { state.cs[state.ci].ss.splice(idx, 1); state.cs[state.ci].si = 0; save(); render(); }}
         function addCrit() { let v=document.getElementById('in-cr').value; if(v && state.ci>-1){ state.cs[state.ci].crits.push({n:v}); document.getElementById('in-cr').value=''; save(); render(); }}
         function upTot(v) { if(state.ci>-1){ state.cs[state.ci].totA=parseInt(v); save(); render(); } }
         
@@ -196,22 +184,20 @@
             document.getElementById('in-nm').value=''; save(); render(); togglePanel('p-alunos');
         }
 
-        function editStu(si) {
-            let n = prompt("Nome:", state.cs[state.ci].st[si].n);
-            if(n) { state.cs[state.ci].st[si].n = n.trim(); save(); render(); }
-        }
+        function editStu(si) { let n = prompt("Nome:", state.cs[state.ci].st[si].n); if(n) { state.cs[state.ci].st[si].n = n.trim(); save(); render(); }}
         function delStu(si) { if(confirm("Excluir?")) { state.cs[state.ci].st.splice(si,1); save(); render(); } }
 
-        function getScore(stu, bim = state.b) {
+        // CÁLCULOS MANTIDOS
+        function getScore(stu, bim = state.b, sIndex = state.cs[state.ci].si) {
             const c = state.cs[state.ci]; if(!c) return 0;
-            let sum = 0, kA = `${c.si}_${bim}_ativ`;
+            let sum = 0, kA = `${sIndex}_${bim}_ativ`;
             sum += ( (stu.sc[kA] || []).length / (c.totA || 10) ) * 10;
-            c.crits.forEach(cr => sum += parseFloat(stu.sc[`${c.si}_${bim}_${cr.n}`] || 0));
+            c.crits.forEach(cr => sum += parseFloat(stu.sc[`${sIndex}_${bim}_${cr.n}`] || 0));
             return sum / (c.crits.length + 1);
         }
 
-        function getAnnualScore(stu) {
-            let t = 0; for(let i=1; i<=4; i++) t += getScore(stu, i);
+        function getAnnualScore(stu, sIndex = state.cs[state.ci].si) {
+            let t = 0; for(let i=1; i<=4; i++) t += getScore(stu, i, sIndex);
             return t / 4;
         }
 
@@ -219,23 +205,13 @@
             const c = state.cs[state.ci];
             document.getElementById('disp-sch').innerText = localStorage.getItem('sch') || 'UNIDADE ESCOLAR';
             document.getElementById('disp-tea').innerText = localStorage.getItem('tea') || 'PROFESSOR';
-            
             if(c) {
                 const materiaAtual = c.ss[c.si] || "---";
                 document.getElementById('info-header').innerText = `TURMA: ${c.n} | MATÉRIA: ${materiaAtual}`;
                 document.getElementById('count-st').innerText = c.st.length;
-                
                 document.getElementById('class-tabs').innerHTML = state.cs.map((x,i)=>`<button onclick="state.ci=${i};render();save();" class="btn-action" style="background:${i===state.ci?'#e91e63':'#eee'}; color:${i===state.ci?'white':'black'}">${x.n}</button>`).join('');
-                
-                document.getElementById('subj-tabs').innerHTML = c.ss.map((s,i)=>`
-                    <div style="display:flex; align-items:center; background:${i===c.si?'#2ecc71':'#eee'}; border-radius:8px; padding-right:5px;">
-                        <button onclick="state.cs[state.ci].si=${i};render();save();" class="btn-action" style="background:transparent; border:none; color:${i===c.si?'white':'black'}">${s}</button>
-                        <span onclick="delS(${i})" style="color:${i===c.si?'#fff':'red'}; cursor:pointer; font-size:12px; font-weight:bold; margin-left:5px;">✖</span>
-                    </div>
-                `).join('');
-
+                document.getElementById('subj-tabs').innerHTML = c.ss.map((s,i)=>`<div style="display:flex; align-items:center; background:${i===c.si?'#2ecc71':'#eee'}; border-radius:8px; padding-right:5px;"><button onclick="state.cs[state.ci].si=${i};render();save();" class="btn-action" style="background:transparent; border:none; color:${i===c.si?'white':'black'}">${s}</button><span onclick="delS(${i})" style="color:${i===c.si?'#fff':'red'}; cursor:pointer; font-size:12px; font-weight:bold; margin-left:5px;">✖</span></div>`).join('');
                 document.getElementById('crit-list').innerHTML = c.crits.map((cr,i)=>`<div style="padding:5px; border-bottom:1px solid #eee;">🧪 ${cr.n} <span onclick="state.cs[state.ci].crits.splice(${i},1);save();render();" style="color:red;cursor:pointer;float:right">✖</span></div>`).join('');
-                
                 document.getElementById('stu-list').innerHTML = c.st.map((stu, si) => {
                     let kA = `${c.si}_${state.b}_ativ`, chs = '';
                     for(let i=0; i<c.totA; i++) chs += `<div class="check-box ${(stu.sc[kA]||[]).includes(i)?'active':''}" onclick="tglA(${si},'${kA}',${i})">${i+1}</div>`;
@@ -243,32 +219,16 @@
                         let k = `${c.si}_${state.b}_${cr.n}`;
                         return `<div style="font-size:10px; margin-top:5px;">${cr.n}: <input type="number" step="0.1" value="${stu.sc[k]||0}" onchange="upSc(${si},'${k}',this.value)" style="width:40px;"></div>`;
                     }).join('');
-
-                    let sBim = getScore(stu);
-                    let sAnn = getAnnualScore(stu);
-                    let clsBim = sBim >= 7 ? 'score-good' : 'score-bad';
-                    let clsAnn = sAnn >= 7 ? 'score-good' : 'score-bad';
-
-                    return `<div class="student-card">
-                        <div style="display:flex; justify-content:space-between;"><b>${stu.n}</b><div style="font-size:10px;"><span onclick="editStu(${si})" style="cursor:pointer">✎</span> | <span onclick="delStu(${si})" style="cursor:pointer;color:red">🗑</span></div></div>
-                        <div class="check-grid">${chs}</div>${critsHTML}
-                        <div style="margin-top:8px; display:flex; justify-content:space-between; align-items:center;">
-                            <span class="annual-avg-box">ANUAL: <span class="${clsAnn}">${sAnn.toFixed(1)}</span></span>
-                            <span style="font-weight:bold;">BIM: <span class="${clsBim}">${sBim.toFixed(1)}</span></span>
-                        </div>
-                    </div>`;
+                    let sBim = getScore(stu), sAnn = getAnnualScore(stu);
+                    return `<div class="student-card"><b>${stu.n}</b><div class="check-grid">${chs}</div>${critsHTML}
+                        <div style="margin-top:8px; display:flex; justify-content:space-between;"><span class="annual-avg-box">ANUAL: <span class="${sAnn>=7?'score-good':'score-bad'}">${sAnn.toFixed(1)}</span></span><span style="font-weight:bold;">BIM: <span class="${sBim>=7?'score-good':'score-bad'}">${sBim.toFixed(1)}</span></span></div></div>`;
                 }).join('');
-
                 const track = document.getElementById('track'); track.innerHTML = '';
                 const z = state.zoom || 45;
                 c.st.forEach((stu) => {
                     let g = getScore(stu);
-                    let colorClass = g >= 7 ? 'score-good' : 'score-bad';
                     let lane = document.createElement('div'); lane.className='lane'; lane.style.height = z + 'px';
-                    lane.innerHTML = `<div class="runner" style="left:${g*8.8}%">
-                        <div style="font-size:${z*0.7}px; cursor:pointer;" onclick="nextEm(this)">${stu.em}</div>
-                        <div class="runner-tag">${stu.n} | <span class="${colorClass}">${g.toFixed(1)}</span></div>
-                    </div>`;
+                    lane.innerHTML = `<div class="runner" style="left:${g*8.8}%"><div style="font-size:${z*0.7}px; cursor:pointer;" onclick="nextEm(this)">${stu.em}</div><div class="runner-tag">${stu.n} | <span class="${g>=7?'score-good':'score-bad'}">${g.toFixed(1)}</span></div></div>`;
                     track.appendChild(lane);
                 });
             }
@@ -288,29 +248,34 @@
         function createBackup() { let b=new Blob([JSON.stringify({state,sch:localStorage.getItem('sch'),tea:localStorage.getItem('tea')})],{type:'application/json'}); let a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download='Biolab_Backup.json'; a.click(); }
         function restoreBackup(e) { let r=new FileReader(); r.onload=(ev)=>{ state=JSON.parse(ev.target.result).state; save(); render(); alert("Backup Restaurado!"); }; r.readAsText(e.target.files[0]); }
         
-        // EXPORTAÇÃO EXCEL COM NOME DA TURMA
+        // EXPORTAÇÃO MULTIMATÉRIAS ATUALIZADA
         function exportExcel() { 
             const c = state.cs[state.ci];
-            if(!c) return alert("Selecione uma turma primeiro!");
+            if(!c) return alert("Selecione uma turma!");
             
-            let csv = `TURMA: ${c.n}\n`;
-            csv += "ALUNO;1º BIM;2º BIM;3º BIM;4º BIM;MEDIA ANUAL\n";
+            let csv = `TURMA: ${c.n}\n\n`;
             
-            c.st.forEach(s => {
-                let b1 = getScore(s, 1).toFixed(1);
-                let b2 = getScore(s, 2).toFixed(1);
-                let b3 = getScore(s, 3).toFixed(1);
-                let b4 = getScore(s, 4).toFixed(1);
-                let ann = getAnnualScore(s).toFixed(1);
-                csv += `${s.n};${b1};${b2};${b3};${b4};${ann}\n`;
+            // Percorre cada matéria da turma
+            c.ss.forEach((materiaNome, materiaIndex) => {
+                csv += `MATÉRIA: ${materiaNome.toUpperCase()}\n`;
+                csv += "ALUNO;1º BIM;2º BIM;3º BIM;4º BIM;MEDIA ANUAL\n";
+                
+                c.st.forEach(s => {
+                    let b1 = getScore(s, 1, materiaIndex).toFixed(1);
+                    let b2 = getScore(s, 2, materiaIndex).toFixed(1);
+                    let b3 = getScore(s, 3, materiaIndex).toFixed(1);
+                    let b4 = getScore(s, 4, materiaIndex).toFixed(1);
+                    let ann = getAnnualScore(s, materiaIndex).toFixed(1);
+                    csv += `${s.n};${b1};${b2};${b3};${b4};${ann}\n`;
+                });
+                csv += "\n"; // Espaço entre matérias
             });
 
             let blob = new Blob(["\ufeff"+csv], {type: 'text/csv;charset=utf-8;'});
             let url = URL.createObjectURL(blob);
             let a = document.createElement('a');
             a.href = url;
-            // Nome do arquivo agora inclui a turma
-            a.download = `Notas_${c.n.replace(/\s+/g, '_')}.csv`;
+            a.download = `Relatorio_Geral_${c.n.replace(/\s+/g, '_')}.csv`;
             a.click();
         }
         
