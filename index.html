@@ -288,9 +288,15 @@
         function createBackup() { let b=new Blob([JSON.stringify({state,sch:localStorage.getItem('sch'),tea:localStorage.getItem('tea')})],{type:'application/json'}); let a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download='Biolab_Backup.json'; a.click(); }
         function restoreBackup(e) { let r=new FileReader(); r.onload=(ev)=>{ state=JSON.parse(ev.target.result).state; save(); render(); alert("Backup Restaurado!"); }; r.readAsText(e.target.files[0]); }
         
+        // EXPORTAÇÃO EXCEL COM NOME DA TURMA
         function exportExcel() { 
-            let csv = "ALUNO;1º BIM;2º BIM;3º BIM;4º BIM;MEDIA ANUAL\n";
-            state.cs[state.ci].st.forEach(s => {
+            const c = state.cs[state.ci];
+            if(!c) return alert("Selecione uma turma primeiro!");
+            
+            let csv = `TURMA: ${c.n}\n`;
+            csv += "ALUNO;1º BIM;2º BIM;3º BIM;4º BIM;MEDIA ANUAL\n";
+            
+            c.st.forEach(s => {
                 let b1 = getScore(s, 1).toFixed(1);
                 let b2 = getScore(s, 2).toFixed(1);
                 let b3 = getScore(s, 3).toFixed(1);
@@ -298,8 +304,14 @@
                 let ann = getAnnualScore(s).toFixed(1);
                 csv += `${s.n};${b1};${b2};${b3};${b4};${ann}\n`;
             });
+
             let blob = new Blob(["\ufeff"+csv], {type: 'text/csv;charset=utf-8;'});
-            let url = URL.createObjectURL(blob); let a = document.createElement('a'); a.href = url; a.download = 'Quadro_Geral_Notas.csv'; a.click();
+            let url = URL.createObjectURL(blob);
+            let a = document.createElement('a');
+            a.href = url;
+            // Nome do arquivo agora inclui a turma
+            a.download = `Notas_${c.n.replace(/\s+/g, '_')}.csv`;
+            a.click();
         }
         
         function nextEm(el) { el.innerText = emojis[Math.floor(Math.random()*emojis.length)]; }
