@@ -3,75 +3,46 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bio-Lab Master v16.7 - Novo Layout</title>
+    <title>Bio-Lab Master v16.8 - Painéis Inteligentes</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Orbitron:wght@700&display=swap');
         * { box-sizing: border-box; -webkit-font-smoothing: antialiased; }
         body { font-family: 'Fredoka', sans-serif; margin: 0; height: 100vh; overflow: hidden; background: #fdf2f9; color: #1a2a3a; }
         
-        /* Painel Superior Estilo Imagem */
         header { 
             background: linear-gradient(90deg, #9b4dca 0%, #e91e63 100%); 
-            padding: 15px 25px; 
-            color: white;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            padding: 15px 25px; color: white; box-shadow: 0 4px 15px rgba(0,0,0,0.2);
         }
         .header-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px; }
-        .school-info h1 { margin: 0; font-family: 'Orbitron', sans-serif; font-size: 24px; }
+        .school-info h1 { margin: 0; font-family: 'Orbitron', sans-serif; font-size: 24px; cursor: pointer; }
         .school-info p { margin: 5px 0 0; font-size: 13px; opacity: 0.9; }
 
         .nav-container { 
-            background: white; 
-            border-radius: 15px; 
-            display: flex; 
-            padding: 5px; 
-            gap: 5px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            background: white; border-radius: 15px; display: flex; padding: 5px; gap: 5px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);
         }
         .nav-btn { 
-            flex: 1; 
-            padding: 12px; 
-            border: none; 
-            background: transparent; 
-            border-radius: 10px; 
-            cursor: pointer; 
-            font-weight: bold; 
-            color: #555;
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            gap: 8px;
-            transition: 0.3s;
+            flex: 1; padding: 12px; border: none; background: transparent; border-radius: 10px; cursor: pointer; 
+            font-weight: bold; color: #555; display: flex; align-items: center; justify-content: center; gap: 8px; transition: 0.3s;
         }
-        .nav-btn:hover { background: #f0f0f0; }
-        .nav-btn.active { background: linear-gradient(90deg, #9b4dca 0%, #e91e63 100%); color: white; }
+        .nav-btn.active { background: #ffe1ed; color: #e91e63; }
 
-        /* Conteúdo Principal */
         .main-content { display: flex; height: calc(100vh - 160px); padding: 15px; gap: 15px; }
-        
         .students-area { width: 350px; display: flex; flex-direction: column; }
         .students-scroll { flex: 1; overflow-y: auto; padding-right: 5px; }
         
         .track-container { 
-            flex: 1; 
-            background: #0b131a; 
-            border-radius: 30px; 
-            padding: 20px; 
-            position: relative; 
-            border: 6px solid #fff; 
-            overflow-y: auto; 
-            box-shadow: inset 0 0 20px rgba(0,0,0,0.5);
+            flex: 1; background: #0b131a; border-radius: 30px; padding: 20px; position: relative; 
+            border: 6px solid #fff; overflow-y: auto; box-shadow: inset 0 0 20px rgba(0,0,0,0.5);
         }
 
-        /* Sub-paineis (Pop-ups de configuração) */
+        /* Sub-paineis Animados */
         .config-overlay {
-            position: fixed; top: 140px; left: 50%; transform: translateX(-50%);
+            position: fixed; top: 145px; left: 50%; transform: translateX(-50%);
             background: white; border-radius: 15px; padding: 20px; width: 90%; max-width: 600px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3); z-index: 100; display: none;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.4); z-index: 100; display: none;
             border: 3px solid #e91e63;
         }
 
-        /* Estilos de Elementos */
         .student-card { background: white; border-radius: 12px; margin-bottom: 10px; border: 2px solid #eee; padding: 12px; }
         .lane { border-bottom: 1px dashed rgba(255,255,255,0.1); position: relative; display: flex; align-items: center; }
         .runner { position: absolute; transition: 2s; display: flex; align-items: center; gap: 10px; }
@@ -81,16 +52,13 @@
         .check-box { width: 28px; height: 28px; border: 2px solid #ddd; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 11px; cursor: pointer; }
         .check-box.active { background: #2ecc71; color: white; border-color: #27ae60; }
         
-        .annual-avg { font-size: 11px; color: #9b4dca; background: #f3e5f5; padding: 3px 8px; border-radius: 5px; font-weight: bold; }
-        
-        /* Botões */
         .btn-action { padding: 6px 12px; border-radius: 8px; border: none; cursor: pointer; font-weight: bold; }
         .btn-save { background: #27ae60; color: white; }
-        .btn-close { background: #eee; color: #555; margin-top: 10px; width: 100%; }
+        .annual-avg { font-size: 11px; color: #9b4dca; background: #f3e5f5; padding: 3px 8px; border-radius: 5px; font-weight: bold; }
 
         body.fullscreen-mode header { display: none; }
         body.fullscreen-mode .main-content { height: 100vh; }
-        #fs-controls { position: fixed; top: 20px; right: 20px; display: none; background: white; padding: 10px; border-radius: 15px; z-index: 1000; gap: 10px; border: 2px solid #e91e63; }
+        #fs-controls { position: fixed; top: 20px; right: 20px; display: none; background: white; padding: 10px; border-radius: 15px; z-index: 1000; border: 2px solid #e91e63; gap: 10px; }
         body.fullscreen-mode #fs-controls { display: flex; }
     </style>
 </head>
@@ -105,8 +73,8 @@
     <header id="top-panel">
         <div class="header-top">
             <div class="school-info">
-                <h1 onclick="editL('sch')" id="disp-sch">UNIDADE ESCOLAR...</h1>
-                <p>PROFESSOR(A): <span onclick="editL('tea')" id="disp-tea">NOME AQUI</span> | <span id="info-turma">TURMA: ---</span></p>
+                <h1 onclick="editL('sch')" id="disp-sch">ESCOLA</h1>
+                <p>PROFESSOR: <span onclick="editL('tea')" id="disp-tea">NOME</span> | <span id="info-turma">TURMA: ---</span></p>
             </div>
             <div style="display:flex; gap:10px;">
                 <button onclick="createBackup()" class="btn-action">💾 BACKUP</button>
@@ -118,10 +86,10 @@
         </div>
 
         <nav class="nav-container">
-            <button class="nav-btn" onclick="openPanel('p-turmas')">🎓 Turmas</button>
-            <button class="nav-btn" onclick="openPanel('p-materias')">📚 Matérias</button>
-            <button class="nav-btn" onclick="openPanel('p-crit')">📋 Critérios</button>
-            <button class="nav-btn" onclick="openPanel('p-alunos')">👥 Alunos</button>
+            <button class="nav-btn" id="btn-p-turmas" onclick="togglePanel('p-turmas')">🎓 Turmas</button>
+            <button class="nav-btn" id="btn-p-materias" onclick="togglePanel('p-materias')">📚 Matérias</button>
+            <button class="nav-btn" id="btn-p-crit" onclick="togglePanel('p-crit')">📋 Critérios</button>
+            <button class="nav-btn" id="btn-p-alunos" onclick="togglePanel('p-alunos')">👥 Alunos</button>
             <div id="bim-tabs" style="display:flex; gap:5px; margin-left:auto; padding-right:10px;"></div>
         </nav>
     </header>
@@ -130,42 +98,35 @@
         <h3>Gerenciar Turmas</h3>
         <div id="class-tabs" style="display:flex; gap:5px; flex-wrap:wrap; margin-bottom:10px;"></div>
         <input type="text" id="in-cl" placeholder="+ Nova Turma e Enter" onkeypress="if(event.key==='Enter') addC()" style="width:100%; padding:10px;">
-        <button class="btn-close" onclick="closePanels()">FECHAR</button>
     </div>
 
     <div id="p-materias" class="config-overlay">
         <h3>Matérias da Turma</h3>
         <div id="subj-tabs" style="display:flex; gap:5px; flex-wrap:wrap; margin-bottom:10px;"></div>
         <input type="text" id="in-sb" placeholder="+ Nova Matéria e Enter" onkeypress="if(event.key==='Enter') addS()" style="width:100%; padding:10px;">
-        <button class="btn-close" onclick="closePanels()">FECHAR</button>
     </div>
 
     <div id="p-crit" class="config-overlay">
         <h3>Critérios de Avaliação</h3>
         Vistos do Bimestre (Total): <input type="number" id="tot-at" value="10" onchange="upTot(this.value)" style="width:60px; padding:5px;"><br><br>
-        <strong>Outros Critérios (Provas, Trabalhos):</strong>
+        <strong>Critérios Extras:</strong>
         <div id="crit-list" style="margin:10px 0;"></div>
         <input type="text" id="in-cr" placeholder="Nome do Critério..." style="width:70%; padding:8px;">
         <button onclick="addCrit()" class="btn-action btn-save">+</button>
-        <button class="btn-close" onclick="closePanels()">FECHAR</button>
     </div>
 
     <div id="p-alunos" class="config-overlay">
-        <h3>Importar Lista de Alunos</h3>
+        <h3>Importar Alunos</h3>
         <textarea id="in-nm" placeholder="Cole os nomes (um por linha)..." style="width:100%; height:100px; padding:10px;"></textarea>
-        <button onclick="impSt()" class="btn-action btn-save" style="width:100%; margin-top:10px;">IMPORTAR ALUNOS</button>
-        <button class="btn-close" onclick="closePanels()">FECHAR</button>
+        <button onclick="impSt()" class="btn-action btn-save" style="width:100%; margin-top:10px;">IMPORTAR AGORA</button>
     </div>
 
     <main class="main-content">
         <aside class="students-area">
-            <div style="font-weight:bold; margin-bottom:10px; color:#e91e63;">LISTA DE ALUNOS (<span id="count-st">0</span>)</div>
+            <div style="font-weight:bold; margin-bottom:10px; color:#e91e63;">ALUNOS (<span id="count-st">0</span>)</div>
             <div class="students-scroll" id="stu-list"></div>
         </aside>
-
-        <section class="track-container" id="track-box">
-            <div id="track"></div>
-        </section>
+        <section class="track-container"><div id="track"></div></section>
     </main>
 
     <script>
@@ -179,38 +140,40 @@
             } catch(e) {}
             render();
         }
-
         function save() { localStorage.setItem('biolab_v15', JSON.stringify(state)); }
 
-        function openPanel(id) {
-            closePanels();
-            document.getElementById(id).style.display = 'block';
-        }
-
-        function closePanels() {
+        function togglePanel(id) {
+            const panel = document.getElementById(id);
+            const btn = document.getElementById('btn-' + id);
+            const isVisible = panel.style.display === 'block';
+            
             document.querySelectorAll('.config-overlay').forEach(p => p.style.display = 'none');
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            
+            if(!isVisible) {
+                panel.style.display = 'block';
+                btn.classList.add('active');
+            }
         }
 
         function addC() { let v=document.getElementById('in-cl').value; if(v){ state.cs.push({n:v, ss:['Ciências'], si:0, totA:10, crits:[], st:[]}); state.ci=state.cs.length-1; document.getElementById('in-cl').value=''; save(); render(); }}
         function addS() { let v=document.getElementById('in-sb').value; if(v && state.ci>-1){ state.cs[state.ci].ss.push(v); document.getElementById('in-sb').value=''; save(); render(); }}
         function addCrit() { let v=document.getElementById('in-cr').value; if(v && state.ci>-1){ state.cs[state.ci].crits.push({n:v}); document.getElementById('in-cr').value=''; save(); render(); }}
         function upTot(v) { if(state.ci>-1){ state.cs[state.ci].totA=parseInt(v); save(); render(); } }
-
         function impSt() {
             let names = document.getElementById('in-nm').value.split('\n').filter(x=>x.trim());
-            if(state.ci===-1) return alert("Selecione uma turma primeiro!");
+            if(state.ci===-1) return alert("Selecione uma turma!");
             names.forEach(n => state.cs[state.ci].st.push({n:n.trim(), sc:{}, em:emojis[Math.floor(Math.random()*emojis.length)]}));
             state.cs[state.ci].st.sort((a,b)=>a.n.localeCompare(b.n));
-            document.getElementById('in-nm').value=''; save(); render(); closePanels();
+            document.getElementById('in-nm').value=''; save(); render(); togglePanel('p-alunos');
         }
 
         function editStu(si) {
-            let n = prompt("Editar nome:", state.cs[state.ci].st[si].n);
+            let n = prompt("Nome:", state.cs[state.ci].st[si].n);
             if(n) { state.cs[state.ci].st[si].n = n.trim(); save(); render(); }
         }
-
         function delStu(si) {
-            if(confirm("Excluir este aluno?")) { state.cs[state.ci].st.splice(si,1); save(); render(); }
+            if(confirm("Excluir?")) { state.cs[state.ci].st.splice(si,1); save(); render(); }
         }
 
         function getScore(stu, bim = state.b) {
@@ -222,44 +185,36 @@
         }
 
         function getAnnualScore(stu) {
-            let total = 0;
-            for(let i=1; i<=4; i++) total += getScore(stu, i);
-            return total / 4;
+            let t = 0; for(let i=1; i<=4; i++) t += getScore(stu, i);
+            return t / 4;
         }
 
         function render() {
             const c = state.cs[state.ci];
-            document.getElementById('disp-sch').innerText = localStorage.getItem('sch') || 'NOME DA UNIDADE ESCOLAR';
-            document.getElementById('disp-tea').innerText = localStorage.getItem('tea') || 'NOME DO PROFESSOR';
-            
+            document.getElementById('disp-sch').innerText = localStorage.getItem('sch') || 'UNIDADE ESCOLAR';
+            document.getElementById('disp-tea').innerText = localStorage.getItem('tea') || 'PROFESSOR';
             if(c) {
                 document.getElementById('info-turma').innerText = `TURMA: ${c.n}`;
                 document.getElementById('count-st').innerText = c.st.length;
                 document.getElementById('class-tabs').innerHTML = state.cs.map((x,i)=>`<button onclick="state.ci=${i};render();save();" class="btn-action" style="background:${i===state.ci?'#e91e63':'#eee'}; color:${i===state.ci?'white':'black'}">${x.n}</button>`).join('');
                 document.getElementById('subj-tabs').innerHTML = c.ss.map((s,i)=>`<button onclick="state.cs[state.ci].si=${i};render();save();" class="btn-action" style="background:${i===c.si?'#2ecc71':'#eee'}; color:${i===c.si?'white':'black'}">${s}</button>`).join('');
                 document.getElementById('crit-list').innerHTML = c.crits.map((cr,i)=>`<div style="padding:5px; border-bottom:1px solid #eee;">🧪 ${cr.n} <span onclick="state.cs[state.ci].crits.splice(${i},1);save();render();" style="color:red;cursor:pointer;float:right">✖</span></div>`).join('');
-                
                 document.getElementById('stu-list').innerHTML = c.st.map((stu, si) => {
                     let kA = `${c.si}_${state.b}_ativ`, chs = '';
                     for(let i=0; i<c.totA; i++) chs += `<div class="check-box ${(stu.sc[kA]||[]).includes(i)?'active':''}" onclick="tglA(${si},'${kA}',${i})">${i+1}</div>`;
                     let critsHTML = c.crits.map(cr => {
                         let k = `${c.si}_${state.b}_${cr.n}`;
-                        return `<div style="font-size:10px; margin-top:5px;">${cr.n}: <input type="number" step="0.1" value="${stu.sc[k]||0}" onchange="upSc(${si},'${k}',this.value)" style="width:40px; border:1px solid #ddd; border-radius:4px;"></div>`;
+                        return `<div style="font-size:10px; margin-top:5px;">${cr.n}: <input type="number" step="0.1" value="${stu.sc[k]||0}" onchange="upSc(${si},'${k}',this.value)" style="width:40px;"></div>`;
                     }).join('');
                     return `<div class="student-card">
-                        <div style="display:flex; justify-content:space-between; align-items:center;">
-                            <b>${stu.n}</b>
-                            <div style="font-size:10px;"><span onclick="editStu(${si})" style="cursor:pointer">✎</span> | <span onclick="delStu(${si})" style="cursor:pointer;color:red">🗑</span></div>
-                        </div>
-                        <div class="check-grid">${chs}</div>
-                        ${critsHTML}
+                        <div style="display:flex; justify-content:space-between;"><b>${stu.n}</b><div style="font-size:10px;"><span onclick="editStu(${si})" style="cursor:pointer">✎</span> | <span onclick="delStu(${si})" style="cursor:pointer;color:red">🗑</span></div></div>
+                        <div class="check-grid">${chs}</div>${critsHTML}
                         <div style="margin-top:8px; display:flex; justify-content:space-between; align-items:center;">
                             <span class="annual-avg">ANUAL: ${getAnnualScore(stu).toFixed(1)}</span>
                             <span style="font-weight:bold; color:#2ecc71;">BIM: ${getScore(stu).toFixed(1)}</span>
                         </div>
                     </div>`;
                 }).join('');
-
                 const track = document.getElementById('track'); track.innerHTML = '';
                 const z = state.zoom || 45;
                 c.st.forEach((stu) => {
@@ -287,10 +242,9 @@
         function exportExcel() { 
             let csv = "ALUNO;BIMESTRE;ANUAL\n" + state.cs[state.ci].st.map(s => `${s.n};${getScore(s).toFixed(1)};${getAnnualScore(s).toFixed(1)}`).join('\n');
             let blob = new Blob(["\ufeff"+csv], {type: 'text/csv;charset=utf-8;'});
-            let url = URL.createObjectURL(blob); let a = document.createElement('a'); a.href = url; a.download = 'Notas_Biolab.csv'; a.click();
+            let url = URL.createObjectURL(blob); let a = document.createElement('a'); a.href = url; a.download = 'Notas.csv'; a.click();
         }
         function nextEm(el) { el.innerText = emojis[Math.floor(Math.random()*emojis.length)]; }
-
         window.onload = load;
     </script>
 </body>
