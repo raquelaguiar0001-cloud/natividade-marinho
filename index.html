@@ -3,34 +3,95 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bio-Lab Master v16.6 - Média Anual</title>
+    <title>Bio-Lab Master v16.7 - Novo Layout</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Orbitron:wght@700&display=swap');
         * { box-sizing: border-box; -webkit-font-smoothing: antialiased; }
-        body { font-family: 'Fredoka', sans-serif; margin: 0; height: 100vh; overflow: hidden; background: radial-gradient(circle, #ffffff 0%, #d0e1f9 100%); color: #1a2a3a; }
-        #main-app { display: flex; flex-direction: column; height: 100vh; }
-        header { background: white; padding: 10px 25px; display: flex; justify-content: space-between; align-items: center; border-bottom: 5px solid #00d2ff; box-shadow: 0 4px 15px rgba(0,0,0,0.1); z-index: 10; }
-        .wrapper { display: flex; flex: 1; overflow: hidden; padding: 15px; gap: 15px; }
-        .sidebar { width: 380px; display: flex; flex-direction: column; gap: 8px; flex-shrink: 0; }
-        .panel { background: white; border-radius: 12px; border: 2px solid #00d2ff; overflow: hidden; }
-        .panel-header { padding: 10px 15px; background: #f0faff; cursor: pointer; display: flex; justify-content: space-between; font-weight: 700; font-size: 0.75rem; color: #0088aa; }
-        .panel-content { padding: 12px; border-top: 1px solid #e0f0f0; }
-        .closed .panel-content { display: none; }
-        .students-scroll { flex: 1; overflow-y: auto; margin-top: 5px; }
-        .student-card { background: white; border-radius: 10px; margin-bottom: 8px; border: 2px solid #eee; padding: 10px; position: relative; }
-        .track-container { flex: 1; background: #0b131a; border-radius: 30px; padding: 15px; position: relative; border: 6px solid #fff; overflow-y: auto; }
-        body.fullscreen-mode .sidebar, body.fullscreen-mode header { display: none !important; }
-        .lane { border-bottom: 1px dashed rgba(255,255,255,0.08); position: relative; display: flex; align-items: center; }
-        .runner { position: absolute; transition: 2s; display: flex; align-items: center; gap: 8px; }
-        .runner-tag { background: white; padding: 2px 6px; border-radius: 5px; font-weight: 900; border: 2px solid #00d2ff; white-space: nowrap; font-size: 10px; }
-        .check-grid { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 5px; }
-        .check-box { width: 26px; height: 26px; border: 2px solid #ddd; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 11px; cursor: pointer; background: white; }
+        body { font-family: 'Fredoka', sans-serif; margin: 0; height: 100vh; overflow: hidden; background: #fdf2f9; color: #1a2a3a; }
+        
+        /* Painel Superior Estilo Imagem */
+        header { 
+            background: linear-gradient(90deg, #9b4dca 0%, #e91e63 100%); 
+            padding: 15px 25px; 
+            color: white;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        .header-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px; }
+        .school-info h1 { margin: 0; font-family: 'Orbitron', sans-serif; font-size: 24px; }
+        .school-info p { margin: 5px 0 0; font-size: 13px; opacity: 0.9; }
+
+        .nav-container { 
+            background: white; 
+            border-radius: 15px; 
+            display: flex; 
+            padding: 5px; 
+            gap: 5px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+        .nav-btn { 
+            flex: 1; 
+            padding: 12px; 
+            border: none; 
+            background: transparent; 
+            border-radius: 10px; 
+            cursor: pointer; 
+            font-weight: bold; 
+            color: #555;
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            gap: 8px;
+            transition: 0.3s;
+        }
+        .nav-btn:hover { background: #f0f0f0; }
+        .nav-btn.active { background: linear-gradient(90deg, #9b4dca 0%, #e91e63 100%); color: white; }
+
+        /* Conteúdo Principal */
+        .main-content { display: flex; height: calc(100vh - 160px); padding: 15px; gap: 15px; }
+        
+        .students-area { width: 350px; display: flex; flex-direction: column; }
+        .students-scroll { flex: 1; overflow-y: auto; padding-right: 5px; }
+        
+        .track-container { 
+            flex: 1; 
+            background: #0b131a; 
+            border-radius: 30px; 
+            padding: 20px; 
+            position: relative; 
+            border: 6px solid #fff; 
+            overflow-y: auto; 
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.5);
+        }
+
+        /* Sub-paineis (Pop-ups de configuração) */
+        .config-overlay {
+            position: fixed; top: 140px; left: 50%; transform: translateX(-50%);
+            background: white; border-radius: 15px; padding: 20px; width: 90%; max-width: 600px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3); z-index: 100; display: none;
+            border: 3px solid #e91e63;
+        }
+
+        /* Estilos de Elementos */
+        .student-card { background: white; border-radius: 12px; margin-bottom: 10px; border: 2px solid #eee; padding: 12px; }
+        .lane { border-bottom: 1px dashed rgba(255,255,255,0.1); position: relative; display: flex; align-items: center; }
+        .runner { position: absolute; transition: 2s; display: flex; align-items: center; gap: 10px; }
+        .runner-tag { background: white; padding: 3px 8px; border-radius: 6px; font-weight: 900; border: 2px solid #e91e63; font-size: 11px; white-space: nowrap; }
+        
+        .check-grid { display: flex; flex-wrap: wrap; gap: 4px; margin: 8px 0; }
+        .check-box { width: 28px; height: 28px; border: 2px solid #ddd; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 11px; cursor: pointer; }
         .check-box.active { background: #2ecc71; color: white; border-color: #27ae60; }
-        #fs-controls { position: fixed; top: 20px; right: 20px; display: none; background: white; padding: 10px; border-radius: 15px; border: 3px solid #00d2ff; z-index: 1000; gap: 10px; }
+        
+        .annual-avg { font-size: 11px; color: #9b4dca; background: #f3e5f5; padding: 3px 8px; border-radius: 5px; font-weight: bold; }
+        
+        /* Botões */
+        .btn-action { padding: 6px 12px; border-radius: 8px; border: none; cursor: pointer; font-weight: bold; }
+        .btn-save { background: #27ae60; color: white; }
+        .btn-close { background: #eee; color: #555; margin-top: 10px; width: 100%; }
+
+        body.fullscreen-mode header { display: none; }
+        body.fullscreen-mode .main-content { height: 100vh; }
+        #fs-controls { position: fixed; top: 20px; right: 20px; display: none; background: white; padding: 10px; border-radius: 15px; z-index: 1000; gap: 10px; border: 2px solid #e91e63; }
         body.fullscreen-mode #fs-controls { display: flex; }
-        .btn-edit { background: #f1c40f; color: black; border: none; padding: 2px 8px; border-radius: 4px; cursor: pointer; font-size: 12px; }
-        .btn-del { background: #e74c3c; color: white; border: none; padding: 2px 8px; border-radius: 4px; cursor: pointer; font-size: 12px; }
-        .annual-avg { font-size: 11px; color: #0088aa; background: #e0f7ff; padding: 2px 6px; border-radius: 4px; font-weight: bold; margin-top: 5px; display: inline-block; }
     </style>
 </head>
 <body>
@@ -41,66 +102,71 @@
         <button onclick="toggleFS()" style="background:red; color:white; border:none; padding:5px 15px; border-radius:8px; cursor:pointer;">SAIR</button>
     </div>
 
-    <div id="main-app">
-        <header>
-            <div id="info-turma" style="font-weight:bold; background:#1a2a3a; color:#00d2ff; padding:5px 10px; border-radius:8px;">TURMA: ---</div>
-            <div style="text-align:center;">
-                <b onclick="editL('sch')" id="disp-sch">ESCOLA</b><br>
-                <small onclick="editL('tea')" id="disp-tea">PROFESSOR</small>
+    <header id="top-panel">
+        <div class="header-top">
+            <div class="school-info">
+                <h1 onclick="editL('sch')" id="disp-sch">UNIDADE ESCOLAR...</h1>
+                <p>PROFESSOR(A): <span onclick="editL('tea')" id="disp-tea">NOME AQUI</span> | <span id="info-turma">TURMA: ---</span></p>
             </div>
             <div style="display:flex; gap:10px;">
-                <button onclick="toggleFS()" style="background:#9b59b6; color:white; border:none; padding:8px; border-radius:8px; cursor:pointer;">📺 TELA CHEIA</button>
-                <button onclick="exportExcel()" style="background:#27ae60; color:white; border:none; padding:8px; border-radius:8px; cursor:pointer;">📊 EXCEL</button>
+                <button onclick="createBackup()" class="btn-action">💾 BACKUP</button>
+                <button onclick="document.getElementById('fileIn').click()" class="btn-action">📂 ABRIR</button>
+                <input type="file" id="fileIn" style="display:none" onchange="restoreBackup(event)">
+                <button onclick="toggleFS()" class="btn-action" style="background:#9b59b6; color:white;">📺 TELA CHEIA</button>
+                <button onclick="exportExcel()" class="btn-action" style="background:#fff; color:#e91e63;">📊 EXCEL</button>
             </div>
-        </header>
-
-        <div class="wrapper">
-            <aside class="sidebar">
-                <div style="background:#fff; padding:10px; border-radius:12px; border:2px solid #ccc; display:flex; gap:5px;">
-                    <button onclick="createBackup()" style="flex:1; font-size:10px; cursor:pointer;">💾 SALVAR BACKUP</button>
-                    <button onclick="document.getElementById('fileIn').click()" style="flex:1; font-size:10px; cursor:pointer;">📂 ABRIR BACKUP</button>
-                    <input type="file" id="fileIn" style="display:none" onchange="restoreBackup(event)">
-                </div>
-
-                <div class="panel" id="p-turmas">
-                    <div class="panel-header" onclick="this.parentElement.classList.toggle('closed')">🏫 TURMAS E MATÉRIAS <span>↕</span></div>
-                    <div class="panel-content">
-                        <div id="class-tabs" style="display:flex; gap:3px; flex-wrap:wrap; margin-bottom:8px;"></div>
-                        <input type="text" id="in-cl" placeholder="+ Turma e Enter" onkeypress="if(event.key==='Enter') addC()" style="width:100%; padding:5px;">
-                        <div id="subj-tabs" style="display:flex; gap:3px; margin-top:8px; flex-wrap:wrap;"></div>
-                        <input type="text" id="in-sb" placeholder="+ Matéria e Enter" onkeypress="if(event.key==='Enter') addS()" style="width:100%; padding:5px; margin-top:5px;">
-                    </div>
-                </div>
-
-                <div class="panel closed" id="p-crit">
-                    <div class="panel-header" onclick="this.parentElement.classList.toggle('closed')">📋 CRITÉRIOS DE NOTA <span>↕</span></div>
-                    <div class="panel-content">
-                        Vistos (Total): <input type="number" id="tot-at" value="10" onchange="upTot(this.value)" style="width:50px; margin-bottom:10px;"><br>
-                        <strong>Outros Critérios:</strong>
-                        <div id="crit-list" style="margin:8px 0;"></div>
-                        <input type="text" id="in-cr" placeholder="Ex: Prova, Trabalho..." style="width:70%; padding:5px;">
-                        <button onclick="addCrit()">+</button>
-                    </div>
-                </div>
-
-                <div class="panel closed" id="p-alun">
-                    <div class="panel-header" onclick="this.parentElement.classList.toggle('closed')">👥 IMPORTAR ALUNOS <span>↕</span></div>
-                    <div class="panel-content">
-                        <textarea id="in-nm" placeholder="Cole os nomes aqui..." style="width:100%; height:50px;"></textarea>
-                        <button onclick="impSt()" style="width:100%; margin-top:5px;">IMPORTAR</button>
-                    </div>
-                </div>
-
-                <div id="count-label" style="font-size:11px; font-weight:bold; margin-top:10px;">ALUNOS:</div>
-                <div class="students-scroll" id="stu-list"></div>
-            </aside>
-
-            <main class="track-container">
-                <div id="bim-tabs" style="display:flex; gap:5px; justify-content:center; margin-bottom:10px;"></div>
-                <div id="track"></div>
-            </main>
         </div>
+
+        <nav class="nav-container">
+            <button class="nav-btn" onclick="openPanel('p-turmas')">🎓 Turmas</button>
+            <button class="nav-btn" onclick="openPanel('p-materias')">📚 Matérias</button>
+            <button class="nav-btn" onclick="openPanel('p-crit')">📋 Critérios</button>
+            <button class="nav-btn" onclick="openPanel('p-alunos')">👥 Alunos</button>
+            <div id="bim-tabs" style="display:flex; gap:5px; margin-left:auto; padding-right:10px;"></div>
+        </nav>
+    </header>
+
+    <div id="p-turmas" class="config-overlay">
+        <h3>Gerenciar Turmas</h3>
+        <div id="class-tabs" style="display:flex; gap:5px; flex-wrap:wrap; margin-bottom:10px;"></div>
+        <input type="text" id="in-cl" placeholder="+ Nova Turma e Enter" onkeypress="if(event.key==='Enter') addC()" style="width:100%; padding:10px;">
+        <button class="btn-close" onclick="closePanels()">FECHAR</button>
     </div>
+
+    <div id="p-materias" class="config-overlay">
+        <h3>Matérias da Turma</h3>
+        <div id="subj-tabs" style="display:flex; gap:5px; flex-wrap:wrap; margin-bottom:10px;"></div>
+        <input type="text" id="in-sb" placeholder="+ Nova Matéria e Enter" onkeypress="if(event.key==='Enter') addS()" style="width:100%; padding:10px;">
+        <button class="btn-close" onclick="closePanels()">FECHAR</button>
+    </div>
+
+    <div id="p-crit" class="config-overlay">
+        <h3>Critérios de Avaliação</h3>
+        Vistos do Bimestre (Total): <input type="number" id="tot-at" value="10" onchange="upTot(this.value)" style="width:60px; padding:5px;"><br><br>
+        <strong>Outros Critérios (Provas, Trabalhos):</strong>
+        <div id="crit-list" style="margin:10px 0;"></div>
+        <input type="text" id="in-cr" placeholder="Nome do Critério..." style="width:70%; padding:8px;">
+        <button onclick="addCrit()" class="btn-action btn-save">+</button>
+        <button class="btn-close" onclick="closePanels()">FECHAR</button>
+    </div>
+
+    <div id="p-alunos" class="config-overlay">
+        <h3>Importar Lista de Alunos</h3>
+        <textarea id="in-nm" placeholder="Cole os nomes (um por linha)..." style="width:100%; height:100px; padding:10px;"></textarea>
+        <button onclick="impSt()" class="btn-action btn-save" style="width:100%; margin-top:10px;">IMPORTAR ALUNOS</button>
+        <button class="btn-close" onclick="closePanels()">FECHAR</button>
+    </div>
+
+    <main class="main-content">
+        <aside class="students-area">
+            <div style="font-weight:bold; margin-bottom:10px; color:#e91e63;">LISTA DE ALUNOS (<span id="count-st">0</span>)</div>
+            <div class="students-scroll" id="stu-list"></div>
+        </aside>
+
+        <section class="track-container" id="track-box">
+            <div id="track"></div>
+        </section>
+    </main>
 
     <script>
         let state = { cs: [], ci: -1, b: 1, zoom: 45 };
@@ -116,6 +182,15 @@
 
         function save() { localStorage.setItem('biolab_v15', JSON.stringify(state)); }
 
+        function openPanel(id) {
+            closePanels();
+            document.getElementById(id).style.display = 'block';
+        }
+
+        function closePanels() {
+            document.querySelectorAll('.config-overlay').forEach(p => p.style.display = 'none');
+        }
+
         function addC() { let v=document.getElementById('in-cl').value; if(v){ state.cs.push({n:v, ss:['Ciências'], si:0, totA:10, crits:[], st:[]}); state.ci=state.cs.length-1; document.getElementById('in-cl').value=''; save(); render(); }}
         function addS() { let v=document.getElementById('in-sb').value; if(v && state.ci>-1){ state.cs[state.ci].ss.push(v); document.getElementById('in-sb').value=''; save(); render(); }}
         function addCrit() { let v=document.getElementById('in-cr').value; if(v && state.ci>-1){ state.cs[state.ci].crits.push({n:v}); document.getElementById('in-cr').value=''; save(); render(); }}
@@ -123,10 +198,10 @@
 
         function impSt() {
             let names = document.getElementById('in-nm').value.split('\n').filter(x=>x.trim());
-            if(state.ci===-1) return alert("Crie uma turma!");
+            if(state.ci===-1) return alert("Selecione uma turma primeiro!");
             names.forEach(n => state.cs[state.ci].st.push({n:n.trim(), sc:{}, em:emojis[Math.floor(Math.random()*emojis.length)]}));
             state.cs[state.ci].st.sort((a,b)=>a.n.localeCompare(b.n));
-            document.getElementById('in-nm').value=''; save(); render();
+            document.getElementById('in-nm').value=''; save(); render(); closePanels();
         }
 
         function editStu(si) {
@@ -154,32 +229,34 @@
 
         function render() {
             const c = state.cs[state.ci];
-            document.getElementById('disp-sch').innerText = localStorage.getItem('sch') || 'ESCOLA';
-            document.getElementById('disp-tea').innerText = localStorage.getItem('tea') || 'PROFESSOR';
+            document.getElementById('disp-sch').innerText = localStorage.getItem('sch') || 'NOME DA UNIDADE ESCOLAR';
+            document.getElementById('disp-tea').innerText = localStorage.getItem('tea') || 'NOME DO PROFESSOR';
             
             if(c) {
                 document.getElementById('info-turma').innerText = `TURMA: ${c.n}`;
-                document.getElementById('count-label').innerText = `ALUNOS: ${c.st.length}`;
-                document.getElementById('tot-at').value = c.totA;
-                document.getElementById('class-tabs').innerHTML = state.cs.map((x,i)=>`<button onclick="state.ci=${i};render();save();" style="background:${i===state.ci?'#00d2ff':'#eee'}; border:none; padding:4px 8px; border-radius:4px; font-size:10px; cursor:pointer;">${x.n}</button>`).join('');
-                document.getElementById('subj-tabs').innerHTML = c.ss.map((s,i)=>`<button onclick="state.cs[state.ci].si=${i};render();save();" style="background:${i===c.si?'#2ecc71':'#eee'}; border:none; padding:4px 8px; border-radius:4px; font-size:10px; cursor:pointer; color:${i===c.si?'white':'black'}">${s}</button>`).join('');
-                document.getElementById('crit-list').innerHTML = c.crits.map((cr,i)=>`<div style="font-size:12px;">🧪 ${cr.n} <span onclick="state.cs[state.ci].crits.splice(${i},1);save();render();" style="color:red;cursor:pointer;">✖</span></div>`).join('');
+                document.getElementById('count-st').innerText = c.st.length;
+                document.getElementById('class-tabs').innerHTML = state.cs.map((x,i)=>`<button onclick="state.ci=${i};render();save();" class="btn-action" style="background:${i===state.ci?'#e91e63':'#eee'}; color:${i===state.ci?'white':'black'}">${x.n}</button>`).join('');
+                document.getElementById('subj-tabs').innerHTML = c.ss.map((s,i)=>`<button onclick="state.cs[state.ci].si=${i};render();save();" class="btn-action" style="background:${i===c.si?'#2ecc71':'#eee'}; color:${i===c.si?'white':'black'}">${s}</button>`).join('');
+                document.getElementById('crit-list').innerHTML = c.crits.map((cr,i)=>`<div style="padding:5px; border-bottom:1px solid #eee;">🧪 ${cr.n} <span onclick="state.cs[state.ci].crits.splice(${i},1);save();render();" style="color:red;cursor:pointer;float:right">✖</span></div>`).join('');
                 
                 document.getElementById('stu-list').innerHTML = c.st.map((stu, si) => {
                     let kA = `${c.si}_${state.b}_ativ`, chs = '';
                     for(let i=0; i<c.totA; i++) chs += `<div class="check-box ${(stu.sc[kA]||[]).includes(i)?'active':''}" onclick="tglA(${si},'${kA}',${i})">${i+1}</div>`;
                     let critsHTML = c.crits.map(cr => {
                         let k = `${c.si}_${state.b}_${cr.n}`;
-                        return `<div style="font-size:10px; margin-top:5px;">${cr.n}: <input type="number" value="${stu.sc[k]||0}" onchange="upSc(${si},'${k}',this.value)" style="width:40px;"></div>`;
+                        return `<div style="font-size:10px; margin-top:5px;">${cr.n}: <input type="number" step="0.1" value="${stu.sc[k]||0}" onchange="upSc(${si},'${k}',this.value)" style="width:40px; border:1px solid #ddd; border-radius:4px;"></div>`;
                     }).join('');
                     return `<div class="student-card">
                         <div style="display:flex; justify-content:space-between; align-items:center;">
                             <b>${stu.n}</b>
-                            <div><button class="btn-edit" onclick="editStu(${si})">✎</button> <button class="btn-del" onclick="delStu(${si})">🗑</button></div>
+                            <div style="font-size:10px;"><span onclick="editStu(${si})" style="cursor:pointer">✎</span> | <span onclick="delStu(${si})" style="cursor:pointer;color:red">🗑</span></div>
                         </div>
                         <div class="check-grid">${chs}</div>
                         ${critsHTML}
-                        <div class="annual-avg">Média Anual: ${getAnnualScore(stu).toFixed(1)}</div>
+                        <div style="margin-top:8px; display:flex; justify-content:space-between; align-items:center;">
+                            <span class="annual-avg">ANUAL: ${getAnnualScore(stu).toFixed(1)}</span>
+                            <span style="font-weight:bold; color:#2ecc71;">BIM: ${getScore(stu).toFixed(1)}</span>
+                        </div>
                     </div>`;
                 }).join('');
 
@@ -188,11 +265,11 @@
                 c.st.forEach((stu) => {
                     let g = getScore(stu);
                     let lane = document.createElement('div'); lane.className='lane'; lane.style.height = z + 'px';
-                    lane.innerHTML = `<div class="runner" style="left:${g*8.5}%"><div style="font-size:${z*0.7}px; cursor:pointer;" onclick="nextEm(this)">${stu.em}</div><div class="runner-tag">${stu.n} | ${g.toFixed(1)}</div></div>`;
+                    lane.innerHTML = `<div class="runner" style="left:${g*8.8}%"><div style="font-size:${z*0.7}px; cursor:pointer;" onclick="nextEm(this)">${stu.em}</div><div class="runner-tag">${stu.n} | ${g.toFixed(1)}</div></div>`;
                     track.appendChild(lane);
                 });
             }
-            document.getElementById('bim-tabs').innerHTML = [1,2,3,4].map(b=>`<button onclick="state.b=${b};render();save();" style="background:${b===state.b?'#00d2ff':'white'}; border:none; padding:8px 15px; border-radius:8px; cursor:pointer; font-weight:bold;">${b}º BIM</button>`).join('');
+            document.getElementById('bim-tabs').innerHTML = [1,2,3,4].map(b=>`<button onclick="state.b=${b};render();save();" style="background:${b===state.b?'#e91e63':'#f0f0f0'}; color:${b===state.b?'white':'#555'}; border:none; padding:5px 12px; border-radius:8px; cursor:pointer; font-weight:bold; font-size:11px;">${b}º BIM</button>`).join('');
         }
 
         function tglA(si, k, idx) {
@@ -205,12 +282,12 @@
         function toggleFS() { document.body.classList.toggle('fullscreen-mode'); render(); }
         function changeZoom(v) { state.zoom = Math.max(20, (state.zoom||45)+v); save(); render(); }
         function editL(k) { let n=prompt("Editar:", localStorage.getItem(k)); if(n){localStorage.setItem(k,n); render();}}
-        function createBackup() { let b=new Blob([JSON.stringify({state,sch:localStorage.getItem('sch'),tea:localStorage.getItem('tea')})],{type:'application/json'}); let a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download='Backup_Biolab.json'; a.click(); }
-        function restoreBackup(e) { let r=new FileReader(); r.onload=(ev)=>{ let d=JSON.parse(ev.target.result); state=d.state; localStorage.setItem('sch',d.sch); localStorage.setItem('tea',d.tea); save(); render(); }; r.readAsText(e.target.files[0]); }
+        function createBackup() { let b=new Blob([JSON.stringify({state,sch:localStorage.getItem('sch'),tea:localStorage.getItem('tea')})],{type:'application/json'}); let a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download='Biolab_Backup.json'; a.click(); }
+        function restoreBackup(e) { let r=new FileReader(); r.onload=(ev)=>{ state=JSON.parse(ev.target.result).state; save(); render(); alert("Backup Restaurado!"); }; r.readAsText(e.target.files[0]); }
         function exportExcel() { 
-            let csv = "ALUNO;MÉDIA ANUAL\n" + state.cs[state.ci].st.map(s => `${s.n};${getAnnualScore(s).toFixed(1)}`).join('\n');
+            let csv = "ALUNO;BIMESTRE;ANUAL\n" + state.cs[state.ci].st.map(s => `${s.n};${getScore(s).toFixed(1)};${getAnnualScore(s).toFixed(1)}`).join('\n');
             let blob = new Blob(["\ufeff"+csv], {type: 'text/csv;charset=utf-8;'});
-            let url = URL.createObjectURL(blob); let a = document.createElement('a'); a.href = url; a.download = 'Relatorio_Anual.csv'; a.click();
+            let url = URL.createObjectURL(blob); let a = document.createElement('a'); a.href = url; a.download = 'Notas_Biolab.csv'; a.click();
         }
         function nextEm(el) { el.innerText = emojis[Math.floor(Math.random()*emojis.length)]; }
 
