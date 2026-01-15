@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bio-Lab Master v17.1</title>
+    <title>Bio-Lab Master v17.2 - Notas Coloridas</title>
     
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🔬</text></svg>">
 
@@ -51,6 +51,10 @@
             border: 3px solid #e91e63;
         }
 
+        /* Estilo das Notas Dinâmicas */
+        .score-good { color: #2ecc71 !important; font-weight: bold; }
+        .score-bad { color: #e74c3c !important; font-weight: bold; }
+
         .student-card { background: white; border-radius: 12px; margin-bottom: 10px; border: 2px solid #eee; padding: 12px; }
         .lane { border-bottom: 1px dashed rgba(255,255,255,0.1); position: relative; display: flex; align-items: center; }
         .runner { position: absolute; transition: 2s; display: flex; align-items: center; gap: 10px; }
@@ -62,7 +66,7 @@
         
         .btn-action { padding: 6px 12px; border-radius: 8px; border: none; cursor: pointer; font-weight: bold; }
         .btn-save { background: #27ae60; color: white; }
-        .annual-avg { font-size: 11px; color: #9b4dca; background: #f3e5f5; padding: 3px 8px; border-radius: 5px; font-weight: bold; }
+        .annual-avg-box { font-size: 11px; background: #f3e5f5; padding: 3px 8px; border-radius: 5px; font-weight: bold; }
 
         body.fullscreen-mode header { display: none; }
         body.fullscreen-mode .main-content { height: 100vh; }
@@ -164,11 +168,7 @@
         
         function addS() { 
             let v=document.getElementById('in-sb').value; 
-            if(v && state.ci>-1){ 
-                state.cs[state.ci].ss.push(v); 
-                document.getElementById('in-sb').value=''; 
-                save(); render(); 
-            }
+            if(v && state.ci>-1){ state.cs[state.ci].ss.push(v); document.getElementById('in-sb').value=''; save(); render(); }
         }
 
         function delS(idx) {
@@ -194,9 +194,7 @@
             let n = prompt("Nome:", state.cs[state.ci].st[si].n);
             if(n) { state.cs[state.ci].st[si].n = n.trim(); save(); render(); }
         }
-        function delStu(si) {
-            if(confirm("Excluir?")) { state.cs[state.ci].st.splice(si,1); save(); render(); }
-        }
+        function delStu(si) { if(confirm("Excluir?")) { state.cs[state.ci].st.splice(si,1); save(); render(); } }
 
         function getScore(stu, bim = state.b) {
             const c = state.cs[state.ci]; if(!c) return 0;
@@ -239,12 +237,18 @@
                         let k = `${c.si}_${state.b}_${cr.n}`;
                         return `<div style="font-size:10px; margin-top:5px;">${cr.n}: <input type="number" step="0.1" value="${stu.sc[k]||0}" onchange="upSc(${si},'${k}',this.value)" style="width:40px;"></div>`;
                     }).join('');
+
+                    let sBim = getScore(stu);
+                    let sAnn = getAnnualScore(stu);
+                    let clsBim = sBim >= 7 ? 'score-good' : 'score-bad';
+                    let clsAnn = sAnn >= 7 ? 'score-good' : 'score-bad';
+
                     return `<div class="student-card">
                         <div style="display:flex; justify-content:space-between;"><b>${stu.n}</b><div style="font-size:10px;"><span onclick="editStu(${si})" style="cursor:pointer">✎</span> | <span onclick="delStu(${si})" style="cursor:pointer;color:red">🗑</span></div></div>
                         <div class="check-grid">${chs}</div>${critsHTML}
                         <div style="margin-top:8px; display:flex; justify-content:space-between; align-items:center;">
-                            <span class="annual-avg">ANUAL: ${getAnnualScore(stu).toFixed(1)}</span>
-                            <span style="font-weight:bold; color:#2ecc71;">BIM: ${getScore(stu).toFixed(1)}</span>
+                            <span class="annual-avg-box">ANUAL: <span class="${clsAnn}">${sAnn.toFixed(1)}</span></span>
+                            <span style="font-weight:bold;">BIM: <span class="${clsBim}">${sBim.toFixed(1)}</span></span>
                         </div>
                     </div>`;
                 }).join('');
