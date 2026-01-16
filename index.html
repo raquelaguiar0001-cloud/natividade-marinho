@@ -121,7 +121,6 @@
             const data = localStorage.getItem('biolab_v15');
             if(data) {
                 state = JSON.parse(data);
-                // Migração para novos critérios independentes se necessário
                 state.cs.forEach(c => {
                     if (!c.mCrits) c.mCrits = {};
                     if (!c.mTotA) c.mTotA = {};
@@ -226,8 +225,9 @@
                 const track = document.getElementById('track'); track.innerHTML = '';
                 c.st.forEach((stu) => {
                     let g = getScore(stu);
+                    let colorClass = g >= 7 ? 'score-good' : 'score-bad';
                     let lane = document.createElement('div'); lane.className='lane'; lane.style.height = state.zoom + 'px';
-                    lane.innerHTML = `<div class="runner" style="left:${g*8.8}%"><div style="font-size:${state.zoom*0.7}px; cursor:pointer;" onclick="nextEm(this)">${stu.em}</div><div class="runner-tag">${stu.n} | ${g.toFixed(1)}</div></div>`;
+                    lane.innerHTML = `<div class="runner" style="left:${g*8.8}%"><div style="font-size:${state.zoom*0.7}px; cursor:pointer;" onclick="nextEm(this)">${stu.em}</div><div class="runner-tag">${stu.n} | <span class="${colorClass}">${g.toFixed(1)}</span></div></div>`;
                     track.appendChild(lane);
                 });
             }
