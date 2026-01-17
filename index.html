@@ -48,7 +48,6 @@
             transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
         }
         
-        /* Estilo para Pista Maximizada */
         .track-container.full { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 9999; border-radius: 0; border: none; }
 
         .lane { border-bottom: 1px solid rgba(255,255,255,0.15); position: relative; display: flex; align-items: center; width: 100%; height: 38px; }
@@ -72,13 +71,13 @@
 </head>
 <body onclick="fecharTodos()">
 
-<div id="loading"><b>📡 SYNCING NATIVIDADE...</b></div>
+<div id="loading"><b>📡 SINCRONIZANDO NATIVIDADE...</b></div>
 
 <header onclick="event.stopPropagation()">
     <div style="display:flex; justify-content:space-between; align-items:center;">
         <div>
             <h2 style="margin:0; font-family:'Orbitron'; font-size: 18px;">UE. NATIVIDADE MARINHO</h2>
-            <div style="font-size:12px; color:#ffd700; font-weight:bold;">TEACHER: RAQUEL AGUIAR</div>
+            <div style="font-size:12px; color:#ffd700; font-weight:bold;">PROFESSORA: RAQUEL AGUIAR</div>
             <div class="status-bar">
                 <span><span class="status-label">TURMA:</span><span id="txt-turma">---</span></span>
                 <span><span class="status-label">MATÉRIA:</span><span id="txt-materia">---</span></span>
@@ -87,9 +86,9 @@
         </div>
         <div style="display:flex; gap:8px;">
             <button onclick="exportarExcelCompleto()" style="background:#217346; color:white; padding:8px 12px; border-radius:8px; border:none; font-weight:bold; cursor:pointer;">📊 EXCEL</button>
-            <button onclick="document.getElementById('fileIn').click()" style="background:#ffd700; color:#1b5e20; padding:8px 12px; border-radius:8px; border:none; font-weight:bold; cursor:pointer;">📂 IMPORT</button>
+            <button onclick="document.getElementById('fileIn').click()" style="background:#ffd700; color:#1b5e20; padding:8px 12px; border-radius:8px; border:none; font-weight:bold; cursor:pointer;">📂 IMPORTAR</button>
             <input type="file" id="fileIn" style="display:none" onchange="importarBackup(event)">
-            <button onclick="exportarBackup()" style="background:white; color:#1b5e20; padding:8px 12px; border-radius:8px; border:none; font-weight:bold; cursor:pointer;">💾 BK</button>
+            <button onclick="exportarBackup()" style="background:white; color:#1b5e20; padding:8px 12px; border-radius:8px; border:none; font-weight:bold; cursor:pointer;">💾 BACKUP</button>
         </div>
     </div>
     <nav class="nav-container">
@@ -136,14 +135,18 @@
 </div>
 
 <script>
+    // ############################################################
+    // ATENÇÃO RAQUEL: COLE AQUI AS SUAS CHAVES DO FIREBASE 
+    // ESPECÍFICAS DA NATIVIDADE MARINHO (IGUAL AO SEU CÓDIGO ANTIGO)
+    // ############################################################
     const firebaseConfig = {
-        apiKey: "AIzaSyCXIOrHsZbHXvOIGTk0HS8NOwVBvpmwrOo",
-        authDomain: "ue-joao-tavares-da-costa.firebaseapp.com",
-        databaseURL: "https://ue-joao-tavares-da-costa-default-rtdb.firebaseio.com",
-        projectId: "ue-joao-tavares-da-costa",
-        storageBucket: "ue-joao-tavares-da-costa.firebasestorage.app",
-        messagingSenderId: "879518153821",
-        appId: "1:879518153821:web:282a71916d6b1e9199a1b4"
+        apiKey: "COLE_AQUI_A_SUA_API_KEY", 
+        authDomain: "COLE_AQUI_O_AUTH_DOMAIN",
+        databaseURL: "COLE_AQUI_A_URL_DO_DATABASE",
+        projectId: "COLE_AQUI_O_PROJECT_ID",
+        storageBucket: "COLE_AQUI_O_STORAGE_BUCKET",
+        messagingSenderId: "COLE_AQUI_O_SENDER_ID",
+        appId: "COLE_AQUI_O_APP_ID"
     };
 
     firebase.initializeApp(firebaseConfig);
@@ -151,10 +154,10 @@
     let dados = { turmas: [], ti: 0, bim: 1 };
     const emojis = ['🏃', '👟', '🏀', '⚽', '🏐', '🎾', '🏈', '🛹', '🏸', '🥋'];
 
-    // USANDO NÓ ESPECÍFICO PARA NATIVIDADE PARA NÃO MISTURAR DADOS
-    const DB_NODE = 'biolab_natividade_marinho';
+    // USANDO O NÓ EXCLUSIVO DA NATIVIDADE
+    const NODE_NAME = 'biolab_natividade_marinho';
 
-    db.ref(DB_NODE).on('value', (snap) => {
+    db.ref(NODE_NAME).on('value', (snap) => {
         if(snap.val()) {
             dados = snap.val();
             if (!dados.turmas) dados.turmas = [];
@@ -163,7 +166,7 @@
         renderizar();
     });
 
-    function salvar() { db.ref(DB_NODE).set(dados); }
+    function salvar() { db.ref(NODE_NAME).set(dados); }
     function fecharTodos() { document.querySelectorAll('.config-overlay').forEach(p => p.style.display = 'none'); }
     function abrirPainel(id) { fecharTodos(); document.getElementById(id).style.display = 'block'; }
 
@@ -236,7 +239,7 @@
                     <span style="font-weight:bold; flex:1;">${s.n}</span>
                     <div style="text-align:right">
                         <div class="score-bim" style="color:${nB<7?'#d32f2f':'#388e3c'}">${nB.toFixed(1)}</div>
-                        <div class="score-anual" style="color:${nA<7?'#d32f2f':'#388e3c'}">ANUAL: ${nA.toFixed(1)}</div>
+                        <div class="score-anual" style="color:${nA<7?'#d32f2f':'#388e3c'}">MÉDIA ANUAL: ${nA.toFixed(1)}</div>
                     </div>
                 </div>
                 <div class="check-grid">${chs}</div>${critsH}
@@ -261,7 +264,7 @@
     function addM() { let v=document.getElementById('in-mat').value; if(v){ const t=dados.turmas[dados.ti]; if(!t.mats) t.mats=[]; t.mats.push(v); if(!t.totA) t.totA=[]; t.totA.push(10); if(!t.crits) t.crits=[]; t.crits.push([]); t.mi=t.mats.length-1; salvar(); document.getElementById('in-mat').value=''; } }
     function addC() { let v=document.getElementById('in-cr').value; if(v){ const t=dados.turmas[dados.ti]; if(!t.crits[t.mi]) t.crits[t.mi]=[]; t.crits[t.mi].push({n:v}); salvar(); document.getElementById('in-cr').value=''; } }
     function addStus() { let n=document.getElementById('in-nm').value.split('\n'); n.forEach(x=>{ if(x.trim()) { if(!dados.turmas[dados.ti].st) dados.turmas[dados.ti].st=[]; dados.turmas[dados.ti].st.push({n:x.trim(), sc:{}}); } }); document.getElementById('in-nm').value=''; salvar(); }
-    function delT(i) { if(confirm('Excluir turma?')){ dados.turmas.splice(i, 1); dados.ti = 0; salvar(); } }
+    function delT(i) { if(confirm('Excluir turma permanentemente?')){ dados.turmas.splice(i, 1); dados.ti = 0; salvar(); } }
     function delM(i) { if(confirm('Excluir matéria?')){ dados.turmas[dados.ti].mats.splice(i, 1); dados.turmas[dados.ti].mi = 0; salvar(); } }
     function delS(i) { if(confirm('Remover aluno?')){ dados.turmas[dados.ti].st.splice(i, 1); salvar(); } }
     function delC(i) { dados.turmas[dados.ti].crits[dados.turmas[dados.ti].mi].splice(i, 1); salvar(); }
@@ -276,7 +279,7 @@
         let a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([csv], {type: 'text/csv'})); a.download = `RELATORIO_NATIVIDADE_${t.n}.csv`; a.click();
     }
     function exportarBackup() { let a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([JSON.stringify(dados)],{type:'application/json'})); a.download='Backup_Natividade.json'; a.click(); }
-    function importarBackup(e) { let fr=new FileReader(); fr.onload=(ev)=>{ try { dados=JSON.parse(ev.target.result); salvar(); } catch(e){alert("Erro");} }; fr.readAsText(e.target.files[0]); }
+    function importarBackup(e) { let fr=new FileReader(); fr.onload=(ev)=>{ try { dados=JSON.parse(ev.target.result); salvar(); } catch(e){alert("Erro ao importar");} }; fr.readAsText(e.target.files[0]); }
 </script>
 </body>
 </html>
