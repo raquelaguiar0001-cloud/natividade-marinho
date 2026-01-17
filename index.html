@@ -3,22 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>UE. NATIVIDADE MARINHO</title>
+    <title>UE. NATIVIDADE MARINHO - Online</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🔬</text></svg>">
+    
+    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
+
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Orbitron:wght@700&display=swap');
-        
         * { box-sizing: border-box; -webkit-font-smoothing: antialiased; }
         body { font-family: 'Fredoka', sans-serif; margin: 0; height: 100vh; overflow: hidden; background: #fdf2f9; color: #1a2a3a; }
         
         header { 
             background: linear-gradient(90deg, #9b4dca 0%, #e91e63 100%); 
-            padding: 8px 20px; 
-            color: white; 
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2); 
-            position: relative; 
-            z-index: 10; 
-            transition: 0.3s;
+            padding: 8px 20px; color: white; box-shadow: 0 4px 15px rgba(0,0,0,0.2); 
+            position: relative; z-index: 10;
         }
         .header-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
         .school-info h1 { margin: 0; font-family: 'Orbitron', sans-serif; font-size: 20px; cursor: pointer; }
@@ -37,9 +36,8 @@
         .students-area { width: 310px; display: flex; flex-direction: column; transition: 0.3s; }
         .students-scroll { flex: 1; overflow-y: auto; padding-right: 5px; }
         
-        .track-container { flex: 1; background: radial-gradient(circle at center, #1c2e4a 0%, #0a111a 100%); border-radius: 20px; padding: 10px; position: relative; border: 5px solid #2c3e50; overflow-y: auto; transition: 0.3s; }
+        .track-container { flex: 1; background: radial-gradient(circle at center, #1c2e4a 0%, #0a111a 100%); border-radius: 20px; padding: 10px; position: relative; border: 5px solid #2c3e50; overflow-y: auto; }
 
-        /* MODO MAXIMIZADO */
         body.max-track header { display: none; }
         body.max-track .students-area { display: none; }
         body.max-track .main-content { height: 100vh; padding: 0; }
@@ -64,18 +62,15 @@
         .item-flex { display: flex; justify-content: space-between; align-items: center; background: #f8f9fa; padding: 6px 10px; margin: 4px 0; border-radius: 6px; border: 1px solid #eee; }
         .btn-del { background: #ffebf0; color: #e91e63; border: none; padding: 3px 7px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 12px; }
 
-        .score-good { color: #2ecc71 !important; font-weight: bold; }
-        .score-bad { color: #e74c3c !important; font-weight: bold; }
-
-        ::-webkit-scrollbar { width: 5px; }
-        ::-webkit-scrollbar-thumb { background: #e91e63; border-radius: 10px; }
+        #loading { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; display: flex; align-items: center; justify-content: center; z-index: 9999; }
     </style>
 </head>
 <body onclick="fecharAoClicarFora(event)">
 
+    <div id="loading"><h1>Conectando ao Biolab... 🧬</h1></div>
     <button class="btn-restore" onclick="toggleMax()">🔙 VOLTAR AO PAINEL</button>
 
-    <header id="top-panel" onclick="event.stopPropagation()">
+    <header onclick="event.stopPropagation()">
         <div class="header-top">
             <div class="school-info">
                 <h1 onclick="editL('sch')" id="disp-sch">UE. NATIVIDADE MARINHO</h1>
@@ -84,8 +79,6 @@
             </div>
             <div style="display:flex; gap:8px;">
                 <button onclick="createBackup()" style="cursor:pointer; padding:4px 8px; border-radius:5px; border:1px solid #fff; background:transparent; color:white;">💾 BACKUP</button>
-                <button onclick="document.getElementById('fileIn').click()" style="cursor:pointer; padding:4px 8px; border-radius:5px; border:1px solid #fff; background:transparent; color:white;">📂 ABRIR</button>
-                <input type="file" id="fileIn" style="display:none" onchange="restoreBackup(event)">
                 <button onclick="exportExcel()" style="background:#fff; color:#e91e63; font-weight:bold; border:none; padding:5px 10px; border-radius:5px; cursor:pointer;">📊 EXCEL</button>
             </div>
         </div>
@@ -97,12 +90,10 @@
             
             <div class="zoom-controls">
                 <button class="zoom-btn" onclick="adjustZoom(-5)">-</button>
-                <span style="font-size: 10px; font-weight: bold; color: #555; padding: 0 4px;">PISTA</span>
                 <button class="zoom-btn" onclick="adjustZoom(5)">+</button>
             </div>
 
             <button class="nav-btn" onclick="toggleMax()" style="background: #1a2a3a; color: #00d2ff; margin-left: 5px;">📺 MAXIMIZAR</button>
-
             <div id="bim-tabs" style="display:flex; gap:3px; margin-left:auto;"></div>
         </nav>
     </header>
@@ -141,25 +132,37 @@
     </main>
 
     <script>
+        // CONFIGURAÇÃO FIREBASE
+        const firebaseConfig = {
+            apiKey: "AIzaSyDNuA_OeQDU-tNLW93afXEQ_UzfH00yP2A",
+            authDomain: "biolab-natividade.firebaseapp.com",
+            databaseURL: "https://biolab-natividade-default-rtdb.firebaseio.com",
+            projectId: "biolab-natividade",
+            storageBucket: "biolab-natividade.firebasestorage.app",
+            messagingSenderId: "268434655206",
+            appId: "1:268434655206:web:e64592c269837f9ae87827"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
         let state = { cs: [], ci: -1, b: 1, zoom: 34 };
         const emojis = ['🚀','⚛️','🧬','🧪','🪐','🛸','👾','🌿','🦠','🔭','👨‍🔬','👩‍🔬','🌍','☀️','💎','🌡️'];
 
-        function load() {
-            const data = localStorage.getItem('biolab_v15');
+        // ESCUTADOR EM TEMPO REAL
+        db.ref('biolab_v15').on('value', (snapshot) => {
+            const data = snapshot.val();
             if(data) {
-                state = JSON.parse(data);
+                state = data;
                 if(!state.zoom) state.zoom = 34;
-                state.cs.forEach(c => {
-                    if (!c.mCrits) c.mCrits = {};
-                    if (!c.mTotA) c.mTotA = {};
-                });
             }
+            document.getElementById('loading').style.display = 'none';
             render();
-        }
-        function save() { localStorage.setItem('biolab_v15', JSON.stringify(state)); }
+        });
+
+        function save() { db.ref('biolab_v15').set(state); }
 
         function toggleMax() { document.body.classList.toggle('max-track'); }
-        function adjustZoom(val) { state.zoom = Math.max(20, Math.min(100, state.zoom + val)); render(); save(); }
+        function adjustZoom(val) { state.zoom = Math.max(20, Math.min(100, state.zoom + val)); save(); }
 
         function togglePanel(id) {
             const isVisible = document.getElementById(id).style.display === 'block';
@@ -173,22 +176,23 @@
             }
         }
 
-        function addC() { let v=document.getElementById('in-cl').value; if(v){ state.cs.push({n:v, ss:['Ciências'], si:0, mCrits:{}, mTotA:{}, st:[]}); state.ci=state.cs.length-1; document.getElementById('in-cl').value=''; save(); render(); }}
-        function addS() { let v=document.getElementById('in-sb').value; if(v && state.ci>-1){ state.cs[state.ci].ss.push(v); document.getElementById('in-sb').value=''; save(); render(); }}
-        function addCrit() { let v=document.getElementById('in-cr').value; const c = state.cs[state.ci]; if(v && c){ if(!c.mCrits[c.si]) c.mCrits[c.si] = []; c.mCrits[c.si].push({n:v}); document.getElementById('in-cr').value=''; save(); render(); } }
-        function upTot(v) { const c = state.cs[state.ci]; if(c){ c.mTotA[c.si] = parseInt(v); save(); render(); } }
+        function addC() { let v=document.getElementById('in-cl').value; if(v){ state.cs.push({n:v, ss:['Ciências'], si:0, mCrits:{}, mTotA:{}, st:[]}); state.ci=state.cs.length-1; document.getElementById('in-cl').value=''; save(); }}
+        function addS() { let v=document.getElementById('in-sb').value; if(v && state.ci>-1){ state.cs[state.ci].ss.push(v); document.getElementById('in-sb').value=''; save(); }}
+        function addCrit() { let v=document.getElementById('in-cr').value; const c = state.cs[state.ci]; if(v && c){ if(!c.mCrits[c.si]) c.mCrits[c.si] = []; c.mCrits[c.si].push({n:v}); document.getElementById('in-cr').value=''; save(); } }
+        function upTot(v) { const c = state.cs[state.ci]; if(c){ c.mTotA[c.si] = parseInt(v); save(); } }
+        
         function impSt() {
             let names = document.getElementById('in-nm').value.split('\n').filter(x=>x.trim());
             if(state.ci===-1) return alert("Selecione uma turma!");
             names.forEach(n => state.cs[state.ci].st.push({n:n.trim(), sc:{}, em:emojis[Math.floor(Math.random()*emojis.length)]}));
             state.cs[state.ci].st.sort((a,b)=>a.n.localeCompare(b.n));
-            document.getElementById('in-nm').value=''; save(); render();
+            document.getElementById('in-nm').value=''; save();
         }
 
-        function delTurma(e, i) { e.stopPropagation(); if(confirm('Excluir Turma?')){ state.cs.splice(i,1); state.ci = state.cs.length > 0 ? 0 : -1; save(); render(); } }
-        function delSubj(e, i) { e.stopPropagation(); if(confirm('Excluir Matéria?')){ state.cs[state.ci].ss.splice(i,1); state.cs[state.ci].si = 0; save(); render(); } }
-        function delCrit(e, i) { e.stopPropagation(); if(confirm('Excluir Critério?')){ state.cs[state.ci].mCrits[state.cs[state.ci].si].splice(i,1); save(); render(); } }
-        function delStu(e, i) { e.stopPropagation(); if(confirm('Excluir Aluno?')){ state.cs[state.ci].st.splice(i,1); save(); render(); } }
+        function delTurma(e, i) { e.stopPropagation(); if(confirm('Excluir Turma?')){ state.cs.splice(i,1); state.ci = state.cs.length > 0 ? 0 : -1; save(); } }
+        function delSubj(e, i) { e.stopPropagation(); if(confirm('Excluir Matéria?')){ state.cs[state.ci].ss.splice(i,1); state.cs[state.ci].si = 0; save(); } }
+        function delCrit(e, i) { e.stopPropagation(); if(confirm('Excluir Critério?')){ state.cs[state.ci].mCrits[state.cs[state.ci].si].splice(i,1); save(); } }
+        function delStu(e, i) { e.stopPropagation(); if(confirm('Excluir Aluno?')){ state.cs[state.ci].st.splice(i,1); save(); } }
 
         function getScore(stu, bim = state.b, sIndex = state.cs[state.ci].si) {
             const c = state.cs[state.ci]; if(!c) return 0;
@@ -209,8 +213,8 @@
                 document.getElementById('info-header').innerText = `TURMA: ${c.n} | MATÉRIA: ${subName}`;
                 document.getElementById('tot-at').value = c.mTotA[c.si] || 10;
 
-                document.getElementById('class-tabs').innerHTML = state.cs.map((x,i)=>`<div class="item-flex"><span onclick="state.ci=${i};render();save();" style="cursor:pointer; flex:1; font-weight:${i===state.ci?'bold':'normal'}">${x.n}</span><button class="btn-del" onclick="delTurma(event, ${i})">✖</button></div>`).join('');
-                document.getElementById('subj-tabs').innerHTML = c.ss.map((s,i)=>`<div class="item-flex"><span onclick="state.cs[state.ci].si=${i};render();save();" style="cursor:pointer; flex:1; font-weight:${i===c.si?'bold':'normal'}">${s}</span><button class="btn-del" onclick="delSubj(event, ${i})">✖</button></div>`).join('');
+                document.getElementById('class-tabs').innerHTML = state.cs.map((x,i)=>`<div class="item-flex"><span onclick="state.ci=${i};save();" style="cursor:pointer; flex:1; font-weight:${i===state.ci?'bold':'normal'}">${x.n}</span><button class="btn-del" onclick="delTurma(event, ${i})">✖</button></div>`).join('');
+                document.getElementById('subj-tabs').innerHTML = c.ss.map((s,i)=>`<div class="item-flex"><span onclick="state.cs[state.ci].si=${i};save();" style="cursor:pointer; flex:1; font-weight:${i===c.si?'bold':'normal'}">${s}</span><button class="btn-del" onclick="delSubj(event, ${i})">✖</button></div>`).join('');
                 document.getElementById('crit-list').innerHTML = (c.mCrits[c.si] || []).map((cr,i)=>`<div class="item-flex"><span>🧪 ${cr.n}</span><button class="btn-del" onclick="delCrit(event, ${i})">✖</button></div>`).join('');
                 document.getElementById('stu-delete-list').innerHTML = c.st.map((s,i)=>`<div class="item-flex"><span>${s.n}</span><button class="btn-del" onclick="delStu(event, ${i})">✖</button></div>`).join('');
 
@@ -234,19 +238,18 @@
                     track.appendChild(lane);
                 });
             }
-            document.getElementById('bim-tabs').innerHTML = [1,2,3,4].map(b=>`<button onclick="state.b=${b};render();save();" class="nav-btn ${b===state.b?'active':''}">${b}º BIM</button>`).join('');
+            document.getElementById('bim-tabs').innerHTML = [1,2,3,4].map(b=>`<button onclick="state.b=${b};save();" class="nav-btn ${b===state.b?'active':''}">${b}º BIM</button>`).join('');
         }
 
         function tglA(si, k, idx) {
             if(!state.cs[state.ci].st[si].sc[k]) state.cs[state.ci].st[si].sc[k] = [];
             let a = state.cs[state.ci].st[si].sc[k]; let p = a.indexOf(idx);
             if(p > -1) a.splice(p, 1); else a.push(idx);
-            save(); render();
+            save();
         }
-        function upSc(si, k, v) { state.cs[state.ci].st[si].sc[k] = parseFloat(v); save(); render(); }
+        function upSc(si, k, v) { state.cs[state.ci].st[si].sc[k] = parseFloat(v); save(); }
         function editL(k) { let n=prompt("Editar:", localStorage.getItem(k)); if(n){localStorage.setItem(k,n); render();}}
         function createBackup() { let b=new Blob([JSON.stringify(state)],{type:'application/json'}); let a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download='Biolab_Natividade_Backup.json'; a.click(); }
-        function restoreBackup(e) { let r=new FileReader(); r.onload=(ev)=>{ state=JSON.parse(ev.target.result); save(); render(); }; r.readAsText(e.target.files[0]); }
         function exportExcel() { 
             const c = state.cs[state.ci]; if(!c) return;
             let csv = "\ufeffALUNO;1º BIM;2º BIM;3º BIM;4º BIM;MEDIA\n";
@@ -257,7 +260,6 @@
             let blob = new Blob([csv], {type: 'text/csv;charset=utf-8;'});
             let a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `Relatorio_${c.n}.csv`; a.click();
         }
-        window.onload = load;
     </script>
 </body>
 </html>
