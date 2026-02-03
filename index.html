@@ -5,6 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>BIOLAB - UE. NATIVIDADE</title>
     
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/2040/2040523.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="BIOLAB">
+
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🔭</text></svg>">
 
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
@@ -195,7 +200,6 @@
     function abrirPainel(id) { document.querySelectorAll('.config-overlay').forEach(p => p.style.display = 'none'); document.getElementById(id).style.display = 'block'; }
     function fecharPaineis(e) { if(!e.target.closest('.config-overlay') && !e.target.closest('.nav-btn')) document.querySelectorAll('.config-overlay').forEach(p => p.style.display = 'none'); }
     
-    // FUNÇÕES DE MOVER
     function moverT(idx, dir) {
         let n = idx + dir;
         if (n >= 0 && n < dados.cs.length) {
@@ -321,7 +325,6 @@
     function tglV(si, k, idx) { let s=dados.cs[dados.ci].st[si]; if(!s.sc) s.sc = {}; if(!s.sc[k]) s.sc[k]=[]; let p=s.sc[k].indexOf(idx); if(p>-1) s.sc[k].splice(p,1); else s.sc[k].push(idx); salvar(); }
     function upNota(si, k, v) { if(!dados.cs[dados.ci].st[si].sc) dados.cs[dados.ci].st[si].sc = {}; dados.cs[dados.ci].st[si].sc[k] = parseFloat(v); salvar(); }
     
-    // EXCEL COMPLETO - TODAS AS MATÉRIAS
     function exportarExcelCompleto() {
         const c = dados.cs[dados.ci]; if(!c) return;
         let csv = "\ufeff"; 
