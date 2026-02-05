@@ -1,347 +1,347 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>BIOLAB - UE. NATIVIDADE</title>
-    
-    <link rel="apple-touch-icon" href="https://raw.githubusercontent.com/googlefonts/noto-emoji/main/png/512/emoji_u1f52d.png">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="BIOLAB">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>BIOLAB - UE. NATIVIDADE</title>
+    
+    <link rel="apple-touch-icon" href="https://raw.githubusercontent.com/googlefonts/noto-emoji/main/png/512/emoji_u1f52d.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="BIOLAB">
 
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🔭</text></svg>">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🔭</text></svg>">
 
-    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
 
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Orbitron:wght@700&display=swap');
-        
-        * { box-sizing: border-box; transition: all 0.2s ease; }
-        
-        body { 
-            font-family: 'Fredoka', sans-serif; 
-            margin: 0; height: 100vh; display: flex; flex-direction: column; 
-            background: #240b36;
-            background-image: linear-gradient(135deg, #240b36 0%, #c31432 100%);
-            overflow: hidden; color: white;
-        }
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Orbitron:wght@700&display=swap');
+        
+        * { box-sizing: border-box; transition: all 0.2s ease; }
+        
+        body { 
+            font-family: 'Fredoka', sans-serif; 
+            margin: 0; height: 100vh; display: flex; flex-direction: column; 
+            background: #240b36;
+            background-image: linear-gradient(135deg, #240b36 0%, #c31432 100%);
+            overflow: hidden; color: white;
+        }
 
-        .emoji-bg {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            pointer-events: none; z-index: 1; overflow: hidden;
-        }
+        .emoji-bg {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none; z-index: 1; overflow: hidden;
+        }
 
-        .floating-emoji {
-            position: absolute; font-size: 32px; opacity: 0.7;
-            filter: drop-shadow(0 0 5px rgba(255,255,255,0.3));
-            animation: floatRandom linear infinite;
-        }
+        .floating-emoji {
+            position: absolute; font-size: 32px; opacity: 0.7;
+            filter: drop-shadow(0 0 5px rgba(255,255,255,0.3));
+            animation: floatRandom linear infinite;
+        }
 
-        @keyframes floatRandom {
-            0% { transform: translate(0, 0) rotate(0deg); }
-            25% { transform: translate(120px, 60px) rotate(90deg); }
-            50% { transform: translate(240px, 0px) rotate(180deg); }
-            75% { transform: translate(120px, -60px) rotate(270deg); }
-            100% { transform: translate(0, 0) rotate(360deg); }
-        }
+        @keyframes floatRandom {
+            0% { transform: translate(0, 0) rotate(0deg); }
+            25% { transform: translate(120px, 60px) rotate(90deg); }
+            50% { transform: translate(240px, 0px) rotate(180deg); }
+            75% { transform: translate(120px, -60px) rotate(270deg); }
+            100% { transform: translate(0, 0) rotate(360deg); }
+        }
 
-        header { 
-            background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(15px);
-            padding: 15px; margin: 10px; border-radius: 20px;
-            border: 1px solid rgba(255,255,255,0.3); box-shadow: 0 8px 32px rgba(0,0,0,0.5);
-            z-index: 10; flex-shrink: 0; position: relative; overflow: hidden;
-        }
+        header { 
+            background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(15px);
+            padding: 15px; margin: 10px; border-radius: 20px;
+            border: 1px solid rgba(255,255,255,0.3); box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+            z-index: 10; flex-shrink: 0; position: relative; overflow: hidden;
+        }
 
-        .header-top { position: relative; z-index: 5; display: flex; justify-content: space-between; align-items: center; }
-        .user-badge { display: flex; align-items: center; gap: 15px; }
-        .user-emoji { 
-            font-size: 28px; background: linear-gradient(135deg, #e91e63, #9b4dca); 
-            width: 55px; height: 55px; border-radius: 50%; 
-            display: flex; align-items: center; justify-content: center; 
-            border: 3px solid white; box-shadow: 0 0 15px #e91e63;
-        }
+        .header-top { position: relative; z-index: 5; display: flex; justify-content: space-between; align-items: center; }
+        .user-badge { display: flex; align-items: center; gap: 15px; }
+        .user-emoji { 
+            font-size: 28px; background: linear-gradient(135deg, #e91e63, #9b4dca); 
+            width: 55px; height: 55px; border-radius: 50%; 
+            display: flex; align-items: center; justify-content: center; 
+            border: 3px solid white; box-shadow: 0 0 15px #e91e63;
+        }
 
-        .info-fixa { 
-            position: relative; z-index: 5;
-            background: rgba(0,0,0,0.5); padding: 10px 20px; border-radius: 30px; 
-            margin-top: 10px; display: flex; gap: 20px; 
-            font-weight: bold; font-size: 14px; border: 1px solid rgba(255,255,255,0.2); color: #ffeb3b;
-        }
-        
-        .nav-container { position: relative; z-index: 5; background: rgba(0,0,0,0.2); border-radius: 15px; display: flex; padding: 5px; gap: 5px; margin-top: 10px; flex-shrink: 0; }
-        .nav-btn { flex: 1; padding: 12px 5px; border: none; background: transparent; border-radius: 10px; cursor: pointer; font-weight: bold; color: white; font-size: 11px; text-transform: uppercase; }
-        .nav-btn.active { background: #e91e63; box-shadow: 0 0 15px #e91e63; }
+        .info-fixa { 
+            position: relative; z-index: 5;
+            background: rgba(0,0,0,0.5); padding: 10px 20px; border-radius: 30px; 
+            margin-top: 10px; display: flex; gap: 20px; 
+            font-weight: bold; font-size: 14px; border: 1px solid rgba(255,255,255,0.2); color: #ffeb3b;
+        }
+        
+        .nav-container { position: relative; z-index: 5; background: rgba(0,0,0,0.2); border-radius: 15px; display: flex; padding: 5px; gap: 5px; margin-top: 10px; flex-shrink: 0; }
+        .nav-btn { flex: 1; padding: 12px 5px; border: none; background: transparent; border-radius: 10px; cursor: pointer; font-weight: bold; color: white; font-size: 11px; text-transform: uppercase; }
+        .nav-btn.active { background: #e91e63; box-shadow: 0 0 15px #e91e63; }
 
-        .main-content { display: flex; flex: 1; padding: 10px; gap: 15px; overflow: hidden; }
-        .students-area { width: 350px; display: flex; flex-direction: column; overflow-y: auto; padding-right: 5px; }
-        .track-container { flex: 1; background: rgba(0, 0, 0, 0.5); border-radius: 30px; border: 2px solid rgba(255,255,255,0.1); overflow-y: auto; position: relative; height: 100%; }
+        .main-content { display: flex; flex: 1; padding: 10px; gap: 15px; overflow: hidden; }
+        .students-area { width: 350px; display: flex; flex-direction: column; overflow-y: auto; padding-right: 5px; }
+        .track-container { flex: 1; background: rgba(0, 0, 0, 0.5); border-radius: 30px; border: 2px solid rgba(255,255,255,0.1); overflow-y: auto; position: relative; height: 100%; }
 
-        #lanes-box { padding: 20px 0 150px 0; min-height: 100%; }
-        .lane { border-bottom: 1px dashed rgba(255,255,255,0.1); position: relative; height: 55px; display: flex; align-items: center; width: 100%; }
+        #lanes-box { padding: 20px 0 150px 0; min-height: 100%; }
+        .lane { border-bottom: 1px dashed rgba(255,255,255,0.1); position: relative; height: 55px; display: flex; align-items: center; width: 100%; }
 
-        .runner { position: absolute; transition: 2s cubic-bezier(0.18, 0.89, 0.32, 1.28); display: flex; align-items: center; gap: 8px; z-index: 5; }
-        .runner span { font-size: 28px; filter: drop-shadow(0 0 5px white); } 
-        .runner-tag { background: white; padding: 3px 10px; border-radius: 20px; font-weight: bold; font-size: 10px; color: #1a2a3a; white-space: nowrap; box-shadow: 0 4px 10px rgba(0,0,0,0.3); border: 3px solid #ccc; }
+        .runner { position: absolute; transition: 2s cubic-bezier(0.18, 0.89, 0.32, 1.28); display: flex; align-items: center; gap: 8px; z-index: 5; }
+        .runner span { font-size: 28px; filter: drop-shadow(0 0 5px white); } 
+        .runner-tag { background: white; padding: 3px 10px; border-radius: 20px; font-weight: bold; font-size: 10px; color: #1a2a3a; white-space: nowrap; box-shadow: 0 4px 10px rgba(0,0,0,0.3); border: 3px solid #ccc; }
 
-        .student-card { background: white; color: #333; border-radius: 20px; margin-bottom: 12px; padding: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); border-left: 8px solid #ddd; }
-        .nota-red { color: #ff4757 !important; }
-        .nota-green { color: #2ed573 !important; }
-        .nota-bim { font-size: 1.4em; font-weight: 700; }
-        
-        .check-grid { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
-        .check-box { width: 32px; height: 32px; border: 2px solid #ddd; border-radius: 10px; display: flex; align-items: center; justify-content: center; cursor: pointer; background: #f8f9fa; font-weight: bold; font-size: 12px; }
-        .check-box.active { background: #2ecc71; color: white; border-color: #27ae60; }
+        .student-card { background: white; color: #333; border-radius: 20px; margin-bottom: 12px; padding: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); border-left: 8px solid #ddd; }
+        .nota-red { color: #ff4757 !important; }
+        .nota-green { color: #2ed573 !important; }
+        .nota-bim { font-size: 1.4em; font-weight: 700; }
+        
+        .check-grid { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+        .check-box { width: 32px; height: 32px; border: 2px solid #ddd; border-radius: 10px; display: flex; align-items: center; justify-content: center; cursor: pointer; background: #f8f9fa; font-weight: bold; font-size: 12px; }
+        .check-box.active { background: #2ecc71; color: white; border-color: #27ae60; }
 
-        .config-overlay { position: fixed; top: 100px; left: 50%; transform: translateX(-50%); background: white; color: #333; border-radius: 25px; padding: 25px; width: 90%; max-width: 500px; box-shadow: 0 20px 60px rgba(0,0,0,0.8); z-index: 100; display: none; border: 4px solid #e91e63; }
-        .del-item { display: flex; justify-content: space-between; align-items: center; padding: 10px; border-bottom: 1px solid #eee; font-size: 14px; color: #333; }
-        .btn-move { background: #f0f0f0; border: none; border-radius: 5px; cursor: pointer; padding: 2px 8px; font-weight: bold; margin-left: 5px; color: #666; }
-        .del-btn { color: #ff4757; font-weight: bold; cursor: pointer; padding: 5px 10px; font-size: 18px; }
+        .config-overlay { position: fixed; top: 100px; left: 50%; transform: translateX(-50%); background: white; color: #333; border-radius: 25px; padding: 25px; width: 90%; max-width: 500px; box-shadow: 0 20px 60px rgba(0,0,0,0.8); z-index: 100; display: none; border: 4px solid #e91e63; }
+        .del-item { display: flex; justify-content: space-between; align-items: center; padding: 10px; border-bottom: 1px solid #eee; font-size: 14px; color: #333; }
+        .btn-move { background: #f0f0f0; border: none; border-radius: 5px; cursor: pointer; padding: 2px 8px; font-weight: bold; margin-left: 5px; color: #666; }
+        .del-btn { color: #ff4757; font-weight: bold; cursor: pointer; padding: 5px 10px; font-size: 18px; }
 
-        #loading { position: fixed; inset: 0; background: #240b36; color: white; font-family: 'Orbitron'; font-size: 20px; display: flex; align-items: center; justify-content: center; z-index: 9999; }
-    </style>
+        #loading { position: fixed; inset: 0; background: #240b36; color: white; font-family: 'Orbitron'; font-size: 20px; display: flex; align-items: center; justify-content: center; z-index: 9999; }
+    </style>
 </head>
 <body onclick="fecharPaineis(event)">
 
 <div id="loading"><b>🧪 SINCRONIZANDO BIOLAB...</b></div>
 
 <header onclick="event.stopPropagation()">
-    <div id="emoji-container" class="emoji-bg"></div>
-    <div class="header-top">
-        <div class="user-badge">
-            <div class="user-emoji">🔭</div>
-            <div>
-                <h1 style="margin:0; font-family:'Orbitron'; font-size:18px;">UE. NATIVIDADE MARINHO</h1>
-                <p style="margin:0; font-size:12px; opacity:0.9;">PROF(A) RAQUEL AGUIAR</p>
-            </div>
-        </div>
-        <div style="display:flex; gap:8px;">
-            <button class="btn-action" style="background:#27ae60; color:white; border:none; border-radius:12px; padding:10px 18px; font-weight:bold; cursor:pointer;" onclick="exportarExcelCompleto()">📊 EXCEL</button>
-            <button class="btn-action" style="background:#ff9800; color:white; border:none; border-radius:12px; padding:10px 18px; font-weight:bold; cursor:pointer;" onclick="document.getElementById('fileIn').click()">📂 ABRIR</button>
-            <input type="file" id="fileIn" style="display:none" onchange="importarBackup(event)">
-            <button class="btn-action" style="background:#e91e63; color:white; border:none; border-radius:12px; padding:10px 18px; font-weight:bold; cursor:pointer;" onclick="exportarBackup()">💾 BK</button>
-        </div>
-    </div>
-    <div class="info-fixa">
-        <span id="txt-turma">🚀 TURMA: ---</span>
-        <span id="txt-materia">🧬 MATÉRIA: ---</span>
-        <span id="txt-total-alunos" style="color:#ffffff; background:#e91e63; padding:2px 10px; border-radius:10px;">👥 ALUNOS: 0</span>
-    </div>
-    <nav class="nav-container">
-        <button class="nav-btn" onclick="abrirPainel('p-turmas')">🎓 TURMAS</button>
-        <button class="nav-btn" onclick="abrirPainel('p-materias')">📚 MATÉRIAS</button>
-        <button class="nav-btn" onclick="abrirPainel('p-alunos')">👥 ALUNOS</button>
-        <button class="nav-btn" onclick="abrirPainel('p-crit')">📋 CRITÉRIOS</button>
-        <div id="bim-tabs" style="display:flex; gap:5px; margin-left:auto;"></div>
-    </nav>
+    <div id="emoji-container" class="emoji-bg"></div>
+    <div class="header-top">
+        <div class="user-badge">
+            <div class="user-emoji">🔭</div>
+            <div>
+                <h1 style="margin:0; font-family:'Orbitron'; font-size:18px;">UE. NATIVIDADE MARINHO</h1>
+                <p style="margin:0; font-size:12px; opacity:0.9;">PROF(A) RAQUEL AGUIAR</p>
+            </div>
+        </div>
+        <div style="display:flex; gap:8px;">
+            <button class="btn-action" style="background:#27ae60; color:white; border:none; border-radius:12px; padding:10px 18px; font-weight:bold; cursor:pointer;" onclick="exportarExcelCompleto()">📊 EXCEL</button>
+            <button class="btn-action" style="background:#ff9800; color:white; border:none; border-radius:12px; padding:10px 18px; font-weight:bold; cursor:pointer;" onclick="document.getElementById('fileIn').click()">📂 ABRIR</button>
+            <input type="file" id="fileIn" style="display:none" onchange="importarBackup(event)">
+            <button class="btn-action" style="background:#e91e63; color:white; border:none; border-radius:12px; padding:10px 18px; font-weight:bold; cursor:pointer;" onclick="exportarBackup()">💾 BK</button>
+        </div>
+    </div>
+    <div class="info-fixa">
+        <span id="txt-turma">🚀 TURMA: ---</span>
+        <span id="txt-materia">🧬 MATÉRIA: ---</span>
+        <span id="txt-total-alunos" style="color:#ffffff; background:#e91e63; padding:2px 10px; border-radius:10px;">👥 ALUNOS: 0</span>
+    </div>
+    <nav class="nav-container">
+        <button class="nav-btn" onclick="abrirPainel('p-turmas')">🎓 TURMAS</button>
+        <button class="nav-btn" onclick="abrirPainel('p-materias')">📚 MATÉRIAS</button>
+        <button class="nav-btn" onclick="abrirPainel('p-alunos')">👥 ALUNOS</button>
+        <button class="nav-btn" onclick="abrirPainel('p-crit')">📋 CRITÉRIOS</button>
+        <div id="bim-tabs" style="display:flex; gap:5px; margin-left:auto;"></div>
+    </nav>
 </header>
 
 <main class="main-content">
-    <aside class="students-area" id="stu-list"></aside>
-    <section class="track-container" id="track">
-        <div id="lanes-box"></div>
-    </section>
+    <aside class="students-area" id="stu-list"></aside>
+    <section class="track-container" id="track">
+        <div id="lanes-box"></div>
+    </section>
 </main>
 
 <div id="p-turmas" class="config-overlay" onclick="event.stopPropagation()"><h3 style="font-family:'Orbitron'">Turmas</h3><div id="class-list"></div><input type="text" id="in-cl" placeholder="+ Nova Turma" onkeypress="if(event.key==='Enter') addT()" style="width:100%; padding:10px; margin-top:10px; border-radius:10px; border:1px solid #ddd;"></div>
 <div id="p-materias" class="config-overlay" onclick="event.stopPropagation()"><h3 style="font-family:'Orbitron'">Matérias</h3><div id="subj-list"></div><input type="text" id="in-sb" placeholder="+ Nova Matéria" onkeypress="if(event.key==='Enter') addM()" style="width:100%; padding:10px; margin-top:10px; border-radius:10px; border:1px solid #ddd;"></div>
 <div id="p-crit" class="config-overlay" onclick="event.stopPropagation()">
-    <h3 style="font-family:'Orbitron'">Critérios</h3>
-    <div style="background:#f9f9f9; padding:10px; border-radius:10px; margin-bottom:10px;">Vistos Totais: <input type="number" id="tot-at" onchange="setVistos(this.value)" style="width:60px;"></div>
-    <div id="crit-list" style="max-height: 200px; overflow-y: auto; margin-bottom: 10px; border: 1px solid #eee; border-radius: 10px;"></div>
-    <input type="text" id="in-cr" placeholder="+ Novo Critério" onkeypress="if(event.key==='Enter') addC()" style="width:100%; padding:10px; border-radius:10px; border:1px solid #ddd;">
+    <h3 style="font-family:'Orbitron'">Critérios</h3>
+    <div style="background:#f9f9f9; padding:10px; border-radius:10px; margin-bottom:10px;">Vistos Totais: <input type="number" id="tot-at" onchange="setVistos(this.value)" style="width:60px;"></div>
+    <div id="crit-list" style="max-height: 200px; overflow-y: auto; margin-bottom: 10px; border: 1px solid #eee; border-radius: 10px;"></div>
+    <input type="text" id="in-cr" placeholder="+ Novo Critério" onkeypress="if(event.key==='Enter') addC()" style="width:100%; padding:10px; border-radius:10px; border:1px solid #ddd;">
 </div>
 <div id="p-alunos" class="config-overlay" onclick="event.stopPropagation()"><h3 style="font-family:'Orbitron'">Alunos</h3><textarea id="in-nm" style="width:100%; height:80px;" placeholder="Lista de nomes..."></textarea><button onclick="addStus()" style="width:100%; background:#e91e63; color:white; padding:10px; border-radius:10px; border:none; font-weight:bold; margin-top:5px;">SALVAR</button><div id="stu-del-list" style="max-height:200px; overflow-y:auto; margin-top:10px;"></div></div>
 
 <script>
-    const firebaseConfig = {
-        apiKey: "AIzaSyDNuA_OeQDU-tNLW93afXEQ_UzfH00yP2A",
-        authDomain: "biolab-natividade.firebaseapp.com",
-        databaseURL: "https://biolab-natividade-default-rtdb.firebaseio.com",
-        projectId: "biolab-natividade",
-        storageBucket: "biolab-natividade.firebasestorage.app",
-        messagingSenderId: "268434655206",
-        appId: "1:268434655206:web:e64592c269837f9ae87827"
-    };
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
+    const firebaseConfig = {
+        apiKey: "AIzaSyDNuA_OeQDU-tNLW93afXEQ_UzfH00yP2A",
+        authDomain: "biolab-natividade.firebaseapp.com",
+        databaseURL: "https://biolab-natividade-default-rtdb.firebaseio.com",
+        projectId: "biolab-natividade",
+        storageBucket: "biolab-natividade.firebasestorage.app",
+        messagingSenderId: "268434655206",
+        appId: "1:268434655206:web:e64592c269837f9ae87827"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
 
-    let dados = { cs: [], ci: 0, b: 1 };
-    const emojisProf = ['🧪','🧬','🔬','⚛️','🪐','🇬🇧','🇺🇸','🗽','🗣️','📚','🌍'];
+    let dados = { cs: [], ci: 0, b: 1 };
+    const emojisProf = ['🧪','🧬','🔬','⚛️','🪐','🇬🇧','🇺🇸','🗽','🗣️','📚','🌍'];
 
-    function initEmojiFloat() {
-        const container = document.getElementById('emoji-container');
-        for (let i = 0; i < 15; i++) {
-            const span = document.createElement('span');
-            span.className = 'floating-emoji';
-            span.innerText = emojisProf[Math.floor(Math.random() * emojisProf.length)];
-            span.style.left = Math.random() * 100 + '%';
-            span.style.top = Math.random() * 100 + '%';
-            span.style.animationDuration = (12 + Math.random() * 18) + 's';
-            span.style.animationDelay = (Math.random() * 5) + 's';
-            container.appendChild(span);
-        }
-    }
-    initEmojiFloat();
+    function initEmojiFloat() {
+        const container = document.getElementById('emoji-container');
+        for (let i = 0; i < 15; i++) {
+            const span = document.createElement('span');
+            span.className = 'floating-emoji';
+            span.innerText = emojisProf[Math.floor(Math.random() * emojisProf.length)];
+            span.style.left = Math.random() * 100 + '%';
+            span.style.top = Math.random() * 100 + '%';
+            span.style.animationDuration = (12 + Math.random() * 18) + 's';
+            span.style.animationDelay = (Math.random() * 5) + 's';
+            container.appendChild(span);
+        }
+    }
+    initEmojiFloat();
 
-    db.ref('biolab_v15').on('value', (snap) => {
-        const val = snap.val();
-        if(val) {
-            dados = val;
-            if(dados.ci === undefined) dados.ci = 0;
-            if(!dados.cs) dados.cs = [];
-        }
-        document.getElementById('loading').style.display = 'none';
-        renderizar();
-    });
+    db.ref('biolab_v15').on('value', (snap) => {
+        const val = snap.val();
+        if(val) {
+            dados = val;
+            if(dados.ci === undefined) dados.ci = 0;
+            if(!dados.cs) dados.cs = [];
+        }
+        document.getElementById('loading').style.display = 'none';
+        renderizar();
+    });
 
-    function salvar() { db.ref('biolab_v15').set(dados); }
-    function abrirPainel(id) { document.querySelectorAll('.config-overlay').forEach(p => p.style.display = 'none'); document.getElementById(id).style.display = 'block'; }
-    function fecharPaineis(e) { if(!e.target.closest('.config-overlay') && !e.target.closest('.nav-btn')) document.querySelectorAll('.config-overlay').forEach(p => p.style.display = 'none'); }
-    
-    function moverT(idx, dir) {
-        let n = idx + dir;
-        if (n >= 0 && n < dados.cs.length) {
-            let item = dados.cs.splice(idx, 1)[0];
-            dados.cs.splice(n, 0, item);
-            dados.ci = n; salvar();
-        }
-    }
+    function salvar() { db.ref('biolab_v15').set(dados); }
+    function abrirPainel(id) { document.querySelectorAll('.config-overlay').forEach(p => p.style.display = 'none'); document.getElementById(id).style.display = 'block'; }
+    function fecharPaineis(e) { if(!e.target.closest('.config-overlay') && !e.target.closest('.nav-btn')) document.querySelectorAll('.config-overlay').forEach(p => p.style.display = 'none'); }
+    
+    function moverT(idx, dir) {
+        let n = idx + dir;
+        if (n >= 0 && n < dados.cs.length) {
+            let item = dados.cs.splice(idx, 1)[0];
+            dados.cs.splice(n, 0, item);
+            dados.ci = n; salvar();
+        }
+    }
 
-    function moverM(idx, dir) {
-        let c = dados.cs[dados.ci];
-        let n = idx + dir;
-        if (n >= 0 && n < c.ss.length) {
-            let item = c.ss.splice(idx, 1)[0];
-            c.ss.splice(n, 0, item);
-            c.si = n; salvar();
-        }
-    }
+    function moverM(idx, dir) {
+        let c = dados.cs[dados.ci];
+        let n = idx + dir;
+        if (n >= 0 && n < c.ss.length) {
+            let item = c.ss.splice(idx, 1)[0];
+            c.ss.splice(n, 0, item);
+            c.si = n; salvar();
+        }
+    }
 
-    function addT() { let v=document.getElementById('in-cl').value; if(v){ if(!dados.cs) dados.cs=[]; dados.cs.push({n:v, ss:['Ciências'], si:0, mCrits:{}, mTotA:{}, st:[]}); dados.ci=dados.cs.length-1; document.getElementById('in-cl').value=''; salvar(); }}
-    function addM() { let v=document.getElementById('in-sb').value; if(v && dados.ci>-1){ if(!dados.cs[dados.ci].ss) dados.cs[dados.ci].ss=[]; dados.cs[dados.ci].ss.push(v); document.getElementById('in-sb').value=''; salvar(); }}
-    function addC() { let v=document.getElementById('in-cr').value; const c=dados.cs[dados.ci]; if(v && c){ if(!c.mCrits) c.mCrits = {}; if(!c.mCrits[c.si]) c.mCrits[c.si] = []; c.mCrits[c.si].push({n: v}); document.getElementById('in-cr').value=''; salvar(); }}
-    function addStus() { let txt=document.getElementById('in-nm').value; let nomes=txt.split('\n').filter(x=>x.trim()); if(dados.ci>-1){ if(!dados.cs[dados.ci].st) dados.cs[dados.ci].st=[]; nomes.forEach(n=>dados.cs[dados.ci].st.push({n:n.trim(), sc:{}, em:emojisProf[Math.floor(Math.random()*emojisProf.length)]})); dados.cs[dados.ci].st.sort((a,b)=>a.n.localeCompare(b.n)); document.getElementById('in-nm').value=''; salvar(); }}
-    function setVistos(v) { if(dados.ci>-1) { let c=dados.cs[dados.ci]; if(!c.mTotA) c.mTotA={}; c.mTotA[c.si] = parseInt(v); salvar(); } }
+    function addT() { let v=document.getElementById('in-cl').value; if(v){ if(!dados.cs) dados.cs=[]; dados.cs.push({n:v, ss:['Ciências'], si:0, mCrits:{}, mTotA:{}, st:[]}); dados.ci=dados.cs.length-1; document.getElementById('in-cl').value=''; salvar(); }}
+    function addM() { let v=document.getElementById('in-sb').value; if(v && dados.ci>-1){ if(!dados.cs[dados.ci].ss) dados.cs[dados.ci].ss=[]; dados.cs[dados.ci].ss.push(v); document.getElementById('in-sb').value=''; salvar(); }}
+    function addC() { let v=document.getElementById('in-cr').value; const c=dados.cs[dados.ci]; if(v && c){ if(!c.mCrits) c.mCrits = {}; if(!c.mCrits[c.si]) c.mCrits[c.si] = []; c.mCrits[c.si].push({n: v}); document.getElementById('in-cr').value=''; salvar(); }}
+    function addStus() { let txt=document.getElementById('in-nm').value; let nomes=txt.split('\n').filter(x=>x.trim()); if(dados.ci>-1){ if(!dados.cs[dados.ci].st) dados.cs[dados.ci].st=[]; nomes.forEach(n=>dados.cs[dados.ci].st.push({n:n.trim(), sc:{}, em:emojisProf[Math.floor(Math.random()*emojisProf.length)]})); dados.cs[dados.ci].st.sort((a,b)=>a.n.localeCompare(b.n)); document.getElementById('in-nm').value=''; salvar(); }}
+    function setVistos(v) { if(dados.ci>-1) { let c=dados.cs[dados.ci]; if(!c.mTotA) c.mTotA={}; c.mTotA[c.si] = parseInt(v); salvar(); } }
 
-    function delT(idx) { if(confirm("Excluir esta turma?")) { dados.cs.splice(idx, 1); if(dados.ci >= dados.cs.length) dados.ci = 0; salvar(); } }
-    function delM(idx) { if(confirm("Excluir esta matéria?")) { dados.cs[dados.ci].ss.splice(idx, 1); if(dados.cs[dados.ci].si >= dados.cs[dados.ci].ss.length) dados.cs[dados.ci].si = 0; salvar(); } }
-    function delS(idx) { if(confirm("Remover este aluno?")) { dados.cs[dados.ci].st.splice(idx, 1); salvar(); } }
-    function delC(idx) { if(confirm("Remover este critério?")) { dados.cs[dados.ci].mCrits[dados.cs[dados.ci].si].splice(idx, 1); salvar(); } }
+    function delT(idx) { if(confirm("Excluir esta turma?")) { dados.cs.splice(idx, 1); if(dados.ci >= dados.cs.length) dados.ci = 0; salvar(); } }
+    function delM(idx) { if(confirm("Excluir esta matéria?")) { dados.cs[dados.ci].ss.splice(idx, 1); if(dados.cs[dados.ci].si >= dados.cs[dados.ci].ss.length) dados.cs[dados.ci].si = 0; salvar(); } }
+    function delS(idx) { if(confirm("Remover este aluno?")) { dados.cs[dados.ci].st.splice(idx, 1); salvar(); } }
+    function delC(idx) { if(confirm("Remover este critério?")) { dados.cs[dados.ci].mCrits[dados.cs[dados.ci].si].splice(idx, 1); salvar(); } }
 
-    function getNota(aluno, b, si) {
-        const c = dados.cs[dados.ci]; if(!c) return 0;
-        let kA = `${si}_${b}_ativ`, totA = (c.mTotA && c.mTotA[si]) ? c.mTotA[si] : 10;
-        let notaVistos = ((aluno.sc && aluno.sc[kA] ? aluno.sc[kA] : []).length / totA) * 10;
-        let notaCrits = 0; 
-        let crits = (c.mCrits && c.mCrits[si]) ? c.mCrits[si] : [];
-        crits.forEach(cr => {
-            let k = `${si}_${b}_${cr.n}`;
-            let val = (aluno.sc && aluno.sc[k]) ? parseFloat(aluno.sc[k]) : 0;
-            notaCrits += val;
-        });
-        let res = (notaVistos + notaCrits) / (crits.length + 1);
-        return isNaN(res) ? 0 : res;
-    }
+    function getNota(aluno, b, si) {
+        const c = dados.cs[dados.ci]; if(!c) return 0;
+        let kA = `${si}_${b}_ativ`, totA = (c.mTotA && c.mTotA[si]) ? c.mTotA[si] : 10;
+        let notaVistos = ((aluno.sc && aluno.sc[kA] ? aluno.sc[kA] : []).length / totA) * 10;
+        let notaCrits = 0; 
+        let crits = (c.mCrits && c.mCrits[si]) ? c.mCrits[si] : [];
+        crits.forEach(cr => {
+            let k = `${si}_${b}_${cr.n}`;
+            let val = (aluno.sc && aluno.sc[k]) ? parseFloat(aluno.sc[k]) : 0;
+            notaCrits += val;
+        });
+        let res = (notaVistos + notaCrits) / (crits.length + 1);
+        return isNaN(res) ? 0 : res;
+    }
 
-    function renderizar() {
-        const c = (dados.cs && dados.cs[dados.ci]) ? dados.cs[dados.ci] : null;
-        if(!c) { document.getElementById('stu-list').innerHTML = "<p style='padding:20px'>Crie uma turma.</p>"; return; }
+    function renderizar() {
+        const c = (dados.cs && dados.cs[dados.ci]) ? dados.cs[dados.ci] : null;
+        if(!c) { document.getElementById('stu-list').innerHTML = "<p style='padding:20px'>Crie uma turma.</p>"; return; }
 
-        document.getElementById('txt-turma').innerText = `🚀 TURMA: ${c.n}`;
-        document.getElementById('txt-materia').innerText = `🧬 MATÉRIA: ${c.ss[c.si]}`;
-        document.getElementById('txt-total-alunos').innerText = `👥 ALUNOS: ${(c.st || []).length}`;
+        document.getElementById('txt-turma').innerText = `🚀 TURMA: ${c.n}`;
+        document.getElementById('txt-materia').innerText = `🧬 MATÉRIA: ${c.ss[c.si]}`;
+        document.getElementById('txt-total-alunos').innerText = `👥 ALUNOS: ${(c.st || []).length}`;
 
-        document.getElementById('class-list').innerHTML = dados.cs.map((x,i)=>`
-            <div class="del-item">
-                <span onclick="dados.ci=${i};salvar()" style="cursor:pointer; ${i===dados.ci?'font-weight:bold; color:#e91e63':''}">${x.n}</span>
-                <div>
-                    <button class="btn-move" onclick="moverT(${i}, -1)">↑</button>
-                    <button class="btn-move" onclick="moverT(${i}, 1)">↓</button>
-                    <span class="del-btn" onclick="delT(${i})">✖</span>
-                </div>
-            </div>`).join('');
+        document.getElementById('class-list').innerHTML = dados.cs.map((x,i)=>`
+            <div class="del-item">
+                <span onclick="dados.ci=${i};salvar()" style="cursor:pointer; ${i===dados.ci?'font-weight:bold; color:#e91e63':''}">${x.n}</span>
+                <div>
+                    <button class="btn-move" onclick="moverT(${i}, -1)">↑</button>
+                    <button class="btn-move" onclick="moverT(${i}, 1)">↓</button>
+                    <span class="del-btn" onclick="delT(${i})">✖</span>
+                </div>
+            </div>`).join('');
 
-        document.getElementById('subj-list').innerHTML = (c.ss || []).map((s,i)=>`
-            <div class="del-item">
-                <span onclick="dados.cs[dados.ci].si=${i};salvar()" style="cursor:pointer; ${i===c.si?'font-weight:bold; color:#e91e63':''}">${s}</span>
-                <div>
-                    <button class="btn-move" onclick="moverM(${i}, -1)">↑</button>
-                    <button class="btn-move" onclick="moverM(${i}, 1)">↓</button>
-                    <span class="del-btn" onclick="delM(${i})">✖</span>
-                </div>
-            </div>`).join('');
+        document.getElementById('subj-list').innerHTML = (c.ss || []).map((s,i)=>`
+            <div class="del-item">
+                <span onclick="dados.cs[dados.ci].si=${i};salvar()" style="cursor:pointer; ${i===c.si?'font-weight:bold; color:#e91e63':''}">${s}</span>
+                <div>
+                    <button class="btn-move" onclick="moverM(${i}, -1)">↑</button>
+                    <button class="btn-move" onclick="moverM(${i}, 1)">↓</button>
+                    <span class="del-btn" onclick="delM(${i})">✖</span>
+                </div>
+            </div>`).join('');
 
-        document.getElementById('stu-del-list').innerHTML = (c.st || []).map((s,i)=>`<div class="del-item"><span>${s.n}</span><span class="del-btn" onclick="delS(${i})">✖</span></div>`).join('');
-        
-        let critsAtuais = (c.mCrits && c.mCrits[c.si]) ? c.mCrits[c.si] : [];
-        document.getElementById('crit-list').innerHTML = critsAtuais.map((cr,i)=>`<div class="del-item"><span>${cr.n}</span><span class="del-btn" onclick="delC(${i})">✖</span></div>`).join('');
+        document.getElementById('stu-del-list').innerHTML = (c.st || []).map((s,i)=>`<div class="del-item"><span>${s.n}</span><span class="del-btn" onclick="delS(${i})">✖</span></div>`).join('');
+        
+        let critsAtuais = (c.mCrits && c.mCrits[c.si]) ? c.mCrits[c.si] : [];
+        document.getElementById('crit-list').innerHTML = critsAtuais.map((cr,i)=>`<div class="del-item"><span>${cr.n}</span><span class="del-btn" onclick="delC(${i})">✖</span></div>`).join('');
 
-        document.getElementById('tot-at').value = (c.mTotA && c.mTotA[c.si]) ? c.mTotA[c.si] : 10;
+        document.getElementById('tot-at').value = (c.mTotA && c.mTotA[c.si]) ? c.mTotA[c.si] : 10;
 
-        document.getElementById('stu-list').innerHTML = (c.st || []).map((s, si) => {
-            let nBim = getNota(s, dados.b, c.si);
-            let n1=getNota(s,1,c.si), n2=getNota(s,2,c.si), n3=getNota(s,3,c.si), n4=getNota(s,4,c.si);
-            let nAnual = (n1+n2+n3+n4)/4;
-            
-            let kA = `${c.si}_${dados.b}_ativ`, chs = '', tot = (c.mTotA && c.mTotA[c.si]) ? c.mTotA[c.si] : 10;
-            let checks = (s.sc && s.sc[kA]) ? s.sc[kA] : [];
-            for(let i=0; i<tot; i++) chs += `<div class="check-box ${checks.includes(i)?'active':''}" onclick="tglV(${si},'${kA}',${i})">${i+1}</div>`;
-            
-            let crsHTML = critsAtuais.map(cr => {
-                let k = `${c.si}_${dados.b}_${cr.n}`;
-                let val = (s.sc && s.sc[k]) ? s.sc[k] : 0;
-                return `<div style="font-size:10px; display:flex; justify-content:space-between; margin-top:8px; background:#f0f2f5; padding:6px; border-radius:8px; color:#333;">${cr.n} <input type="number" step="0.1" value="${val}" onchange="upNota(${si},'${k}',this.value)" style="width:45px;"></div>`;
-            }).join('');
+        document.getElementById('stu-list').innerHTML = (c.st || []).map((s, si) => {
+            let nBim = getNota(s, dados.b, c.si);
+            let n1=getNota(s,1,c.si), n2=getNota(s,2,c.si), n3=getNota(s,3,c.si), n4=getNota(s,4,c.si);
+            let nAnual = (n1+n2+n3+n4)/4;
+            
+            let kA = `${c.si}_${dados.b}_ativ`, chs = '', tot = (c.mTotA && c.mTotA[c.si]) ? c.mTotA[c.si] : 10;
+            let checks = (s.sc && s.sc[kA]) ? s.sc[kA] : [];
+            for(let i=0; i<tot; i++) chs += `<div class="check-box ${checks.includes(i)?'active':''}" onclick="tglV(${si},'${kA}',${i})">${i+1}</div>`;
+            
+            let crsHTML = critsAtuais.map(cr => {
+                let k = `${c.si}_${dados.b}_${cr.n}`;
+                let val = (s.sc && s.sc[k]) ? s.sc[k] : 0;
+                return `<div style="font-size:10px; display:flex; justify-content:space-between; margin-top:8px; background:#f0f2f5; padding:6px; border-radius:8px; color:#333;">${cr.n} <input type="number" step="0.1" value="${val}" onchange="upNota(${si},'${k}',this.value)" style="width:45px;"></div>`;
+            }).join('');
 
-            return `<div class="student-card" style="border-left-color: ${nBim < 7 ? '#ff4757' : '#2ed573'}">
-                <div style="display:flex; justify-content:space-between; align-items:center;">
-                    <b>${s.n}</b> 
-                    <div style="text-align:right">
-                        <span class="nota-bim ${nBim < 7 ? 'nota-red' : 'nota-green'}">${nBim.toFixed(1)}</span><br>
-                        <span style="font-size:0.9em; color:#666; font-weight:600;">Anual: ${nAnual.toFixed(1)}</span>
-                    </div>
-                </div>
-                <div class="check-grid">${chs}</div>${crsHTML}
-            </div>`;
-        }).join('');
+            return `<div class="student-card" style="border-left-color: ${nBim < 7 ? '#ff4757' : '#2ed573'}">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <b>${s.n}</b> 
+                    <div style="text-align:right">
+                        <span class="nota-bim ${nBim < 7 ? 'nota-red' : 'nota-green'}">${nBim.toFixed(1)}</span><br>
+                        <span style="font-size:0.9em; color:#666; font-weight:600;">Anual: ${nAnual.toFixed(1)}</span>
+                    </div>
+                </div>
+                <div class="check-grid">${chs}</div>${crsHTML}
+            </div>`;
+        }).join('');
 
-        const trackBox = document.getElementById('lanes-box'); trackBox.innerHTML = '';
-        (c.st || []).forEach(s => {
-            let n = getNota(s, dados.b, c.si);
-            let corBorda = n < 7 ? '#ff4757' : '#2ed573';
-            let lane = document.createElement('div'); lane.className = 'lane';
-            lane.innerHTML = `<div class="runner" style="left:${n*8.8}%">
-                <span>${s.em||'🚀'}</span>
-                <div class="runner-tag" style="border-color: ${corBorda}">${s.n} | ${n.toFixed(1)}</div>
-            </div>`;
-            trackBox.appendChild(lane);
-        });
+        const trackBox = document.getElementById('lanes-box'); trackBox.innerHTML = '';
+        (c.st || []).forEach(s => {
+            let n = getNota(s, dados.b, c.si);
+            let corBorda = n < 7 ? '#ff4757' : '#2ed573';
+            let lane = document.createElement('div'); lane.className = 'lane';
+            lane.innerHTML = `<div class="runner" style="left:${n*8.8}%">
+                <span>${s.em||'🚀'}</span>
+                <div class="runner-tag" style="border-color: ${corBorda}">${s.n} | ${n.toFixed(1)}</div>
+            </div>`;
+            trackBox.appendChild(lane);
+        });
 
-        document.getElementById('bim-tabs').innerHTML = [1,2,3,4].map(b=>`<button class="nav-btn ${b===dados.b?'active':''}" onclick="dados.b=${b};salvar()">${b}º BIM</button>`).join('');
-    }
+        document.getElementById('bim-tabs').innerHTML = [1,2,3,4].map(b=>`<button class="nav-btn ${b===dados.b?'active':''}" onclick="dados.b=${b};salvar()">${b}º BIM</button>`).join('');
+    }
 
-    function tglV(si, k, idx) { let s=dados.cs[dados.ci].st[si]; if(!s.sc) s.sc = {}; if(!s.sc[k]) s.sc[k]=[]; let p=s.sc[k].indexOf(idx); if(p>-1) s.sc[k].splice(p,1); else s.sc[k].push(idx); salvar(); }
-    function upNota(si, k, v) { if(!dados.cs[dados.ci].st[si].sc) dados.cs[dados.ci].st[si].sc = {}; dados.cs[dados.ci].st[si].sc[k] = parseFloat(v); salvar(); }
-    
-    function exportarExcelCompleto() {
-        const c = dados.cs[dados.ci]; if(!c) return;
-        let csv = "\ufeff"; 
-        c.ss.forEach((materiaNome, si) => {
-            csv += `MATÉRIA: ${materiaNome.toUpperCase()}\n`;
-            csv += "ALUNO;1º BIM;2º BIM;3º BIM;4º BIM;MÉDIA\n";
-            c.st.forEach(s => {
-                let n1=getNota(s,1,si), n2=getNota(s,2,si), n3=getNota(s,3,si), n4=getNota(s,4,si);
-                csv += `${s.n};${n1.toFixed(1)};${n2.toFixed(1)};${n3.toFixed(1)};${n4.toFixed(1)};${((n1+n2+n3+n4)/4).toFixed(1)}\n`;
-            });
-            csv += "\n\n";
-        });
-        let a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([csv], {type: 'text/csv;charset=utf-8;'})); a.download = `RELATORIO_NATIVIDADE_${c.n}.csv`; a.click();
-    }
+    function tglV(si, k, idx) { let s=dados.cs[dados.ci].st[si]; if(!s.sc) s.sc = {}; if(!s.sc[k]) s.sc[k]=[]; let p=s.sc[k].indexOf(idx); if(p>-1) s.sc[k].splice(p,1); else s.sc[k].push(idx); salvar(); }
+    function upNota(si, k, v) { if(!dados.cs[dados.ci].st[si].sc) dados.cs[dados.ci].st[si].sc = {}; dados.cs[dados.ci].st[si].sc[k] = parseFloat(v); salvar(); }
+    
+    function exportarExcelCompleto() {
+        const c = dados.cs[dados.ci]; if(!c) return;
+        let csv = "\ufeff"; 
+        c.ss.forEach((materiaNome, si) => {
+            csv += `MATÉRIA: ${materiaNome.toUpperCase()}\n`;
+            csv += "ALUNO;1º BIM;2º BIM;3º BIM;4º BIM;MÉDIA\n";
+            c.st.forEach(s => {
+                let n1=getNota(s,1,si), n2=getNota(s,2,si), n3=getNota(s,3,si), n4=getNota(s,4,si);
+                csv += `${s.n};${n1.toFixed(1)};${n2.toFixed(1)};${n3.toFixed(1)};${n4.toFixed(1)};${((n1+n2+n3+n4)/4).toFixed(1)}\n`;
+            });
+            csv += "\n\n";
+        });
+        let a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([csv], {type: 'text/csv;charset=utf-8;'})); a.download = `RELATORIO_NATIVIDADE_${c.n}.csv`; a.click();
+    }
 
-    function exportarBackup() { let b=new Blob([JSON.stringify(dados)],{type:'application/json'}); let a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download='Biolab_Backup.json'; a.click(); }
-    function importarBackup(e) { let fr=new FileReader(); fr.onload=(ev)=>{ try { dados=JSON.parse(ev.target.result); salvar(); } catch(e){alert("Erro");} }; fr.readAsText(e.target.files[0]); }
+    function exportarBackup() { let b=new Blob([JSON.stringify(dados)],{type:'application/json'}); let a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download='Biolab_Backup.json'; a.click(); }
+    function importarBackup(e) { let fr=new FileReader(); fr.onload=(ev)=>{ try { dados=JSON.parse(ev.target.result); salvar(); } catch(e){alert("Erro");} }; fr.readAsText(e.target.files[0]); }
 </script>
 </body>
 </html>
