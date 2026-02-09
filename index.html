@@ -32,6 +32,12 @@
 
         .header-top { display: flex; justify-content: space-between; align-items: center; }
         
+        .info-fixa { 
+            background: rgba(0,0,0,0.5); padding: 8px 15px; border-radius: 30px; 
+            margin-top: 5px; display: flex; gap: 15px; 
+            font-weight: bold; font-size: 13px; border: 1px solid rgba(255,255,255,0.2); color: #ffeb3b;
+        }
+        
         .nav-container { background: rgba(0,0,0,0.2); border-radius: 15px; display: flex; padding: 5px; gap: 5px; margin-top: 8px; }
         .nav-btn { flex: 1; padding: 10px 5px; border: none; background: transparent; border-radius: 10px; cursor: pointer; font-weight: bold; color: white; font-size: 10px; text-transform: uppercase; }
         .nav-btn.active { background: #e91e63; box-shadow: 0 0 15px #e91e63; }
@@ -43,23 +49,32 @@
         #stu-list { flex: 1; overflow-y: auto; padding-right: 5px; }
 
         .stu-row { display: flex; align-items: center; padding: 10px 5px; border-bottom: 1px solid #eee; gap: 10px; }
-        .stu-name { font-weight: 700; font-size: 13px; color: #1a2a3a; text-transform: uppercase; flex: 1; }
+        .stu-info-box { flex: 1; display: flex; flex-direction: column; gap: 5px; }
+        .stu-name { font-weight: 700; font-size: 13px; color: #1a2a3a; text-transform: uppercase; }
         
+        .mini-check-grid { display: flex; flex-wrap: wrap; gap: 3px; }
         .mini-box { width: 17px; height: 17px; border: 1px solid #ddd; border-radius: 4px; font-size: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer; background: #f8f9fa; font-weight: bold; }
         .mini-box.active { background: #2ecc71; color: white; border-color: #27ae60; }
 
-        .input-nota { width: 42px; height: 32px; border: 2px solid #eee; border-radius: 8px; text-align: center; font-weight: bold; font-size: 13px; }
+        .stu-inputs-group { display: flex; gap: 8px; align-items: center; }
+        .input-wrapper { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+        .input-label { font-size: 9px; font-weight: 800; color: #b01a6b; }
         
+        .input-nota { width: 42px; height: 32px; border: 2px solid #eee; border-radius: 8px; text-align: center; font-weight: bold; font-size: 13px; color: #333; }
+        
+        .stu-total-box { width: 70px; text-align: right; display: flex; flex-direction: column; justify-content: center; }
         .stu-total-val { font-weight: 800; font-size: 18px; line-height: 1; }
+        .stu-anual-val { font-size: 9px; font-weight: 600; color: #999; margin-top: 2px; }
 
         .track-container { flex: 1; background: rgba(0, 0, 0, 0.5); border-radius: 30px; border: 2px solid rgba(255,255,255,0.1); overflow-y: auto; position: relative; }
         #lanes-box { padding: 20px 0 100px 0; }
         .lane { border-bottom: 1px dashed rgba(255,255,255,0.05); position: relative; height: 50px; display: flex; align-items: center; width: 100%; }
         
         .runner { position: absolute; transition: 2s cubic-bezier(0.18, 0.89, 0.32, 1.28); display: flex; align-items: center; gap: 8px; }
-        .runner-tag { background: white; padding: 4px 10px; border-radius: 15px; font-weight: bold; font-size: 10px; color: #1a2a3a; white-space: nowrap; border: 3px solid #ccc; }
+        .runner-tag { background: white; padding: 4px 10px; border-radius: 15px; font-weight: bold; font-size: 10px; color: #1a2a3a; white-space: nowrap; border: 3px solid #ccc; transition: all 0.5s ease; }
 
         .config-overlay { position: fixed; top: 80px; left: 50%; transform: translateX(-50%); background: white; color: #333; border-radius: 25px; padding: 20px; width: 90%; max-width: 500px; box-shadow: 0 20px 60px rgba(0,0,0,0.8); z-index: 100; display: none; border: 4px solid #e91e63; }
+        .del-item { display: flex; justify-content: space-between; align-items: center; padding: 8px; border-bottom: 1px solid #eee; }
         
         #loading { position: fixed; inset: 0; background: #240b36; color: white; display: flex; align-items: center; justify-content: center; z-index: 9999; font-family: 'Orbitron'; }
     </style>
@@ -82,6 +97,11 @@
             <button onclick="exportarBackup()" style="background:#e91e63; color:white; border:none; border-radius:10px; padding:8px 12px; cursor:pointer; font-weight:bold; font-size:12px;">💾 SALVAR BK</button>
         </div>
     </div>
+    <div class="info-fixa">
+        <span id="txt-turma">🚀 ---</span>
+        <span id="txt-materia">🧬 ---</span>
+        <span id="txt-total-alunos" style="color:white; background:#e91e63; padding:2px 10px; border-radius:10px;">👥 0</span>
+    </div>
     <nav class="nav-container">
         <button class="nav-btn" onclick="abrirPainel('p-turmas')">🎓 TURMAS</button>
         <button class="nav-btn" onclick="abrirPainel('p-materias')">📚 MATÉRIAS</button>
@@ -100,17 +120,122 @@
     <h3>Configurações e Backup</h3>
     <p>Vistos Totais: <input type="number" id="tot-at" onchange="setVistos(this.value)" style="width:60px;"></p>
     <div id="crit-list"></div>
-    <input type="text" id="in-cr" placeholder="+ Novo Critério" onkeypress="if(event.key==='Enter') addC()" style="width:100%; padding:10px; margin-bottom: 15px;">
+    <input type="text" id="in-cr" placeholder="+ Novo Critério" onkeypress="if(event.key==='Enter') addC()" style="width:100%; padding:10px; margin-bottom: 10px;">
     
-    <hr style="border: 0; border-top: 1px solid #eee; margin: 15px 0;">
-    <p style="font-size: 11px; font-weight: bold; color: #e91e63; margin-bottom: 5px;">RESTAURAR DADOS (BACKUP):</p>
+    <hr>
+    <p style="font-size: 12px; font-weight: bold; color: #e91e63;">IMPORTAR DADOS ANTIGOS:</p>
     <input type="file" id="file-bk" style="display:none" onchange="importarBackup(this)">
-    <button onclick="document.getElementById('file-bk').click()" style="width:100%; background:#3498db; color:white; padding:12px; border:none; border-radius:10px; font-weight:bold; cursor:pointer;">📂 SELECIONAR ARQUIVO .JSON</button>
+    <button onclick="document.getElementById('file-bk').click()" style="width:100%; background:#3498db; color:white; padding:10px; border:none; border-radius:10px; font-weight:bold; cursor:pointer;">📂 SELECIONAR ARQUIVO DE BACKUP</button>
 </div>
 
+<div id="p-turmas" class="config-overlay" onclick="event.stopPropagation()"><h3>Turmas</h3><div id="class-list"></div><input type="text" id="in-cl" placeholder="+ Nova Turma" onkeypress="if(event.key==='Enter') addT()" style="width:100%; padding:10px; margin-top:10px;"></div>
+<div id="p-materias" class="config-overlay" onclick="event.stopPropagation()"><h3>Matérias</h3><div id="subj-list"></div><input type="text" id="in-sb" placeholder="+ Nova Matéria" onkeypress="if(event.key==='Enter') addM()" style="width:100%; padding:10px; margin-top:10px;"></div>
+<div id="p-alunos" class="config-overlay" onclick="event.stopPropagation()"><h3>Alunos</h3><textarea id="in-nm" style="width:100%; height:80px;" placeholder="Cole a lista aqui..."></textarea><button onclick="addStus()" style="width:100%; background:#e91e63; color:white; padding:10px; margin-top:5px; border:none; border-radius:10px; font-weight:bold;">ADICIONAR</button></div>
+
 <script>
-    // Configurações do Firebase e lógica de Renderização (mantendo o brilho nos rótulos)
-    // ... (lógica de notas e salvamento automático) ...
+    const firebaseConfig = {
+        apiKey: "AIzaSyDNuA_OeQDU-tNLW93afXEQ_UzfH00yP2A",
+        authDomain: "biolab-natividade.firebaseapp.com",
+        databaseURL: "https://biolab-natividade-default-rtdb.firebaseio.com",
+        projectId: "biolab-natividade",
+        storageBucket: "biolab-natividade.firebasestorage.app",
+        messagingSenderId: "268434655206",
+        appId: "1:268434655206:web:e64592c269837f9ae87827"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    let dados = { cs: [], ci: 0, b: 1 };
+    const emojis = ['🧪','🧬','🔬','⚛️','🪐','🌍'];
+
+    db.ref('biolab_v15').on('value', (snap) => {
+        const val = snap.val();
+        if(val) dados = val;
+        document.getElementById('loading').style.display = 'none';
+        renderizar();
+    });
+
+    function salvar() { db.ref('biolab_v15').set(dados); }
+    function abrirPainel(id) { document.querySelectorAll('.config-overlay').forEach(p => p.style.display = 'none'); document.getElementById(id).style.display = 'block'; }
+    function fecharPaineis(e) { if(!e || (!e.target.closest('.config-overlay') && !e.target.closest('.nav-btn'))) document.querySelectorAll('.config-overlay').forEach(p => p.style.display = 'none'); }
+
+    function getNota(aluno, b, si) {
+        const c = dados.cs[dados.ci]; if(!c) return 0;
+        let kA = `${si}_${b}_ativ`, totA = (c.mTotA?.[si]) || 10;
+        let nV = ((aluno.sc?.[kA] || []).length / totA) * 10;
+        let nC = 0;
+        let crits = (c.mCrits?.[si]) || [];
+        crits.forEach(cr => nC += parseFloat(aluno.sc?.[`${si}_${b}_${cr.n}`] || 0));
+        let res = (nV + nC) / (crits.length + 1);
+        return isNaN(res) ? 0 : res;
+    }
+
+    function renderizar() {
+        const c = dados.cs[dados.ci];
+        if(!c) return;
+
+        document.getElementById('txt-turma').innerText = `🚀 ${c.n}`;
+        document.getElementById('txt-materia').innerText = `🧬 ${c.ss[c.si]}`;
+        document.getElementById('txt-total-alunos').innerText = `👥 ${c.st?.length || 0}`;
+
+        const listDiv = document.getElementById('stu-list');
+        listDiv.innerHTML = (c.st || []).map((s, si) => {
+            let nBim = getNota(s, dados.b, c.si);
+            let n1 = getNota(s,1,c.si), n2 = getNota(s,2,c.si), n3 = getNota(s,3,c.si), n4 = getNota(s,4,c.si);
+            let nAnual = (n1+n2+n3+n4)/4;
+            let kA = `${c.si}_${dados.b}_ativ`, totV = c.mTotA?.[c.si] || 10, checks = s.sc?.[kA] || [];
+            let vistosHTML = '';
+            for(let i=0; i<totV; i++) vistosHTML += `<div class="mini-box ${checks.includes(i)?'active':''}" onclick="tglV(${si},'${kA}',${i})">${i+1}</div>`;
+
+            let critsHTML = (c.mCrits?.[c.si] || []).map(cr => {
+                let k = `${c.si}_${dados.b}_${cr.n}`;
+                return `<div class="input-wrapper"><span class="input-label">${cr.n.charAt(0).toUpperCase()}</span><input type="number" step="0.1" class="input-nota" value="${s.sc?.[k] || 0}" onchange="upNota(${si},'${k}',this.value)"></div>`;
+            }).join('');
+
+            return `<div class="stu-row">
+                <div class="stu-info-box"><span class="stu-name">${s.n}</span><div class="mini-check-grid">${vistosHTML}</div></div>
+                <div class="stu-inputs-group">${critsHTML}</div>
+                <div class="stu-total-box"><span class="stu-total-val" style="color:${nBim<7?'#ff4757':'#2ecc71'}">${nBim.toFixed(1)}</span><span class="stu-anual-val">An: ${nAnual.toFixed(1)}</span></div>
+            </div>`;
+        }).join('');
+
+        const trackBox = document.getElementById('lanes-box'); trackBox.innerHTML = '';
+        (c.st || []).forEach(s => {
+            let n = getNota(s, dados.b, c.si);
+            let cor = n < 7 ? '#ff4757' : '#2ecc71';
+            let lane = document.createElement('div'); lane.className = 'lane';
+            lane.innerHTML = `<div class="runner" style="left:${n*8.8}%"><span class="runner-emoji">${s.em||'🧬'}</span><div class="runner-tag" style="border-color:${cor}; box-shadow:0 0 10px ${cor}">${s.n} | ${n.toFixed(1)}</div></div>`;
+            trackBox.appendChild(lane);
+        });
+
+        document.getElementById('bim-tabs').innerHTML = [1,2,3,4].map(b=>`<button class="nav-btn ${b===dados.b?'active':''}" onclick="dados.b=${b};salvar()">${b}º BIM</button>`).join('');
+        document.getElementById('class-list').innerHTML = dados.cs.map((x,i)=>`<div class="del-item"><span onclick="dados.ci=${i};salvar()" style="cursor:pointer; ${i===dados.ci?'color:#e91e63;font-weight:bold':''}">${x.n}</span><span onclick="delT(${i})" style="color:red;cursor:pointer">✖</span></div>`).join('');
+        document.getElementById('subj-list').innerHTML = (c.ss || []).map((s,i)=>`<div class="del-item"><span onclick="dados.cs[dados.ci].si=${i};salvar()" style="cursor:pointer; ${i===c.si?'color:#e91e63;font-weight:bold':''}">${s}</span><span onclick="delM(${i})" style="color:red;cursor:pointer">✖</span></div>`).join('');
+        document.getElementById('crit-list').innerHTML = (c.mCrits?.[c.si] || []).map((cr,i)=>`<div class="del-item"><span>${cr.n}</span><span onclick="delC(${i})" style="color:red;cursor:pointer">✖</span></div>`).join('');
+    }
+
+    function upNota(si, k, v) { if(!dados.cs[dados.ci].st[si].sc) dados.cs[dados.ci].st[si].sc = {}; dados.cs[dados.ci].st[si].sc[k] = parseFloat(v); salvar(); }
+    function tglV(si, k, idx) { let s=dados.cs[dados.ci].st[si]; if(!s.sc) s.sc = {}; if(!s.sc[k]) s.sc[k]=[]; let p=s.sc[k].indexOf(idx); if(p>-1) s.sc[k].splice(p,1); else s.sc[k].push(idx); salvar(); }
+    function addT() { let v=document.getElementById('in-cl').value; if(v){ if(!dados.cs) dados.cs=[]; dados.cs.push({n:v, ss:['Ciências'], si:0, mCrits:{}, mTotA:{}, st:[]}); dados.ci=dados.cs.length-1; salvar(); }}
+    function addM() { let v=document.getElementById('in-sb').value; if(v){ dados.cs[dados.ci].ss.push(v); salvar(); }}
+    function addC() { let v=document.getElementById('in-cr').value; if(v){ if(!dados.cs[dados.ci].mCrits) dados.cs[dados.ci].mCrits={}; if(!dados.cs[dados.ci].mCrits[dados.cs[dados.ci].si]) dados.cs[dados.ci].mCrits[dados.cs[dados.ci].si]=[]; dados.cs[dados.ci].mCrits[dados.cs[dados.ci].si].push({n:v}); salvar(); }}
+    function addStus() { let txt=document.getElementById('in-nm').value; let nomes=txt.split('\n').filter(x=>x.trim()); nomes.forEach(n=>dados.cs[dados.ci].st.push({n:n.trim(), sc:{}, em:emojis[Math.floor(Math.random()*emojis.length)]})); dados.cs[dados.ci].st.sort((a,b)=>a.n.localeCompare(b.n)); salvar(); }
+    function setVistos(v) { if(!dados.cs[dados.ci].mTotA) dados.cs[dados.ci].mTotA={}; dados.cs[dados.ci].mTotA[dados.cs[dados.ci].si] = parseInt(v); salvar(); }
+    function delT(i) { if(confirm("Excluir?")) { dados.cs.splice(i,1); dados.ci=0; salvar(); } }
+    function delM(i) { if(confirm("Excluir?")) { dados.cs[dados.ci].ss.splice(i,1); salvar(); } }
+    function delC(i) { if(confirm("Excluir?")) { dados.cs[dados.ci].mCrits[dados.cs[dados.ci].si].splice(i,1); salvar(); } }
+    
+    function exportarExcelCompleto() {
+        const c = dados.cs[dados.ci]; let csv = "\ufeffALUNO;MEDIA_BIM;MEDIA_ANUAL\n";
+        (c.st || []).forEach(s => {
+            let nb = getNota(s, dados.b, c.si);
+            let na = (getNota(s,1,c.si)+getNota(s,2,c.si)+getNota(s,3,c.si)+getNota(s,4,c.si))/4;
+            csv += `${s.n};${nb.toFixed(1)};${na.toFixed(1)}\n`;
+        });
+        let a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([csv], {type: 'text/csv'})); a.download = `Notas_${c.n}.csv`; a.click();
+    }
+    
+    function exportarBackup() { let a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([JSON.stringify(dados)],{type:'application/json'})); a.download='Biolab_Backup.json'; a.click(); }
     
     function importarBackup(input) {
         const file = input.files[0];
@@ -119,18 +244,16 @@
             reader.onload = function(e) {
                 try {
                     const json = JSON.parse(e.target.result);
-                    if (confirm("ATENÇÃO: Isso apagará os dados atuais da tela para carregar o arquivo. Continuar?")) {
+                    if (confirm("Isso substituirá todos os dados atuais. Continuar?")) {
                         dados = json;
                         salvar();
-                        alert("Backup carregado com sucesso!");
-                        location.reload(); // Recarrega para garantir que tudo atualize
+                        alert("Backup restaurado com sucesso!");
                     }
                 } catch (err) { alert("Arquivo inválido!"); }
             };
             reader.readAsText(file);
         }
     }
-    // ... restante das funções (salvar, exportar, renderizar)
 </script>
 </body>
 </html>
