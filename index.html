@@ -73,25 +73,23 @@
             text-align: center; font-weight: bold; font-size: 13px; color: #333;
         }
         
-        .stu-total-box { width: 60px; text-align: right; display: flex; flex-direction: column; justify-content: center; }
+        .stu-total-box { width: 70px; text-align: right; display: flex; flex-direction: column; justify-content: center; }
         .stu-total-val { font-weight: 800; font-size: 18px; line-height: 1; }
-        .stu-anual-val { font-size: 10px; font-weight: 600; color: #999; margin-top: 2px; }
+        .stu-anual-val { font-size: 9px; font-weight: 600; color: #999; margin-top: 2px; }
 
         .track-container { flex: 1; background: rgba(0, 0, 0, 0.5); border-radius: 30px; border: 2px solid rgba(255,255,255,0.1); overflow-y: auto; position: relative; }
         #lanes-box { padding: 20px 0 100px 0; }
         .lane { border-bottom: 1px dashed rgba(255,255,255,0.05); position: relative; height: 50px; display: flex; align-items: center; width: 100%; }
         
         .runner { position: absolute; transition: 2s cubic-bezier(0.18, 0.89, 0.32, 1.28); display: flex; align-items: center; gap: 8px; }
-        
-        /* EFEITO DE LUZ DINÂMICA NO EMOJI */
-        .runner-emoji { 
-            font-size: 20px; 
-            width: 30px; height: 30px; 
-            display: flex; align-items: center; justify-content: center;
-            border-radius: 50%;
-        }
+        .runner-emoji { font-size: 20px; }
 
-        .runner-tag { background: white; padding: 2px 8px; border-radius: 15px; font-weight: bold; font-size: 9px; color: #1a2a3a; white-space: nowrap; border: 2px solid #ccc; }
+        .runner-tag { 
+            background: white; padding: 4px 10px; border-radius: 15px; 
+            font-weight: bold; font-size: 10px; color: #1a2a3a; 
+            white-space: nowrap; border: 3px solid #ccc;
+            transition: all 0.5s ease;
+        }
 
         .config-overlay { position: fixed; top: 80px; left: 50%; transform: translateX(-50%); background: white; color: #333; border-radius: 25px; padding: 20px; width: 90%; max-width: 500px; box-shadow: 0 20px 60px rgba(0,0,0,0.8); z-index: 100; display: none; border: 4px solid #e91e63; }
         .del-item { display: flex; justify-content: space-between; align-items: center; padding: 8px; border-bottom: 1px solid #eee; }
@@ -148,7 +146,7 @@
     <div id="crit-list"></div>
     <input type="text" id="in-cr" placeholder="+ Novo Critério" onkeypress="if(event.key==='Enter') addC()" style="width:100%; padding:10px;">
 </div>
-<div id="p-alunos" class="config-overlay" onclick="event.stopPropagation()"><h3>Alunos</h3><textarea id="in-nm" style="width:100%; height:80px;" placeholder="Nomes..."></textarea><button onclick="addStus()" style="width:100%; background:#e91e63; color:white; padding:10px; margin-top:5px; border:none; border-radius:10px; font-weight:bold;">ADICIONAR</button><div id="stu-del-list" style="max-height:150px; overflow-y:auto; margin-top:10px;"></div></div>
+<div id="p-alunos" class="config-overlay" onclick="event.stopPropagation()"><h3>Alunos</h3><textarea id="in-nm" style="width:100%; height:80px;" placeholder="Cole a lista aqui..."></textarea><button onclick="addStus()" style="width:100%; background:#e91e63; color:white; padding:10px; margin-top:5px; border:none; border-radius:10px; font-weight:bold;">ADICIONAR</button></div>
 
 <script>
     const firebaseConfig = {
@@ -199,17 +197,12 @@
         const listDiv = document.getElementById('stu-list');
         listDiv.innerHTML = (c.st || []).map((s, si) => {
             let nBim = getNota(s, dados.b, c.si);
-            let n1 = getNota(s, 1, c.si), n2 = getNota(s, 2, c.si), n3 = getNota(s, 3, c.si), n4 = getNota(s, 4, c.si);
-            let nAnual = (n1 + n2 + n3 + n4) / 4;
-
-            let kA = `${c.si}_${dados.b}_ativ`;
-            let totVistos = c.mTotA?.[c.si] || 10;
-            let checks = s.sc?.[kA] || [];
+            let n1 = getNota(s,1,c.si), n2 = getNota(s,2,c.si), n3 = getNota(s,3,c.si), n4 = getNota(s,4,c.si);
+            let nAnual = (n1+n2+n3+n4)/4;
+            let kA = `${c.si}_${dados.b}_ativ`, totV = c.mTotA?.[c.si] || 10, checks = s.sc?.[kA] || [];
             
             let vistosHTML = '';
-            for(let i=0; i<totVistos; i++) {
-                vistosHTML += `<div class="mini-box ${checks.includes(i)?'active':''}" onclick="tglV(${si},'${kA}',${i})">${i+1}</div>`;
-            }
+            for(let i=0; i<totV; i++) vistosHTML += `<div class="mini-box ${checks.includes(i)?'active':''}" onclick="tglV(${si},'${kA}',${i})">${i+1}</div>`;
 
             let critsHTML = (c.mCrits?.[c.si] || []).map(cr => {
                 let k = `${c.si}_${dados.b}_${cr.n}`;
@@ -218,31 +211,26 @@
 
             return `
                 <div class="stu-row">
-                    <div class="stu-info-box">
-                        <span class="stu-name">${s.n}</span>
-                        <div class="mini-check-grid">${vistosHTML}</div>
-                    </div>
+                    <div class="stu-info-box"><span class="stu-name">${s.n}</span><div class="mini-check-grid">${vistosHTML}</div></div>
                     <div class="stu-inputs-group">${critsHTML}</div>
                     <div class="stu-total-box">
                         <span class="stu-total-val" style="color:${nBim<7?'#ff4757':'#2ecc71'}">${nBim.toFixed(1)}</span>
-                        <span class="stu-anual-val">Anual: ${nAnual.toFixed(1)}</span>
+                        <span class="stu-anual-val">An: ${nAnual.toFixed(1)}</span>
                     </div>
-                </div>
-            `;
+                </div>`;
         }).join('');
 
-        // PISTA DE CORRIDA COM LUZ DINÂMICA
         const trackBox = document.getElementById('lanes-box'); trackBox.innerHTML = '';
         (c.st || []).forEach(s => {
             let n = getNota(s, dados.b, c.si);
-            let corLuz = n < 7 ? 'rgba(255, 71, 87, 0.6)' : 'rgba(46, 204, 113, 0.6)';
+            let corDinamica = n < 7 ? '#ff4757' : '#2ecc71';
             let lane = document.createElement('div'); lane.className = 'lane';
             lane.innerHTML = `
                 <div class="runner" style="left:${n*8.8}%">
-                    <div class="runner-emoji" style="box-shadow: 0 0 15px 5px ${corLuz}; background: ${corLuz.replace('0.6', '0.2')};">
-                        ${s.em||'🧬'}
+                    <span class="runner-emoji">${s.em||'🧬'}</span>
+                    <div class="runner-tag" style="border-color: ${corDinamica}; box-shadow: 0 0 10px ${corDinamica};">
+                        ${s.n} | ${n.toFixed(1)}
                     </div>
-                    <div class="runner-tag">${s.n} | ${n.toFixed(1)}</div>
                 </div>`;
             trackBox.appendChild(lane);
         });
