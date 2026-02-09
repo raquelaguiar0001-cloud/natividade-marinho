@@ -44,8 +44,7 @@
 
         .main-content { display: flex; flex: 1; padding: 10px; gap: 10px; overflow: hidden; }
         
-        /* LISTA DE ALUNOS - ESTILO RASCUNHO RAQUEL */
-        .students-area { width: 480px; display: flex; flex-direction: column; background: white; border-radius: 20px; padding: 10px; color: #333; overflow: hidden; }
+        .students-area { width: 500px; display: flex; flex-direction: column; background: white; border-radius: 20px; padding: 10px; color: #333; overflow: hidden; }
         
         #stu-list { flex: 1; overflow-y: auto; padding-right: 5px; }
 
@@ -55,39 +54,35 @@
         }
 
         .stu-info-box { flex: 1; display: flex; flex-direction: column; gap: 5px; }
-        .stu-name { font-weight: 700; font-size: 14px; color: #1a2a3a; text-transform: uppercase; }
+        .stu-name { font-weight: 700; font-size: 13px; color: #1a2a3a; text-transform: uppercase; }
         
-        /* Mini Grid de Vistos abaixo do nome */
         .mini-check-grid { display: flex; flex-wrap: wrap; gap: 3px; }
         .mini-box { 
-            width: 18px; height: 18px; border: 1px solid #ddd; border-radius: 4px; 
-            font-size: 9px; display: flex; align-items: center; justify-content: center; 
+            width: 17px; height: 17px; border: 1px solid #ddd; border-radius: 4px; 
+            font-size: 8px; display: flex; align-items: center; justify-content: center; 
             cursor: pointer; background: #f8f9fa; font-weight: bold;
         }
         .mini-box.active { background: #2ecc71; color: white; border-color: #27ae60; }
 
-        .stu-inputs-group { display: flex; gap: 10px; align-items: center; }
+        .stu-inputs-group { display: flex; gap: 8px; align-items: center; }
         .input-wrapper { display: flex; flex-direction: column; align-items: center; gap: 2px; }
-        .input-label { font-size: 10px; font-weight: 800; color: #b01a6b; }
+        .input-label { font-size: 9px; font-weight: 800; color: #b01a6b; }
         
         .input-nota { 
-            width: 45px; height: 35px; border: 2px solid #eee; border-radius: 8px; 
-            text-align: center; font-weight: bold; font-size: 14px; color: #333;
-            background: #fdfdfd;
+            width: 42px; height: 32px; border: 2px solid #eee; border-radius: 8px; 
+            text-align: center; font-weight: bold; font-size: 13px; color: #333;
         }
-        .input-nota:focus { border-color: #e91e63; outline: none; background: #fff; }
         
-        .stu-total-box { width: 45px; text-align: center; display: flex; flex-direction: column; align-items: center; }
-        .stu-total-val { font-weight: 800; font-size: 16px; }
+        .stu-total-box { width: 60px; text-align: right; display: flex; flex-direction: column; justify-content: center; }
+        .stu-total-val { font-weight: 800; font-size: 18px; line-height: 1; }
+        .stu-anual-val { font-size: 10px; font-weight: 600; color: #999; margin-top: 2px; }
 
-        /* PISTA DE CORRIDA */
         .track-container { flex: 1; background: rgba(0, 0, 0, 0.5); border-radius: 30px; border: 2px solid rgba(255,255,255,0.1); overflow-y: auto; position: relative; }
         #lanes-box { padding: 20px 0 100px 0; }
         .lane { border-bottom: 1px dashed rgba(255,255,255,0.05); position: relative; height: 50px; display: flex; align-items: center; width: 100%; }
         .runner { position: absolute; transition: 2s cubic-bezier(0.18, 0.89, 0.32, 1.28); display: flex; align-items: center; gap: 8px; }
         .runner-tag { background: white; padding: 2px 8px; border-radius: 15px; font-weight: bold; font-size: 9px; color: #1a2a3a; white-space: nowrap; border: 2px solid #ccc; }
 
-        /* OVERLAYS */
         .config-overlay { position: fixed; top: 80px; left: 50%; transform: translateX(-50%); background: white; color: #333; border-radius: 25px; padding: 20px; width: 90%; max-width: 500px; box-shadow: 0 20px 60px rgba(0,0,0,0.8); z-index: 100; display: none; border: 4px solid #e91e63; }
         .del-item { display: flex; justify-content: space-between; align-items: center; padding: 8px; border-bottom: 1px solid #eee; }
         
@@ -101,9 +96,9 @@
 <header onclick="event.stopPropagation()">
     <div class="header-top">
         <div style="display:flex; align-items:center; gap:12px;">
-            <div style="font-size:25px; background:linear-gradient(135deg, #e91e63, #9b4dca); width:50px; height:50px; border-radius:50%; display:flex; align-items:center; justify-content:center; border:2px solid white; box-shadow: 0 0 10px rgba(233,30,99,0.5);">🔭</div>
+            <div style="font-size:25px; background:linear-gradient(135deg, #e91e63, #9b4dca); width:50px; height:50px; border-radius:50%; display:flex; align-items:center; justify-content:center; border:2px solid white;">🔭</div>
             <div>
-                <h1 style="margin:0; font-family:'Orbitron'; font-size:16px; letter-spacing:1px;">UE. NATIVIDADE MARINHO</h1>
+                <h1 style="margin:0; font-family:'Orbitron'; font-size:16px;">UE. NATIVIDADE MARINHO</h1>
                 <p style="margin:0; font-size:11px; opacity:0.9; font-weight:600;">PROF(A) RAQUEL AGUIAR</p>
             </div>
         </div>
@@ -113,8 +108,8 @@
         </div>
     </div>
     <div class="info-fixa">
-        <span id="txt-turma">🚀 TURMA: ---</span>
-        <span id="txt-materia">🧬 MATÉRIA: ---</span>
+        <span id="txt-turma">🚀 ---</span>
+        <span id="txt-materia">🧬 ---</span>
         <span id="txt-total-alunos" style="color:white; background:#e91e63; padding:2px 10px; border-radius:10px;">👥 0</span>
     </div>
     <nav class="nav-container">
@@ -138,16 +133,14 @@
 <div id="p-turmas" class="config-overlay" onclick="event.stopPropagation()"><h3>Turmas</h3><div id="class-list"></div><input type="text" id="in-cl" placeholder="+ Nova Turma" onkeypress="if(event.key==='Enter') addT()" style="width:100%; padding:10px; margin-top:10px;"></div>
 <div id="p-materias" class="config-overlay" onclick="event.stopPropagation()"><h3>Matérias</h3><div id="subj-list"></div><input type="text" id="in-sb" placeholder="+ Nova Matéria" onkeypress="if(event.key==='Enter') addM()" style="width:100%; padding:10px; margin-top:10px;"></div>
 <div id="p-crit" class="config-overlay" onclick="event.stopPropagation()">
-    <h3>Configurações do Bimestre</h3>
-    <p>Quantidade de Vistos: <input type="number" id="tot-at" onchange="setVistos(this.value)" style="width:60px;"></p>
+    <h3>Configurações</h3>
+    <p>Vistos Totais: <input type="number" id="tot-at" onchange="setVistos(this.value)" style="width:60px;"></p>
     <div id="crit-list"></div>
-    <p style="font-size:12px; color:#666;">Dica: Adicione "Comportamento" e "Prova" como critérios para aparecerem as colunas C e P.</p>
-    <input type="text" id="in-cr" placeholder="+ Novo Critério (ex: Prova)" onkeypress="if(event.key==='Enter') addC()" style="width:100%; padding:10px;">
+    <input type="text" id="in-cr" placeholder="+ Novo Critério" onkeypress="if(event.key==='Enter') addC()" style="width:100%; padding:10px;">
 </div>
-<div id="p-alunos" class="config-overlay" onclick="event.stopPropagation()"><h3>Gerenciar Alunos</h3><textarea id="in-nm" style="width:100%; height:80px;" placeholder="Cole a lista de nomes..."></textarea><button onclick="addStus()" style="width:100%; background:#e91e63; color:white; padding:10px; margin-top:5px; border:none; border-radius:10px; font-weight:bold;">ADICIONAR</button><div id="stu-del-list" style="max-height:150px; overflow-y:auto; margin-top:10px;"></div></div>
+<div id="p-alunos" class="config-overlay" onclick="event.stopPropagation()"><h3>Alunos</h3><textarea id="in-nm" style="width:100%; height:80px;" placeholder="Nomes..."></textarea><button onclick="addStus()" style="width:100%; background:#e91e63; color:white; padding:10px; margin-top:5px; border:none; border-radius:10px; font-weight:bold;">ADICIONAR</button><div id="stu-del-list" style="max-height:150px; overflow-y:auto; margin-top:10px;"></div></div>
 
 <script>
-    // FIREBASE CONFIG - MANTIDO ORIGINAL
     const firebaseConfig = {
         apiKey: "AIzaSyDNuA_OeQDU-tNLW93afXEQ_UzfH00yP2A",
         authDomain: "biolab-natividade.firebaseapp.com",
@@ -176,7 +169,7 @@
 
     function getNota(aluno, b, si) {
         const c = dados.cs[dados.ci]; if(!c) return 0;
-        let kA = `${si}_${b}_ativ`, totA = (c.mTotA && c.mTotA[si]) ? c.mTotA[si] : 10;
+        let kA = `${si}_${b}_ativ`, totA = (c.mTotA?.[si]) || 10;
         let nV = ((aluno.sc?.[kA] || []).length / totA) * 10;
         let nC = 0;
         let crits = (c.mCrits?.[si]) || [];
@@ -189,33 +182,30 @@
         const c = dados.cs[dados.ci];
         if(!c) return;
 
-        document.getElementById('txt-turma').innerText = `🚀 TURMA: ${c.n}`;
-        document.getElementById('txt-materia').innerText = `🧬 MATÉRIA: ${c.ss[c.si]}`;
+        document.getElementById('txt-turma').innerText = `🚀 ${c.n}`;
+        document.getElementById('txt-materia').innerText = `🧬 ${c.ss[c.si]}`;
         document.getElementById('txt-total-alunos').innerText = `👥 ${c.st?.length || 0}`;
-        document.getElementById('tot-at').value = c.mTotA?.[c.si] || 10;
 
         const listDiv = document.getElementById('stu-list');
         listDiv.innerHTML = (c.st || []).map((s, si) => {
             let nBim = getNota(s, dados.b, c.si);
+            
+            // CÁLCULO DA MÉDIA ANUAL (Média dos 4 bimestres)
+            let n1 = getNota(s, 1, c.si), n2 = getNota(s, 2, c.si), n3 = getNota(s, 3, c.si), n4 = getNota(s, 4, c.si);
+            let nAnual = (n1 + n2 + n3 + n4) / 4;
+
             let kA = `${c.si}_${dados.b}_ativ`;
             let totVistos = c.mTotA?.[c.si] || 10;
             let checks = s.sc?.[kA] || [];
             
-            // Grid de vistos (Mini quadrados)
             let vistosHTML = '';
             for(let i=0; i<totVistos; i++) {
                 vistosHTML += `<div class="mini-box ${checks.includes(i)?'active':''}" onclick="tglV(${si},'${kA}',${i})">${i+1}</div>`;
             }
 
-            // Inputs de Critérios (C e P)
             let critsHTML = (c.mCrits?.[c.si] || []).map(cr => {
                 let k = `${c.si}_${dados.b}_${cr.n}`;
-                let label = cr.n.charAt(0).toUpperCase(); // Pega a primeira letra (C ou P)
-                return `
-                    <div class="input-wrapper">
-                        <span class="input-label">${label}</span>
-                        <input type="number" step="0.1" class="input-nota" value="${s.sc?.[k] || 0}" onchange="upNota(${si},'${k}',this.value)">
-                    </div>`;
+                return `<div class="input-wrapper"><span class="input-label">${cr.n.charAt(0).toUpperCase()}</span><input type="number" step="0.1" class="input-nota" value="${s.sc?.[k] || 0}" onchange="upNota(${si},'${k}',this.value)"></div>`;
             }).join('');
 
             return `
@@ -226,14 +216,13 @@
                     </div>
                     <div class="stu-inputs-group">${critsHTML}</div>
                     <div class="stu-total-box">
-                        <span class="input-label">MÉD.</span>
                         <span class="stu-total-val" style="color:${nBim<7?'#ff4757':'#2ecc71'}">${nBim.toFixed(1)}</span>
+                        <span class="stu-anual-val">Anual: ${nAnual.toFixed(1)}</span>
                     </div>
                 </div>
             `;
         }).join('');
 
-        // PISTA DE CORRIDA
         const trackBox = document.getElementById('lanes-box'); trackBox.innerHTML = '';
         (c.st || []).forEach(s => {
             let n = getNota(s, dados.b, c.si);
@@ -250,20 +239,21 @@
 
     function upNota(si, k, v) { if(!dados.cs[dados.ci].st[si].sc) dados.cs[dados.ci].st[si].sc = {}; dados.cs[dados.ci].st[si].sc[k] = parseFloat(v); salvar(); }
     function tglV(si, k, idx) { let s=dados.cs[dados.ci].st[si]; if(!s.sc) s.sc = {}; if(!s.sc[k]) s.sc[k]=[]; let p=s.sc[k].indexOf(idx); if(p>-1) s.sc[k].splice(p,1); else s.sc[k].push(idx); salvar(); }
-    
     function addT() { let v=document.getElementById('in-cl').value; if(v){ if(!dados.cs) dados.cs=[]; dados.cs.push({n:v, ss:['Ciências'], si:0, mCrits:{}, mTotA:{}, st:[]}); dados.ci=dados.cs.length-1; salvar(); }}
     function addM() { let v=document.getElementById('in-sb').value; if(v){ dados.cs[dados.ci].ss.push(v); salvar(); }}
     function addC() { let v=document.getElementById('in-cr').value; if(v){ if(!dados.cs[dados.ci].mCrits) dados.cs[dados.ci].mCrits={}; if(!dados.cs[dados.ci].mCrits[dados.cs[dados.ci].si]) dados.cs[dados.ci].mCrits[dados.cs[dados.ci].si]=[]; dados.cs[dados.ci].mCrits[dados.cs[dados.ci].si].push({n:v}); salvar(); }}
     function addStus() { let txt=document.getElementById('in-nm').value; let nomes=txt.split('\n').filter(x=>x.trim()); nomes.forEach(n=>dados.cs[dados.ci].st.push({n:n.trim(), sc:{}, em:emojis[Math.floor(Math.random()*emojis.length)]})); dados.cs[dados.ci].st.sort((a,b)=>a.n.localeCompare(b.n)); salvar(); }
     function setVistos(v) { if(!dados.cs[dados.ci].mTotA) dados.cs[dados.ci].mTotA={}; dados.cs[dados.ci].mTotA[dados.cs[dados.ci].si] = parseInt(v); salvar(); }
-    
-    function delT(i) { if(confirm("Excluir turma?")) { dados.cs.splice(i,1); dados.ci=0; salvar(); } }
-    function delM(i) { if(confirm("Excluir matéria?")) { dados.cs[dados.ci].ss.splice(i,1); salvar(); } }
-    function delC(i) { if(confirm("Excluir critério?")) { dados.cs[dados.ci].mCrits[dados.cs[dados.ci].si].splice(i,1); salvar(); } }
-
+    function delT(i) { if(confirm("Excluir?")) { dados.cs.splice(i,1); dados.ci=0; salvar(); } }
+    function delM(i) { if(confirm("Excluir?")) { dados.cs[dados.ci].ss.splice(i,1); salvar(); } }
+    function delC(i) { if(confirm("Excluir?")) { dados.cs[dados.ci].mCrits[dados.cs[dados.ci].si].splice(i,1); salvar(); } }
     function exportarExcelCompleto() {
-        const c = dados.cs[dados.ci]; let csv = "\ufeffALUNO;MÉDIA\n";
-        (c.st || []).forEach(s => csv += `${s.n};${getNota(s, dados.b, c.si).toFixed(1)}\n`);
+        const c = dados.cs[dados.ci]; let csv = "\ufeffALUNO;MEDIA_BIM;MEDIA_ANUAL\n";
+        (c.st || []).forEach(s => {
+            let nb = getNota(s, dados.b, c.si);
+            let na = (getNota(s,1,c.si)+getNota(s,2,c.si)+getNota(s,3,c.si)+getNota(s,4,c.si))/4;
+            csv += `${s.n};${nb.toFixed(1)};${na.toFixed(1)}\n`;
+        });
         let a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([csv], {type: 'text/csv'})); a.download = `Notas_${c.n}.csv`; a.click();
     }
     function exportarBackup() { let a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([JSON.stringify(dados)],{type:'application/json'})); a.download='Biolab_Backup.json'; a.click(); }
