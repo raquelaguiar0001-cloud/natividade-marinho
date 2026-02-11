@@ -146,6 +146,7 @@
     const db = firebase.database();
 
     let dados = { cs: [], ci: 0, b: 1 };
+    let lastFocusId = null; // Memória de foco
     const emojis = ['🧪','🧬','🔬','⚛️','🪐','🌍'];
 
     db.ref('biolab_v15').on('value', (snap) => {
@@ -174,6 +175,10 @@
         const c = dados.cs[dados.ci];
         if(!c) return;
 
+        // Salvar onde o cursor está antes de limpar a tela
+        const activeEl = document.activeElement;
+        if(activeEl && activeEl.id) lastFocusId = activeEl.id;
+
         document.getElementById('txt-turma').innerText = `🚀 ${c.n}`;
         document.getElementById('txt-materia').innerText = `🧬 ${c.ss[c.si]}`;
         document.getElementById('txt-total-alunos').innerText = `👥 ${c.st?.length || 0}`;
@@ -187,9 +192,15 @@
             let vistosHTML = '';
             for(let i=0; i<totV; i++) vistosHTML += `<div class="mini-box ${checks.includes(i)?'active':''}" onclick="tglV(${si},'${kA}',${i})">${i+1}</div>`;
 
-            let critsHTML = (c.mCrits?.[c.si] || []).map(cr => {
+            let critsHTML = (c.mCrits?.[c.si] || []).map((cr, cri) => {
                 let k = `${c.si}_${dados.b}_${cr.n}`;
-                return `<div class="input-wrapper"><span class="input-label">${cr.n.charAt(0).toUpperCase()}</span><input type="number" step="0.1" class="input-nota" value="${s.sc?.[k] || 0}" onchange="upNota(${si},'${k}',this.value)"></div>`;
+                let inputId = `input_${si}_${cri}`;
+                // Tabindex dinâmico: pula de aluno em aluno na mesma coluna de critério
+                let tabIdx = (cri * 1000) + si + 1; 
+                return `<div class="input-wrapper">
+                    <span class="input-label">${cr.n.charAt(0).toUpperCase()}</span>
+                    <input type="number" id="${inputId}" step="0.1" tabindex="${tabIdx}" class="input-nota" value="${s.sc?.[k] || 0}" onchange="upNota(${si},'${k}',this.value)">
+                </div>`;
             }).join('');
 
             return `<div class="stu-row">
@@ -212,6 +223,18 @@
         document.getElementById('class-list').innerHTML = dados.cs.map((x,i)=>`<div class="del-item"><span onclick="dados.ci=${i};salvar()" style="cursor:pointer; ${i===dados.ci?'color:#e91e63;font-weight:bold':''}">${x.n}</span><span onclick="delT(${i})" style="color:red;cursor:pointer">✖</span></div>`).join('');
         document.getElementById('subj-list').innerHTML = (c.ss || []).map((s,i)=>`<div class="del-item"><span onclick="dados.cs[dados.ci].si=${i};salvar()" style="cursor:pointer; ${i===c.si?'color:#e91e63;font-weight:bold':''}">${s}</span><span onclick="delM(${i})" style="color:red;cursor:pointer">✖</span></div>`).join('');
         document.getElementById('crit-list').innerHTML = (c.mCrits?.[c.si] || []).map((cr,i)=>`<div class="del-item"><span>${cr.n}</span><span onclick="delC(${i})" style="color:red;cursor:pointer">✖</span></div>`).join('');
+
+        // Restaurar o foco se ele existia antes da atualização
+        if(lastFocusId) {
+            const elToFocus = document.getElementById(lastFocusId);
+            if(elToFocus) {
+                elToFocus.focus();
+                // Coloca o cursor no final do número
+                const val = elToFocus.value;
+                elToFocus.value = '';
+                elToFocus.value = val;
+            }
+        }
     }
 
     function upNota(si, k, v) { if(!dados.cs[dados.ci].st[si].sc) dados.cs[dados.ci].st[si].sc = {}; dados.cs[dados.ci].st[si].sc[k] = parseFloat(v); salvar(); }
