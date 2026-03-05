@@ -95,7 +95,14 @@
 
 <div id="p-turmas" class="config-overlay" onclick="event.stopPropagation()"><h3>Turmas</h3><div id="class-list"></div><input type="text" id="in-cl" placeholder="+ Nova Turma" onkeypress="if(event.key==='Enter') addT()" style="width:100%; padding:10px; margin-top:10px;"></div>
 <div id="p-materias" class="config-overlay" onclick="event.stopPropagation()"><h3>Matérias</h3><div id="subj-list"></div><input type="text" id="in-sb" placeholder="+ Nova Matéria" onkeypress="if(event.key==='Enter') addM()" style="width:100%; padding:10px; margin-top:10px;"></div>
-<div id="p-alunos" class="config-overlay" onclick="event.stopPropagation()"><h3>Alunos</h3><textarea id="in-nm" style="width:100%; height:80px;" placeholder="Nomes..."></textarea><button onclick="addStus()" style="width:100%; background:#e91e63; color:white; padding:10px; margin-top:5px; border:none; border-radius:10px;">ADICIONAR</button></div>
+<div id="p-alunos" class="config-overlay" onclick="event.stopPropagation()">
+    <h3>Gerenciar Alunos</h3>
+    <div id="stu-manage-list" style="max-height: 200px; overflow-y: auto; margin-bottom: 15px; border: 1px solid #eee; border-radius: 10px;"></div>
+    <hr>
+    <h3>Adicionar Alunos</h3>
+    <textarea id="in-nm" style="width:100%; height:80px;" placeholder="Nomes..."></textarea>
+    <button onclick="addStus()" style="width:100%; background:#e91e63; color:white; padding:10px; margin-top:5px; border:none; border-radius:10px;">ADICIONAR</button>
+</div>
 
 <script>
     const firebaseConfig = { apiKey: "AIzaSyDNuA_OeQDU-tNLW93afXEQ_UzfH00yP2A", authDomain: "biolab-natividade.firebaseapp.com", databaseURL: "https://biolab-natividade-default-rtdb.firebaseio.com", projectId: "biolab-natividade", storageBucket: "biolab-natividade.firebasestorage.app", messagingSenderId: "268434655206", appId: "1:268434655206:web:e64592c269837f9ae87827" };
@@ -144,7 +151,6 @@
             let critsHTML = (c.mCrits?.[c.si] || []).map((cr, cri) => {
                 let k = `${c.si}_${dados.b}_${cr.n}`;
                 let inputId = `input_${si}_${cri}`;
-                // TABINDEX: Criando uma ordem que prioriza a descida por coluna (cri*1000 garante que a coluna 1 venha antes da 2)
                 let tabIdx = (cri * 100) + si + 1; 
                 return `<div class="input-wrapper"><span class="input-label">${cr.n[0].toUpperCase()}</span>
                 <input type="number" id="${inputId}" step="0.1" tabindex="${tabIdx}" class="input-nota" value="${s.sc?.[k] || 0}" onchange="upNota(${si},'${k}',this.value)"></div>`;
@@ -165,6 +171,9 @@
         document.getElementById('class-list').innerHTML = dados.cs.map((x,i)=>`<div class="del-item"><span onclick="dados.ci=${i};salvar()" style="cursor:pointer">${x.n}</span><span onclick="delT(${i})" style="color:red">✖</span></div>`).join('');
         document.getElementById('subj-list').innerHTML = (c.ss || []).map((s,i)=>`<div class="del-item"><span onclick="dados.cs[dados.ci].si=${i};salvar()" style="cursor:pointer">${s}</span><span onclick="delM(${i})" style="color:red">✖</span></div>`).join('');
         document.getElementById('crit-list').innerHTML = (c.mCrits?.[c.si] || []).map((cr,i)=>`<div class="del-item"><span>${cr.n}</span><span onclick="delC(${i})" style="color:red">✖</span></div>`).join('');
+        
+        // RENDERIZA LISTA PARA EXCLUSÃO DE ALUNOS
+        document.getElementById('stu-manage-list').innerHTML = (c.st || []).map((s,i)=>`<div class="del-item"><span>${s.n}</span><span onclick="delStu(${i})" style="color:red; cursor:pointer;">✖</span></div>`).join('');
 
         if(lastFocusId) { const el = document.getElementById(lastFocusId); if(el) { el.focus(); const v = el.value; el.value = ''; el.value = v; } }
     }
@@ -176,12 +185,16 @@
     function addC() { let v=document.getElementById('in-cr').value; if(v){ if(!dados.cs[dados.ci].mCrits) dados.cs[dados.ci].mCrits={}; if(!dados.cs[dados.ci].mCrits[dados.cs[dados.ci].si]) dados.cs[dados.ci].mCrits[dados.cs[dados.ci].si]=[]; dados.cs[dados.ci].mCrits[dados.cs[dados.ci].si].push({n:v}); salvar(); }}
     function addStus() { let txt=document.getElementById('in-nm').value; let nomes=txt.split('\n').filter(x=>x.trim()); nomes.forEach(n=>dados.cs[dados.ci].st.push({n:n.trim(), sc:{}, em:emojis[Math.floor(Math.random()*emojis.length)]})); dados.cs[dados.ci].st.sort((a,b)=>a.n.localeCompare(b.n)); salvar(); }
     function setVistos(v) { if(!dados.cs[dados.ci].mTotA) dados.cs[dados.ci].mTotA={}; dados.cs[dados.ci].mTotA[dados.cs[dados.ci].si] = parseInt(v); salvar(); }
-    function delT(i) { if(confirm("Excluir?")) { dados.cs.splice(i,1); dados.ci=0; salvar(); } }
-    function delM(i) { if(confirm("Excluir?")) { dados.cs[dados.ci].ss.splice(i,1); salvar(); } }
-    function delC(i) { if(confirm("Excluir?")) { dados.cs[dados.ci].mCrits[dados.cs[dados.ci].si].splice(i,1); salvar(); } }
-    function exportarExcelCompleto() { /* ... */ }
+    function delT(i) { if(confirm("Excluir Turma?")) { dados.cs.splice(i,1); dados.ci=0; salvar(); } }
+    function delM(i) { if(confirm("Excluir Matéria?")) { dados.cs[dados.ci].ss.splice(i,1); salvar(); } }
+    function delC(i) { if(confirm("Excluir Critério?")) { dados.cs[dados.ci].mCrits[dados.cs[dados.ci].si].splice(i,1); salvar(); } }
+    
+    // FUNÇÃO PARA EXCLUIR ALUNO
+    function delStu(i) { if(confirm("Deseja realmente excluir este aluno?")) { dados.cs[dados.ci].st.splice(i,1); salvar(); } }
+
+    function exportarExcelCompleto() { /* Implementar lógica se desejar */ }
     function exportarBackup() { let a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([JSON.stringify(dados)],{type:'application/json'})); a.download='Biolab_Backup.json'; a.click(); }
-    function importarBackup(input) { /* ... */ }
+    function importarBackup(input) { /* Implementar lógica se desejar */ }
 </script>
 </body>
 </html>
