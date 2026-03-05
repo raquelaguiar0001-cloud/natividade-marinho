@@ -24,11 +24,28 @@
         .students-area { width: 500px; display: flex; flex-direction: column; background: white; border-radius: 20px; padding: 10px; color: #333; overflow: hidden; }
         #stu-list { flex: 1; overflow-y: auto; padding-right: 5px; }
         .stu-row { display: flex; align-items: center; padding: 10px 5px; border-bottom: 1px solid #eee; gap: 10px; }
-        .stu-info-box { flex: 1; display: flex; flex-direction: column; gap: 5px; }
+        .stu-info-box { flex: 1; display: flex; flex-direction: column; gap: 5px; overflow: hidden; }
         .stu-name { font-weight: 700; font-size: 13px; color: #1a2a3a; text-transform: uppercase; }
-        .mini-check-grid { display: flex; flex-wrap: wrap; gap: 3px; }
-        .mini-box { width: 17px; height: 17px; border: 1px solid #ddd; border-radius: 4px; font-size: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer; background: #f8f9fa; font-weight: bold; }
+        .mini-check-grid { display: flex; flex-wrap: wrap; gap: 3px; width: 100%; }
+        
+        /* ALTERAÇÃO SOLICITADA: Caixas de check flexíveis */
+        .mini-box { 
+            flex: 1; 
+            min-width: 18px; 
+            max-width: 35px; 
+            height: 22px; 
+            border: 1px solid #ddd; 
+            border-radius: 6px; 
+            font-size: 10px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            cursor: pointer; 
+            background: #f8f9fa; 
+            font-weight: bold; 
+        }
         .mini-box.active { background: #2ecc71; color: white; border-color: #27ae60; }
+        
         .stu-inputs-group { display: flex; gap: 8px; align-items: center; }
         .input-wrapper { display: flex; flex-direction: column; align-items: center; gap: 2px; }
         .input-label { font-size: 9px; font-weight: 800; color: #b01a6b; }
@@ -172,7 +189,6 @@
         document.getElementById('subj-list').innerHTML = (c.ss || []).map((s,i)=>`<div class="del-item"><span onclick="dados.cs[dados.ci].si=${i};salvar()" style="cursor:pointer">${s}</span><span onclick="delM(${i})" style="color:red">✖</span></div>`).join('');
         document.getElementById('crit-list').innerHTML = (c.mCrits?.[c.si] || []).map((cr,i)=>`<div class="del-item"><span>${cr.n}</span><span onclick="delC(${i})" style="color:red">✖</span></div>`).join('');
         
-        // RENDERIZA LISTA PARA EXCLUSÃO DE ALUNOS
         document.getElementById('stu-manage-list').innerHTML = (c.st || []).map((s,i)=>`<div class="del-item"><span>${s.n}</span><span onclick="delStu(${i})" style="color:red; cursor:pointer;">✖</span></div>`).join('');
 
         if(lastFocusId) { const el = document.getElementById(lastFocusId); if(el) { el.focus(); const v = el.value; el.value = ''; el.value = v; } }
@@ -188,13 +204,11 @@
     function delT(i) { if(confirm("Excluir Turma?")) { dados.cs.splice(i,1); dados.ci=0; salvar(); } }
     function delM(i) { if(confirm("Excluir Matéria?")) { dados.cs[dados.ci].ss.splice(i,1); salvar(); } }
     function delC(i) { if(confirm("Excluir Critério?")) { dados.cs[dados.ci].mCrits[dados.cs[dados.ci].si].splice(i,1); salvar(); } }
-    
-    // FUNÇÃO PARA EXCLUIR ALUNO
     function delStu(i) { if(confirm("Deseja realmente excluir este aluno?")) { dados.cs[dados.ci].st.splice(i,1); salvar(); } }
 
-    function exportarExcelCompleto() { /* Implementar lógica se desejar */ }
+    function exportarExcelCompleto() { /* ... */ }
     function exportarBackup() { let a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([JSON.stringify(dados)],{type:'application/json'})); a.download='Biolab_Backup.json'; a.click(); }
-    function importarBackup(input) { /* Implementar lógica se desejar */ }
+    function importarBackup(input) { /* ... */ }
 </script>
 </body>
 </html>
