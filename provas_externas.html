@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Provas Externas - LabAtivo</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    :root {
+      --bg: #0d0618;
+      --card-bg: #130a24;
+      --accent: #fbbf24;
+      --text: #ffffff;
+      --text-dim: rgba(255, 255, 255, 0.5);
+      --border: rgba(255, 255, 255, 0.1);
+      --danger: #f87171;
+      --warning: #facc15;
+      --info: #38bdf8;
+      --success: #34d399;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      padding: 20px;
+    }
+
+    .container { max-width: 1100px; margin: 0 auto; }
+
+    header {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 20px; border-bottom: 1px solid var(--border); padding-bottom: 15px;
+    }
+
+    .btn-voltar {
+      color: var(--accent); text-decoration: none; font-size: 0.9rem; font-weight: bold;
+      background: rgba(251, 191, 36, 0.1); padding: 8px 14px; border-radius: 8px;
+      border: 1px solid rgba(251, 191, 36, 0.2); transition: 0.2s;
+    }
+    .btn-voltar:hover { background: rgba(251, 191, 36, 0.2); }
+
+    h1 { font-size: 1.5rem; color: var(--accent); }
+
+    .card {
+      background: var(--card-bg); border: 1px solid var(--border);
+      border-radius: 16px; padding: 20px; margin-bottom: 20px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+      transition: all 0.3s ease;
+    }
+
+    .card-header {
+      display: flex; justify-content: space-between; align-items: center;
+      cursor: pointer; user-select: none;
+    }
+
+    .btn-toggle {
+      background: rgba(255, 255, 255, 0.08); color: var(--accent);
+      border: 1px solid var(--border); padding: 5px 12px; border-radius: 6px;
+      font-size: 0.8rem; font-weight: bold; cursor: pointer; transition: 0.2s;
+    }
+    .btn-toggle:hover { background: rgba(251, 191, 36, 0.2); }
+
+    .form-group-top {
+      display: grid; grid-template-columns: 2fr 1fr; gap: 12px; margin-top: 15px; margin-bottom: 12px;
+    }
+    @media(max-width: 600px){ .form-group-top { grid-template-columns: 1fr; } }
+
+    .form-content {
+      overflow: hidden;
+      transition: max-height 0.3s ease, opacity 0.3s ease;
+      max-height: 600px; opacity: 1;
+    }
+
+    .form-content.collapsed {
+      max-height: 0; opacity: 0; margin: 0; padding: 0; pointer-events: none;
+    }
+
+    input, select, textarea {
+      width: 100%; padding: 10px 14px; background: rgba(0, 0, 0, 0.3);
+      border: 1px solid var(--border); border-radius: 8px; color: var(--text);
+      font-size: 0.9rem; outline: none; font-family: inherit;
+    }
+    input:focus, select:focus, textarea:focus { border-color: var(--accent); }
+
+    textarea {
+      resize: vertical; min-height: 110px; margin-bottom: 12px;
+    }
+
+    .hint-text {
+      font-size: 0.78rem; color: var(--text-dim); margin-bottom: 8px; display: block;
+    }
+
+    button.btn-salvar {
+      background: linear-gradient(135deg, #fbbf24, #f59e0b); color: #1a0a00;
+      font-weight: 800; border: none; padding: 10px 20px; border-radius: 8px;
+      cursor: pointer; transition: 0.2s; width: 100%;
+    }
+    button.btn-salvar:hover { transform: translateY(-2px); opacity: 0.9; }
+
+    /* CONTROLES DO GRÁFICO */
+    .filter-bar {
+      display: flex; flex-wrap: wrap; gap: 12px; align-items: center;
+      margin-bottom: 20px; background: rgba(255, 255, 255, 0.03);
+      padding: 12px; border-radius: 10px; border: 1px solid var(--border);
+    }
+    .filter-bar label { font-size: 0.85rem; color: var(--text-dim); font-weight: 600; }
+
+    /* GRÁFICO COM ROLAGEM */
+    .chart-wrapper { width: 100%; overflow-x: auto; padding-bottom: 10px; }
+    .chart-container { position: relative; height: 350px; min-width: 600px; }
+
+    /* TABELA */
+    .table-header-tools {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 15px; gap: 10px; flex-wrap: wrap;
+    }
+    .search-box { max-width: 280px; }
+
+    .table-wrapper { overflow-x: auto; max-height: 400px; overflow-y: auto; }
+    table { width: 100%; border-collapse: collapse; text-align: left; }
+    th {
+      color: var(--text-dim); font-size: 0.75rem; text-transform: uppercase;
+      padding: 12px; border-bottom: 1px solid var(--border); position: sticky; top: 0; background: var(--card-bg);
+    }
+    td { padding: 12px; border-bottom: 1px solid var(--border); font-size: 0.9rem; }
+
+    .action-btns { display: flex; gap: 6px; }
+
+    .btn-editar {
+      background: transparent; color: var(--info); padding: 4px 10px;
+      font-size: 0.75rem; border: 1px solid var(--info); border-radius: 6px; cursor: pointer;
+    }
+    .btn-editar:hover { background: rgba(56, 189, 248, 0.1); }
+
+    .btn-excluir {
+      background: transparent; color: var(--danger); padding: 4px 10px;
+      font-size: 0.75rem; border: 1px solid var(--danger); border-radius: 6px; cursor: pointer;
+    }
+    .btn-excluir:hover { background: rgba(248, 113, 113, 0.1); }
+
+    .badge-prova {
+      display: inline-block; padding: 3px 8px; border-radius: 12px;
+      font-size: 0.75rem; font-weight: bold; color: #000;
+    }
+
+    .badge-nivel {
+      display: inline-block; padding: 3px 8px; border-radius: 6px;
+      font-size: 0.75rem; font-weight: bold;
+    }
+    .nivel-baixo { background: rgba(248, 113, 113, 0.2); color: var(--danger); border: 1px solid var(--danger); }
+    .nivel-basico { background: rgba(250, 204, 21, 0.2); color: var(--warning); border: 1px solid var(--warning); }
+    .nivel-medio { background: rgba(56, 189, 248, 0.2); color: var(--info); border: 1px solid var(--info); }
+    .nivel-alto { background: rgba(52, 211, 153, 0.2); color: var(--success); border: 1px solid var(--success); }
+
+    /* MODAL DE EDIÇÃO */
+    .modal-overlay {
+      position: fixed; inset: 0; background: rgba(0, 0, 0, 0.75);
+      display: flex; align-items: center; justify-content: center; z-index: 100;
+      opacity: 0; pointer-events: none; transition: opacity 0.2s ease;
+    }
+    .modal-overlay.active { opacity: 1; pointer-events: auto; }
+    .modal-box {
+      background: var(--card-bg); border: 1px solid var(--border);
+      border-radius: 16px; padding: 24px; max-width: 450px; width: 90%;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.6);
+    }
+    .modal-title { font-size: 1.1rem; color: var(--accent); margin-bottom: 15px; }
+    .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 15px; }
+    .btn-cancelar {
+      background: transparent; color: var(--text-dim); border: 1px solid var(--border);
+      padding: 8px 16px; border-radius: 8px; cursor: pointer; font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <header>
+    <a href="index.html" class="btn-voltar">← Voltar ao Início</a>
+    <h1>📝 Módulo de Provas Externas</h1>
+  </header>
+
+  <!-- FORMULÁRIO COM SELEÇÃO FIXA DE PROVA E ENTRADA EM LOTE -->
+  <div class="card">
+    <div class="card-header" onclick="toggleForm()">
+      <h3 style="font-size: 1.1rem; color: var(--accent);">➕ Adicionar Resultados por Níveis de Proficiência</h3>
+      <button type="button" class="btn-toggle" id="btnToggleForm">➖ Minimizar Painel</button>
+    </div>
+
+    <div class="form-content" id="formContent">
+      <form id="formProva">
+        <div class="form-group-top">
+          <div>
+            <label style="font-size: 0.8rem; color: var(--text-dim); margin-bottom: 4px; display: block;">Nome da Avaliação / Prova:</label>
+            <input type="text" id="prova" placeholder="Ex: CAEd Ciclo I, Simulados, etc." required>
+          </div>
+          <div>
+            <label style="font-size: 0.8rem; color: var(--text-dim); margin-bottom: 4px; display: block;">Formato da Pontuação:</label>
+            <select id="tipoPontuacao">
+              <option value="nota">Nota (0 a 10)</option>
+              <option value="porcentagem">Porcentagem (%) (0 a 100)</option>
+            </select>
+          </div>
+        </div>
+
+        <span class="hint-text">💡 Cole ou digite no formato: <strong>Nome do Aluno, Nota</strong> (o nível será calculado automaticamente) ou <strong>Nome do Aluno, Nota, Nível (Baixo, Básico, Médio ou Alto)</strong>.</span>
+        <textarea id="listaAlunos" placeholder="Exemplo de entradas:&#10;Arthur Pereira, 8.5&#10;Beatriz Lima, 90, Alto&#10;Carlos Eduardo, 4.5, Baixo" required></textarea>
+
+        <button type="submit" class="btn-salvar">+ Salvar Todos os Registros</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- GRÁFICO E FILTROS -->
+  <div class="card">
+    <h3 style="margin-bottom: 15px; font-size: 1.1rem; color: var(--accent);">📊 Painel de Análise Visual de Desempenho</h3>
+    
+    <div class="filter-bar">
+      <div>
+        <label>Modo de Visualização:</label>
+        <select id="modoVisao" onchange="alternarModo()">
+          <option value="geral">Média Geral por Prova</option>
+          <option value="niveis">Distribuição por Níveis de Proficiência</option>
+          <option value="individual">Notas por Aluno em 1 Prova</option>
+          <option value="comparar">Comparar 2 Provas (Aluno por Aluno)</option>
+        </select>
+      </div>
+
+      <div id="boxProva1" style="display: none;">
+        <label id="lblProva1">Selecionar Prova:</label>
+        <select id="selProva1" onchange="desenharGrafico()"></select>
+      </div>
+
+      <div id="boxProva2" style="display: none;">
+        <label>Comparar com Prova:</label>
+        <select id="selProva2" onchange="desenharGrafico()"></select>
+      </div>
+    </div>
+
+    <div class="chart-wrapper">
+      <div class="chart-container" id="containerArea">
+        <canvas id="graficoProvas"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- HISTÓRICO DE PROVAS -->
+  <div class="card">
+    <div class="table-header-tools">
+      <h3 style="font-size: 1.1rem; color: var(--accent);">📋 Histórico Geral e Níveis dos Alunos</h3>
+      <input type="text" id="inputBusca" class="search-box" placeholder="🔍 Buscar aluno..." onkeyup="filtrarTabela()">
+    </div>
+
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Aluno</th>
+            <th>Prova / Avaliação</th>
+            <th>Nota / Pontuação</th>
+            <th>Nível de Proficiência</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody id="tabelaProvas"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL DE EDIÇÃO -->
+<div class="modal-overlay" id="modalEdicao">
+  <div class="modal-box">
+    <h3 class="modal-title">✏️ Editar Registro</h3>
+    <form id="formEdit">
+      <input type="hidden" id="editIndex">
+      <div style="margin-bottom: 12px;">
+        <label style="font-size: 0.8rem; color: var(--text-dim); display: block; margin-bottom: 4px;">Nome do Aluno:</label>
+        <input type="text" id="editAluno" required>
+      </div>
+      <div style="margin-bottom: 12px;">
+        <label style="font-size: 0.8rem; color: var(--text-dim); display: block; margin-bottom: 4px;">Prova / Avaliação:</label>
+        <input type="text" id="editProva" required>
+      </div>
+      <div style="margin-bottom: 12px;">
+        <label style="font-size: 0.8rem; color: var(--text-dim); display: block; margin-bottom: 4px;">Formato:</label>
+        <select id="editTipo" onchange="recalcularNivelEdit()">
+          <option value="nota">Nota</option>
+          <option value="porcentagem">Porcentagem (%)</option>
+        </select>
+      </div>
+      <div style="margin-bottom: 12px;">
+        <label style="font-size: 0.8rem; color: var(--text-dim); display: block; margin-bottom: 4px;">Nota / Pontuação:</label>
+        <input type="number" id="editNota" step="0.1" required oninput="recalcularNivelEdit()">
+      </div>
+      <div style="margin-bottom: 12px;">
+        <label style="font-size: 0.8rem; color: var(--text-dim); display: block; margin-bottom: 4px;">Nível de Proficiência:</label>
+        <select id="editNivel">
+          <option value="Baixo">Baixo</option>
+          <option value="Básico">Básico</option>
+          <option value="Médio">Médio</option>
+          <option value="Alto">Alto</option>
+        </select>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn-cancelar" onclick="fecharModal()">Cancelar</button>
+        <button type="submit" class="btn-salvar" style="width: auto;">Salvar Alterações</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  let dadosProvas = JSON.parse(localStorage.getItem('labAtivo_provas')) || [];
+  let meuGrafico = null;
+
+  const CORES = ['#fbbf24', '#22d3ee', '#a78bfa', '#34d399', '#f472b6', '#fb923c', '#818cf8'];
+
+  // Função para calcular o nível cognitivo com base na pontuação
+  function calcularNivelAutomatico(nota, tipo) {
+    let valor = parseFloat(nota);
+    if (isNaN(valor)) return 'Baixo';
+
+    let percentual = (tipo === 'porcentagem') ? valor : (valor * 10);
+
+    if (percentual < 50) return 'Baixo';
+    if (percentual < 70) return 'Básico';
+    if (percentual < 90) return 'Médio';
+    return 'Alto';
+  }
+
+  function normalizarNivel(nivelStr) {
+    if (!nivelStr) return null;
+    let n = nivelStr.trim().toLowerCase();
+    if (n.includes('baix')) return 'Baixo';
+    if (n.includes('bás') || n.includes('bas')) return 'Básico';
+    if (n.includes('méd') || n.includes('med')) return 'Médio';
+    if (n.includes('alt')) return 'Alto';
+    return null;
+  }
+
+  function obterCorProva(nomeProva) {
+    const provasUnicas = [...new Set(dadosProvas.map(d => d.prova))];
+    const index = provasUnicas.indexOf(nomeProva);
+    return CORES[index % CORES.length] || '#fbbf24';
+  }
+
+  function toggleForm() {
+    const content = document.getElementById('formContent');
+    const btn = document.getElementById('btnToggleForm');
+    
+    if (content.classList.contains('collapsed')) {
+      content.classList.remove('collapsed');
+      btn.textContent = '➖ Minimizar Painel';
+    } else {
+      content.classList.add('collapsed');
+      btn.textContent = '➕ Expandir Painel';
+    }
+  }
+
+  function atualizarTudo() {
+    salvarDados();
+    atualizarTabela();
+    atualizarSelects();
+    desenharGrafico();
+  }
+
+  function salvarDados() {
+    localStorage.setItem('labAtivo_provas', JSON.stringify(dadosProvas));
+  }
+
+  // Adicionar Dados em Lote com Nível Autocalculado ou Manual
+  document.getElementById('formProva').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const prova = document.getElementById('prova').value.trim();
+    const tipo = document.getElementById('tipoPontuacao').value;
+    const textoArea = document.getElementById('listaAlunos').value.trim();
+
+    const linhas = textoArea.split('\n');
+    let adicionados = 0;
+
+    linhas.forEach(linha => {
+      const partes = linha.split(',');
+      if (partes.length >= 2) {
+        const aluno = partes[0].trim();
+        const nota = parseFloat(partes[1].trim());
+        let nivelManual = partes[2] ? normalizarNivel(partes[2]) : null;
+
+        if (aluno !== '' && !isNaN(nota)) {
+          let nivel = nivelManual || calcularNivelAutomatico(nota, tipo);
+          dadosProvas.push({ aluno, prova, nota, tipo, nivel });
+          adicionados++;
+        }
+      }
+    });
+
+    if (adicionados > 0) {
+      document.getElementById('listaAlunos').value = '';
+      atualizarTudo();
+    } else {
+      alert("Nenhum registro válido encontrado. Verifique o formato: Nome do Aluno, Nota ou Nome, Nota, Nível");
+    }
+  });
+
+  // Modal de Edição
+  function abrirEdicao(index) {
+    const item = dadosProvas[index];
+    document.getElementById('editIndex').value = index;
+    document.getElementById('editAluno').value = item.aluno;
+    document.getElementById('editProva').value = item.prova;
+    document.getElementById('editTipo').value = item.tipo || 'nota';
+    document.getElementById('editNota').value = item.nota;
+    document.getElementById('editNivel').value = item.nivel || calcularNivelAutomatico(item.nota, item.tipo);
+
+    document.getElementById('modalEdicao').classList.add('active');
+  }
+
+  function recalcularNivelEdit() {
+    const nota = parseFloat(document.getElementById('editNota').value);
+    const tipo = document.getElementById('editTipo').value;
+    if (!isNaN(nota)) {
+      document.getElementById('editNivel').value = calcularNivelAutomatico(nota, tipo);
+    }
+  }
+
+  function fecharModal() {
+    document.getElementById('modalEdicao').classList.remove('active');
+  }
+
+  document.getElementById('formEdit').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const index = parseInt(document.getElementById('editIndex').value);
+    
+    dadosProvas[index] = {
+      aluno: document.getElementById('editAluno').value.trim(),
+      prova: document.getElementById('editProva').value.trim(),
+      tipo: document.getElementById('editTipo').value,
+      nota: parseFloat(document.getElementById('editNota').value),
+      nivel: document.getElementById('editNivel').value
+    };
+
+    fecharModal();
+    atualizarTudo();
+  });
+
+  function excluirRegistro(index) {
+    if(confirm("Tem certeza que deseja excluir esta nota?")) {
+      dadosProvas.splice(index, 1);
+      atualizarTudo();
+    }
+  }
+
+  function obterClasseBadgeNivel(nivel) {
+    switch(nivel) {
+      case 'Baixo': return 'nivel-baixo';
+      case 'Básico': return 'nivel-basico';
+      case 'Médio': return 'nivel-medio';
+      case 'Alto': return 'nivel-alto';
+      default: return 'nivel-baixo';
+    }
+  }
+
+  function atualizarTabela() {
+    const tbody = document.getElementById('tabelaProvas');
+    tbody.innerHTML = '';
+
+    dadosProvas.forEach((item, index) => {
+      const cor = obterCorProva(item.prova);
+      const suf = item.tipo === 'porcentagem' ? '%' : '';
+      const nivel = item.nivel || calcularNivelAutomatico(item.nota, item.tipo);
+      const classeNivel = obterClasseBadgeNivel(nivel);
+
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td><strong>${item.aluno}</strong></td>
+        <td><span class="badge-prova" style="background:${cor}">${item.prova}</span></td>
+        <td><strong style="color: var(--success)">${item.nota}${suf}</strong></td>
+        <td><span class="badge-nivel ${classeNivel}">${nivel}</span></td>
+        <td>
+          <div class="action-btns">
+            <button class="btn-editar" onclick="abrirEdicao(${index})">Editar</button>
+            <button class="btn-excluir" onclick="excluirRegistro(${index})">Excluir</button>
+          </div>
+        </td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }
+
+  function filtrarTabela() {
+    const busca = document.getElementById('inputBusca').value.toLowerCase();
+    const linhas = document.querySelectorAll('#tabelaProvas tr');
+    linhas.forEach(linha => {
+      const texto = linha.children[0].textContent.toLowerCase();
+      linha.style.display = texto.includes(busca) ? '' : 'none';
+    });
+  }
+
+  function atualizarSelects() {
+    const provas = [...new Set(dadosProvas.map(d => d.prova))];
+    const sel1 = document.getElementById('selProva1');
+    const sel2 = document.getElementById('selProva2');
+
+    sel1.innerHTML = ''; sel2.innerHTML = '';
+
+    provas.forEach(p => {
+      sel1.innerHTML += `<option value="${p}">${p}</option>`;
+      sel2.innerHTML += `<option value="${p}">${p}</option>`;
+    });
+
+    if (provas.length > 1) sel2.selectedIndex = 1;
+  }
+
+  function alternarModo() {
+    const modo = document.getElementById('modoVisao').value;
+    document.getElementById('boxProva1').style.display = (modo === 'individual' || modo === 'comparar' || modo === 'niveis') ? 'block' : 'none';
+    document.getElementById('boxProva2').style.display = (modo === 'comparar') ? 'block' : 'none';
+    document.getElementById('lblProva1').textContent = (modo === 'comparar') ? '1ª Prova:' : 'Selecionar Prova:';
+    desenharGrafico();
+  }
+
+  function desenharGrafico() {
+    const ctx = document.getElementById('graficoProvas').getContext('2d');
+    const modo = document.getElementById('modoVisao').value;
+    const container = document.getElementById('containerArea');
+
+    if (meuGrafico) meuGrafico.destroy();
+
+    let labels = [];
+    let datasets = [];
+    let ehPorcentagem = false;
+
+    if (modo === 'geral') {
+      container.style.minWidth = '600px';
+      const provas = [...new Set(dadosProvas.map(d => d.prova))];
+      labels = provas;
+
+      const medias = provas.map(p => {
+        const notas = dadosProvas.filter(d => d.prova === p).map(d => d.nota);
+        return (notas.reduce((a, b) => a + b, 0) / (notas.length || 1)).toFixed(1);
+      });
+
+      datasets.push({
+        label: 'Média da Turma',
+        data: medias,
+        backgroundColor: provas.map(p => obterCorProva(p)),
+        borderRadius: 8
+      });
+
+    } else if (modo === 'niveis') {
+      const provaSel = document.getElementById('selProva1').value;
+      const filtrados = dadosProvas.filter(d => d.prova === provaSel);
+
+      labels = ['Baixo', 'Básico', 'Médio', 'Alto'];
+      container.style.minWidth = '600px';
+
+      const contagem = { Baixo: 0, Básico: 0, Médio: 0, Alto: 0 };
+      filtrados.forEach(d => {
+        let n = d.nivel || calcularNivelAutomatico(d.nota, d.tipo);
+        if (contagem[n] !== undefined) contagem[n]++;
+      });
+
+      datasets.push({
+        label: `Qtd de Alunos por Nível (${provaSel})`,
+        data: [contagem.Baixo, contagem.Básico, contagem.Médio, contagem.Alto],
+        backgroundColor: ['#f87171', '#facc15', '#38bdf8', '#34d399'],
+        borderRadius: 8
+      });
+
+    } else if (modo === 'individual') {
+      const provaSel = document.getElementById('selProva1').value;
+      const filtrados = dadosProvas.filter(d => d.prova === provaSel);
+      ehPorcentagem = filtrados.some(d => d.tipo === 'porcentagem');
+
+      labels = filtrados.map(d => d.aluno);
+      container.style.minWidth = Math.max(600, labels.length * 40) + 'px';
+
+      datasets.push({
+        label: `Notas - ${provaSel}`,
+        data: filtrados.map(d => d.nota),
+        backgroundColor: obterCorProva(provaSel),
+        borderRadius: 6
+      });
+
+    } else if (modo === 'comparar') {
+      const p1 = document.getElementById('selProva1').value;
+      const p2 = document.getElementById('selProva2').value;
+
+      const alunosUnicos = [...new Set(dadosProvas.map(d => d.aluno))];
+      labels = alunosUnicos;
+      container.style.minWidth = Math.max(600, labels.length * 50) + 'px';
+
+      const notasP1 = alunosUnicos.map(aluno => {
+        const reg = dadosProvas.find(d => d.aluno === aluno && d.prova === p1);
+        return reg ? reg.nota : 0;
+      });
+
+      const notasP2 = alunosUnicos.map(aluno => {
+        const reg = dadosProvas.find(d => d.aluno === aluno && d.prova === p2);
+        return reg ? reg.nota : 0;
+      });
+
+      datasets.push({
+        label: p1,
+        data: notasP1,
+        backgroundColor: obterCorProva(p1),
+        borderRadius: 6
+      });
+
+      datasets.push({
+        label: p2,
+        data: notasP2,
+        backgroundColor: obterCorProva(p2),
+        borderRadius: 6
+      });
+    }
+
+    meuGrafico = new Chart(ctx, {
+      type: 'bar',
+      data: { labels, datasets },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          y: { 
+            beginAtZero: true, 
+            grid: { color: 'rgba(255,255,255,0.08)' }, 
+            ticks: { 
+              color: '#a0a0b0',
+              callback: function(value) {
+                if (modo === 'niveis') return value + ' alunos';
+                return value + (ehPorcentagem ? '%' : '');
+              }
+            } 
+          },
+          x: { grid: { color: 'rgba(255,255,255,0.08)' }, ticks: { color: '#a0a0b0', maxRotation: 45, minRotation: 45 } }
+        },
+        plugins: {
+          legend: { labels: { color: '#ffffff', font: { weight: 'bold' } } },
+          tooltip: {
+            callbacks: {
+              label: function(context) {
+                let label = context.dataset.label || '';
+                if (label) label += ': ';
+                if (context.parsed.y !== null) {
+                  if (modo === 'niveis') {
+                    label += context.parsed.y + ' aluno(s)';
+                  } else {
+                    label += context.parsed.y + (ehPorcentagem ? '%' : '');
+                  }
+                }
+                return label;
+              }
+            }
+          }
+        }
+      }
+    });
+  }
+
+  // Carregar inicial
+  atualizarTudo();
+</script>
+
+</body>
+</html>
