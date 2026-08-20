@@ -73,8 +73,12 @@ html,body{height:100%;overflow:hidden;font-family:'DM Sans',sans-serif;backgroun
 .h-school strong{background:linear-gradient(135deg,#6ec6ff,#a0f0e0,#6699ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
 .h-rule{width:55px;height:2px;margin:11px auto 7px;background:linear-gradient(90deg,transparent,rgba(230,57,70,.5),transparent)}
 .h-hint{font-size:.8rem;color:rgba(255,255,255,.45);letter-spacing:.5px;font-weight:500}
-.h-mods{width:100%;max-width:880px;margin:0 auto;display:grid;grid-template-columns:repeat(3,1fr);gap:12px;padding:0 20px 20px;flex-shrink:0}
-@media(max-width:600px){.h-mods{grid-template-columns:1fr;max-width:340px;padding:0 16px 16px}}
+
+/* AJUSTE NO GRID PARA 4 CARDs LADO A LADO */
+.h-mods{width:100%;max-width:1100px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr);gap:12px;padding:0 20px 20px;flex-shrink:0}
+@media(max-width:900px){.h-mods{grid-template-columns:repeat(2,1fr);max-width:600px}}
+@media(max-width:500px){.h-mods{grid-template-columns:1fr;max-width:340px;padding:0 16px 16px}}
+
 .mc{position:relative;overflow:hidden;border-radius:18px;border:1px solid rgba(255,255,255,.08);cursor:pointer;padding:22px 16px 18px;text-align:center;color:#fff;background:rgba(255,255,255,.04);transition:transform .28s cubic-bezier(.34,1.56,.64,1),box-shadow .28s,border-color .28s}
 .mc::after{content:'';position:absolute;inset:0;border-radius:18px;background:linear-gradient(160deg,rgba(255,255,255,.07) 0%,transparent 60%);pointer-events:none}
 .mc::before{content:'';position:absolute;top:0;left:-100%;width:60%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.06),transparent);transition:left .5s ease}
@@ -83,12 +87,18 @@ html,body{height:100%;overflow:hidden;font-family:'DM Sans',sans-serif;backgroun
 .mc-r{border-color:rgba(230,57,70,.2)}.mc-r:hover{box-shadow:0 20px 50px rgba(230,57,70,.22);border-color:rgba(230,57,70,.5)}
 .mc-b{border-color:rgba(233,30,99,.2)}.mc-b:hover{box-shadow:0 20px 50px rgba(155,77,202,.22);border-color:rgba(233,30,99,.5)}
 .mc-p{border-color:rgba(84,110,122,.25)}.mc-p:hover{box-shadow:0 20px 50px rgba(84,110,122,.25);border-color:rgba(84,110,122,.6)}
+.mc-e{border-color:rgba(52,211,153,.25)}.mc-e:hover{box-shadow:0 20px 50px rgba(52,211,153,.25);border-color:rgba(52,211,153,.6)}
+
 .mc-glow{position:absolute;width:130px;height:130px;border-radius:50%;top:-25px;left:50%;transform:translateX(-50%);opacity:0;transition:opacity .3s;pointer-events:none}
 .mc-r .mc-glow{background:radial-gradient(circle,rgba(230,57,70,.22),transparent 70%)}
 .mc-b .mc-glow{background:radial-gradient(circle,rgba(233,30,99,.22),transparent 70%)}
 .mc-p .mc-glow{background:radial-gradient(circle,rgba(84,110,122,.3),transparent 70%)}
+.mc-e .mc-glow{background:radial-gradient(circle,rgba(52,211,153,.3),transparent 70%)}
+
 .mc:hover .mc-glow{opacity:1}
 .mc-ai{position:absolute;top:10px;right:10px;font-size:.55rem;font-weight:800;letter-spacing:1.5px;padding:2px 7px;border-radius:20px;text-transform:uppercase;background:rgba(230,57,70,.18);color:#ff9999;border:1px solid rgba(230,57,70,.3)}
+.mc-ext{position:absolute;top:10px;right:10px;font-size:.55rem;font-weight:800;letter-spacing:1.5px;padding:2px 7px;border-radius:20px;text-transform:uppercase;background:rgba(52,211,153,.18);color:#a7f3d0;border:1px solid rgba(52,211,153,.3)}
+
 .mc-ico{font-size:2.4rem;margin-bottom:10px;display:block;position:relative;z-index:1;transition:transform .28s cubic-bezier(.34,1.56,.64,1)}
 .mc:hover .mc-ico{transform:scale(1.2) rotate(-6deg)}
 .mc-name{font-size:.95rem;font-weight:800;margin-bottom:5px;position:relative;z-index:1;letter-spacing:-.2px}
@@ -131,7 +141,7 @@ html,body{height:100%;overflow:hidden;font-family:'DM Sans',sans-serif;backgroun
     </button>
     <div id="ls" class="anim-in">Faça login para acessar o sistema</div>
   </div>
-  <div class="l-year">ReagiLab · 2025</div>
+  <div class="l-year">ReagiLab · 2026</div>
 </div>
  
 <!-- HOME -->
@@ -165,8 +175,8 @@ html,body{height:100%;overflow:hidden;font-family:'DM Sans',sans-serif;backgroun
     </div>
     <div class="mc mc-b" onclick="abrirMod('biolab')">
       <div class="mc-glow"></div>
-      <span class="mc-ico">🔭</span>
-      <div class="mc-name">BioLab</div>
+      <span class="mc-ico">🔬</span>
+      <div class="mc-name">Notas</div>
       <div class="mc-desc">Notas, vistos, atividades e desempenho bimestral dos alunos</div>
       <div class="mc-arr">Abrir →</div>
     </div>
@@ -174,7 +184,15 @@ html,body{height:100%;overflow:hidden;font-family:'DM Sans',sans-serif;backgroun
       <div class="mc-glow"></div>
       <span class="mc-ico">📅</span>
       <div class="mc-name">Planejador</div>
-      <div class="mc-desc">Planejamento semanal de aulas, conteúdos e histórico</div>
+      <div class="mc-desc">Planejamento semanal de aulas, conteúdos e histórico de atividades</div>
+      <div class="mc-arr">Abrir →</div>
+    </div>
+    <!-- NOVO CARD: PROVAS EXTERNAS -->
+    <div class="mc mc-e" onclick="abrirMod('externas')">
+      <div class="mc-glow"></div><span class="mc-ext">EXTERNAS</span>
+      <span class="mc-ico">📝</span>
+      <div class="mc-name">Provas Externas</div>
+      <div class="mc-desc">Histórico, gráficos e acompanhamento de desempenho no CAEd e simulados</div>
       <div class="mc-arr">Abrir →</div>
     </div>
   </div>
@@ -216,7 +234,12 @@ function draw(){
 draw();
  
 // MODULES
-const MODS={corretor:{name:'ReagiNota',sub:'Corretor de Gabaritos',src:'reagiNota.html'},biolab:{name:'BioLab',sub:'Notas e Desempenho',src:'biolab.html'},planejador:{name:'Planejador',sub:'Planejamento Semanal',src:'planejador.html'}};
+const MODS={
+  corretor:{name:'ReagiNota',sub:'Corretor de Gabaritos',src:'reagiNota.html'},
+  biolab:{name:'Notas',sub:'Notas e Desempenho',src:'biolab.html'},
+  planejador:{name:'Planejador',sub:'Planejamento Semanal',src:'planejador.html'},
+  externas:{name:'Provas Externas',sub:'CAEd e Simulados',src:'provas-externas.html'}
+};
  
 function abrirMod(id){
   const m=MODS[id];
