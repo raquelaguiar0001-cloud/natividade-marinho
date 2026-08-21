@@ -103,11 +103,12 @@
     .chart-wrapper { width: 100%; overflow-x: auto; padding-bottom: 10px; }
     .chart-container { position: relative; height: 350px; min-width: 600px; }
 
-    .table-wrapper { overflow-x: auto; max-height: 400px; overflow-y: auto; }
+    .table-wrapper { overflow-x: auto; max-height: 450px; overflow-y: auto; }
     table { width: 100%; border-collapse: collapse; text-align: left; }
     th {
       color: var(--text-dim); font-size: 0.75rem; text-transform: uppercase;
       padding: 12px; border-bottom: 1px solid var(--border); position: sticky; top: 0; background: var(--card-bg);
+      z-index: 2;
     }
     td { padding: 12px; border-bottom: 1px solid var(--border); font-size: 0.9rem; }
 
@@ -120,11 +121,54 @@
     .nivel-medio { background: rgba(56, 189, 248, 0.2); color: var(--info); border: 1px solid var(--info); }
     .nivel-alto { background: rgba(52, 211, 153, 0.2); color: var(--success); border: 1px solid var(--success); }
 
-    .btn-excluir {
-      background: transparent; color: var(--danger); padding: 4px 10px;
-      font-size: 0.75rem; border: 1px solid var(--danger); border-radius: 6px; cursor: pointer;
+    .action-btns { display: flex; gap: 6px; flex-wrap: wrap; }
+    .btn-acao {
+      background: transparent; padding: 4px 10px; font-size: 0.75rem; border-radius: 6px; cursor: pointer; font-weight: 600;
+      transition: 0.2s;
     }
-    .btn-excluir:hover { background: rgba(248, 113, 113, 0.1); }
+    .btn-editar { color: var(--info); border: 1px solid var(--info); }
+    .btn-editar:hover { background: rgba(56, 189, 248, 0.15); }
+    .btn-excluir { color: var(--danger); border: 1px solid var(--danger); }
+    .btn-excluir:hover { background: rgba(248, 113, 113, 0.15); }
+    .btn-detalhes { color: var(--accent); border: 1px solid var(--accent); }
+    .btn-detalhes:hover { background: rgba(251, 191, 36, 0.15); }
+
+    /* TAGS DE QUESTÕES CERTA/ERRADA */
+    .q-tag {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 22px; height: 22px; border-radius: 50%; font-size: 0.7rem; font-weight: bold; margin-right: 3px;
+    }
+    .q-certa { background: rgba(52, 211, 153, 0.2); color: var(--success); border: 1px solid var(--success); }
+    .q-errada { background: rgba(248, 113, 113, 0.2); color: var(--danger); border: 1px solid var(--danger); }
+
+    /* MODAL DE EDIÇÃO E DETALHES */
+    .modal-overlay {
+      position: fixed; inset: 0; background: rgba(0, 0, 0, 0.75);
+      display: flex; align-items: center; justify-content: center; z-index: 100;
+      opacity: 0; pointer-events: none; transition: opacity 0.2s ease;
+    }
+    .modal-overlay.active { opacity: 1; pointer-events: auto; }
+    .modal-box {
+      background: var(--card-bg); border: 1px solid var(--border);
+      border-radius: 16px; padding: 24px; max-width: 500px; width: 90%;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.6); max-height: 90vh; overflow-y: auto;
+    }
+    .modal-title { font-size: 1.1rem; color: var(--accent); margin-bottom: 15px; }
+    .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 15px; }
+    .btn-cancelar {
+      background: transparent; color: var(--text-dim); border: 1px solid var(--border);
+      padding: 8px 16px; border-radius: 8px; cursor: pointer; font-weight: bold;
+    }
+
+    .q-detail-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px; margin-top: 10px;
+    }
+    .q-card-item {
+      background: rgba(0, 0, 0, 0.3); border: 1px solid var(--border); padding: 8px; border-radius: 8px;
+      text-align: center; font-size: 0.8rem;
+    }
+    .q-card-item.certa { border-color: var(--success); background: rgba(52, 211, 153, 0.05); }
+    .q-card-item.errada { border-color: var(--danger); background: rgba(248, 113, 113, 0.05); }
   </style>
 </head>
 <body>
@@ -137,15 +181,16 @@
 
   <!-- ABAS DE NAVEGAÇÃO -->
   <div class="tab-nav">
-    <button class="tab-btn active" id="btnTab1" onclick="mudarAba('abaGabarito')">1. Configurar Prova (Passo Único)</button>
-    <button class="tab-btn" id="btnTab2" onclick="mudarAba('abaRespostas')">2. Lançar Gabaritos da Turma em Lote</button>
+    <button class="tab-btn active" id="btnTab1" onclick="mudarAba('abaGabarito')">1. Configurar & Editar Provas</button>
+    <button class="tab-btn" id="btnTab2" onclick="mudarAba('abaRespostas')">2. Lançar Gabaritos da Turma</button>
     <button class="tab-btn" id="btnTab3" onclick="mudarAba('abaAnalise')">3. Diagnóstico e Gráficos</button>
   </div>
 
   <!-- ABA 1: CONFIGURAÇÃO DA PROVA -->
   <div id="abaGabarito" class="tab-content active card">
-    <h3 style="color: var(--accent); margin-bottom: 12px;">⚙️ Configuração da Avaliação</h3>
+    <h3 style="color: var(--accent); margin-bottom: 12px;">⚙️ Configuração / Cadastro de Avaliação</h3>
     <form id="formCadProva">
+      <input type="hidden" id="editProvaId">
       <div class="form-grid">
         <div>
           <label>Nome da Avaliação / Prova:</label>
@@ -169,13 +214,32 @@
       </div>
 
       <div style="margin-bottom: 12px;">
-        <label>Nível Cognitivo de Cada Questão (Mista):</label>
+        <label>Nível Cognitivo de Cada Questão:</label>
         <input type="text" id="niveisQuestoes" placeholder="Ex: Baixo, Baixo, Básico, Básico, Médio, Médio, Alto, Alto" required>
         <span class="hint-text">Defina a habilidade de cada item (Opções: Baixo, Básico, Médio, Alto).</span>
       </div>
 
-      <button type="submit" class="btn-salvar">💾 Salvar Prova e Ativar para Correção</button>
+      <button type="submit" class="btn-salvar" id="btnSalvarProva">💾 Salvar Prova e Ativar para Correção</button>
+      <button type="button" class="btn-cancelar" id="btnCancelarEditProva" style="display:none; width:100%; margin-top:6px;" onclick="resetFormProva()">Cancelar Edição</button>
     </form>
+
+    <hr style="border: 0; border-top: 1px solid var(--border); margin: 25px 0 15px 0;">
+
+    <h4 style="color: var(--accent); margin-bottom: 10px;">📚 Provas Cadastradas no Sistema</h4>
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Nome da Prova</th>
+            <th>Questões</th>
+            <th>Gabarito</th>
+            <th>Nível Geral</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody id="tabelaProvasCadastradas"></tbody>
+      </table>
+    </div>
   </div>
 
   <!-- ABA 2: ENTRADA EM LOTE DOS ALUNOS -->
@@ -186,7 +250,7 @@
     </div>
 
     <div style="margin-bottom: 15px;">
-      <label>Trocar Prova Ativa:</label>
+      <label>Selecionar Prova Ativa para Lançamento:</label>
       <select id="selProvaRespostas" onchange="selecionarProvaAtivaDirecto()"></select>
     </div>
 
@@ -208,7 +272,7 @@
       <div class="filter-bar">
         <div>
           <label>Filtrar Prova:</label>
-          <select id="selFiltroProvaGrafico" onchange="desenharGrafico()"></select>
+          <select id="selFiltroProvaGrafico" onchange="aoMudarFiltroProva()"></select>
         </div>
       </div>
 
@@ -229,6 +293,7 @@
               <th>Prova</th>
               <th>Acertos</th>
               <th>Nota (%)</th>
+              <th>Raio-X (C / E)</th>
               <th>Nível Atingido</th>
               <th>Ações</th>
             </tr>
@@ -236,6 +301,38 @@
           <tbody id="tabelaResultados"></tbody>
         </table>
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL PARA EDITAR ALUNO -->
+<div class="modal-overlay" id="modalEditAluno">
+  <div class="modal-box">
+    <h3 class="modal-title">✏️ Editar Registro do Aluno</h3>
+    <input type="hidden" id="editRegId">
+    <div style="margin-bottom: 12px;">
+      <label>Nome do Aluno:</label>
+      <input type="text" id="editAlunoNome" required>
+    </div>
+    <div style="margin-bottom: 12px;">
+      <label>Respostas Enviadas (Separadas por vírgula ou espaço):</label>
+      <input type="text" id="editAlunoRespostas" required>
+      <span class="hint-text">Exemplo: C, B, B, C, B</span>
+    </div>
+    <div class="modal-actions">
+      <button type="button" class="btn-cancelar" onclick="fecharModal('modalEditAluno')">Cancelar</button>
+      <button type="button" class="btn-salvar" style="width: auto; margin-top:0;" onclick="salvarEdicaoAluno()">Salvar Alterações</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL DETALHES DAS QUESTÕES DA PROVA DO ALUNO -->
+<div class="modal-overlay" id="modalDetalhesAluno">
+  <div class="modal-box">
+    <h3 class="modal-title" id="detalheAlunoTitulo">🔍 Raio-X do Aluno</h3>
+    <div id="detalhesConteudo"></div>
+    <div class="modal-actions">
+      <button type="button" class="btn-cancelar" onclick="fecharModal('modalDetalhesAluno')">Fechar</button>
     </div>
   </div>
 </div>
@@ -263,19 +360,42 @@
     document.getElementById(abaId).classList.add('active');
 
     atualizarSelects();
+    if (abaId === 'abaGabarito') atualizarTabelaProvas();
     if (abaId === 'abaAnalise') {
       desenharGrafico();
       atualizarTabela();
     }
   }
 
-  // Cadastro de Prova
+  function recalcularTodosOsResultados() {
+    resultadosAlunos.forEach(res => {
+      const p = bancoProvas.find(item => item.id == res.provaId);
+      if (p) {
+        let acertos = 0;
+        p.gabarito.forEach((correta, idx) => {
+          if (res.respostas && res.respostas[idx] === correta) acertos++;
+        });
+        res.acertos = acertos;
+        res.totalQuestoes = p.gabarito.length;
+        res.percentual = Math.round((acertos / p.gabarito.length) * 100);
+        res.provaNome = p.nome;
+
+        if (res.percentual >= 90) res.nivelCalculado = 'Alto';
+        else if (res.percentual >= 70) res.nivelCalculado = 'Médio';
+        else if (res.percentual >= 50) res.nivelCalculado = 'Básico';
+        else res.nivelCalculado = 'Baixo';
+      }
+    });
+    salvarTudo();
+  }
+
+  // Cadastro e Edição de Prova
   document.getElementById('formCadProva').addEventListener('submit', (e) => {
     e.preventDefault();
+    const editId = document.getElementById('editProvaId').value;
     const nome = document.getElementById('nomeProvaCad').value.trim();
     const nivelGeral = document.getElementById('nivelGeralProva').value;
     
-    // Tratamento flexível para vírgula ou espaço
     const gabaritoRaw = document.getElementById('gabaritoOficial').value.replace(/\s+/g, ',').replace(/,+/g, ',');
     const gabarito = gabaritoRaw.split(',').map(s => s.trim().toUpperCase()).filter(s => s !== '');
     
@@ -287,15 +407,80 @@
       return;
     }
 
-    const novaProva = { id: Date.now(), nome, nivelGeral, gabarito, niveis };
-    bancoProvas.push(novaProva);
-    provaAtivaId = novaProva.id;
+    if (editId) {
+      // Editar existente
+      const idx = bancoProvas.findIndex(p => p.id == editId);
+      if (idx !== -1) {
+        bancoProvas[idx] = { id: parseInt(editId), nome, nivelGeral, gabarito, niveis };
+        alert(`Prova "${nome}" atualizada com sucesso! Os resultados dos alunos foram recalculados.`);
+      }
+    } else {
+      // Cadastrar nova
+      const novaProva = { id: Date.now(), nome, nivelGeral, gabarito, niveis };
+      bancoProvas.push(novaProva);
+      provaAtivaId = novaProva.id;
+      alert(`Prova "${nome}" salva com sucesso! Ela está ativa para a correção.`);
+    }
 
-    salvarTudo();
-    alert(`Prova "${nome}" salva com sucesso! Ela está ativa para a correção.`);
-    document.getElementById('formCadProva').reset();
-    mudarAba('abaRespostas');
+    recalcularTodosOsResultados();
+    resetFormProva();
+    atualizarTabelaProvas();
+    atualizarSelects();
   });
+
+  function resetFormProva() {
+    document.getElementById('editProvaId').value = '';
+    document.getElementById('formCadProva').reset();
+    document.getElementById('btnSalvarProva').innerHTML = '💾 Salvar Prova e Ativar para Correção';
+    document.getElementById('btnCancelarEditProva').style.display = 'none';
+  }
+
+  function editarProva(id) {
+    const p = bancoProvas.find(item => item.id == id);
+    if (p) {
+      document.getElementById('editProvaId').value = p.id;
+      document.getElementById('nomeProvaCad').value = p.nome;
+      document.getElementById('nivelGeralProva').value = p.nivelGeral || 'Básico';
+      document.getElementById('gabaritoOficial').value = p.gabarito.join(', ');
+      document.getElementById('niveisQuestoes').value = p.niveis.join(', ');
+
+      document.getElementById('btnSalvarProva').innerHTML = '✏️ Salvar Alterações da Prova';
+      document.getElementById('btnCancelarEditProva').style.display = 'block';
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }
+
+  function excluirProva(id) {
+    if (confirm("Deseja excluir esta prova? Os resultados vinculados a ela serão mantidos, mas a matriz original será removida.")) {
+      bancoProvas = bancoProvas.filter(p => p.id != id);
+      if (provaAtivaId == id) provaAtivaId = bancoProvas.length > 0 ? bancoProvas[0].id : null;
+      salvarTudo();
+      atualizarTabelaProvas();
+      atualizarSelects();
+    }
+  }
+
+  function atualizarTabelaProvas() {
+    const tbody = document.getElementById('tabelaProvasCadastradas');
+    tbody.innerHTML = '';
+
+    bancoProvas.forEach(p => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td><strong>${p.nome}</strong></td>
+        <td>${p.gabarito.length}</td>
+        <td><code style="color:var(--accent);">${p.gabarito.join(', ')}</code></td>
+        <td><span class="badge-nivel ${obterClasseBadge(p.nivelGeral)}">${p.nivelGeral || 'Básico'}</span></td>
+        <td>
+          <div class="action-btns">
+            <button class="btn-acao btn-editar" onclick="editarProva(${p.id})">Editar</button>
+            <button class="btn-acao btn-excluir" onclick="excluirProva(${p.id})">Excluir</button>
+          </div>
+        </td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }
 
   function selecionarProvaAtivaDirecto() {
     provaAtivaId = parseInt(document.getElementById('selProvaRespostas').value);
@@ -331,7 +516,6 @@
     let processados = 0;
 
     linhas.forEach(linha => {
-      // Normaliza separadores (seja vírgula, tabulação ou barra)
       const partes = linha.replace(/\t/g, ',').replace(/\|/g, ',').split(',').map(s => s.trim());
       if (partes.length >= 2) {
         const aluno = partes[0];
@@ -349,7 +533,7 @@
         else if (percentual >= 50) nivelCalculado = 'Básico';
 
         resultadosAlunos.push({
-          idReg: Date.now() + Math.random(),
+          idReg: Date.now() + "_" + Math.random().toString(36).substr(2, 9),
           aluno,
           provaId: provaObj.id,
           provaNome: provaObj.nome,
@@ -401,6 +585,11 @@
     }
   }
 
+  function aoMudarFiltroProva() {
+    atualizarTabela();
+    desenharGrafico();
+  }
+
   function atualizarTabela() {
     const tbody = document.getElementById('tabelaResultados');
     tbody.innerHTML = '';
@@ -409,19 +598,130 @@
     const filtrados = resultadosAlunos.filter(r => r.provaId == pFiltro);
 
     filtrados.forEach((item) => {
+      const p = bancoProvas.find(prova => prova.id == item.provaId);
+      
+      // Gerar visualização rápida das questões certas/erradas
+      let tagsHtml = '';
+      if (p && item.respostas) {
+        p.gabarito.forEach((correta, idx) => {
+          const respAluno = item.respostas[idx];
+          if (respAluno === correta) {
+            tagsHtml += `<span class="q-tag q-certa" title="Q${idx+1}: Certa (${respAluno})">${idx+1}</span>`;
+          } else {
+            tagsHtml += `<span class="q-tag q-errada" title="Q${idx+1}: Errada (Marcou: ${respAluno || '-'}, Correto: ${correta})">${idx+1}</span>`;
+          }
+        });
+      } else {
+        tagsHtml = '<small style="color:var(--text-dim)">Sem dados</small>';
+      }
+
       const tr = document.createElement('tr');
       tr.innerHTML = `
         <td><strong>${item.aluno}</strong></td>
         <td>${item.provaNome}</td>
         <td>${item.acertos} / ${item.totalQuestoes}</td>
         <td><strong style="color: var(--success);">${item.percentual}%</strong></td>
+        <td><div style="display:flex; align-items:center;">${tagsHtml}</div></td>
         <td><span class="badge-nivel ${obterClasseBadge(item.nivelCalculado)}">${item.nivelCalculado}</span></td>
         <td>
-          <button class="btn-excluir" onclick="excluirResultado('${item.idReg}')">Excluir</button>
+          <div class="action-btns">
+            <button class="btn-acao btn-detalhes" onclick="verDetalhesAluno('${item.idReg}')">Ver Detalhes</button>
+            <button class="btn-acao btn-editar" onclick="abrirModalEditAluno('${item.idReg}')">Editar</button>
+            <button class="btn-acao btn-excluir" onclick="excluirResultado('${item.idReg}')">Excluir</button>
+          </div>
         </td>
       `;
       tbody.appendChild(tr);
     });
+  }
+
+  // Modal Edição de Aluno
+  function abrirModalEditAluno(idReg) {
+    const reg = resultadosAlunos.find(r => r.idReg === idReg);
+    if (reg) {
+      document.getElementById('editRegId').value = reg.idReg;
+      document.getElementById('editAlunoNome').value = reg.aluno;
+      document.getElementById('editAlunoRespostas').value = reg.respostas ? reg.respostas.join(', ') : '';
+      document.getElementById('modalEditAluno').classList.add('active');
+    }
+  }
+
+  function salvarEdicaoAluno() {
+    const idReg = document.getElementById('editRegId').value;
+    const novoNome = document.getElementById('editAlunoNome').value.trim();
+    const respRaw = document.getElementById('editAlunoRespostas').value.replace(/\s+/g, ',').replace(/,+/g, ',');
+    const novasRespostas = respRaw.split(',').map(s => s.trim().toUpperCase()).filter(s => s !== '');
+
+    const idx = resultadosAlunos.findIndex(r => r.idReg === idReg);
+    if (idx !== -1) {
+      const p = bancoProvas.find(prova => prova.id == resultadosAlunos[idx].provaId);
+      resultadosAlunos[idx].aluno = novoNome;
+      resultadosAlunos[idx].respostas = novasRespostas;
+
+      if (p) {
+        let acertos = 0;
+        p.gabarito.forEach((correta, i) => {
+          if (novasRespostas[i] === correta) acertos++;
+        });
+        resultadosAlunos[idx].acertos = acertos;
+        resultadosAlunos[idx].totalQuestoes = p.gabarito.length;
+        resultadosAlunos[idx].percentual = Math.round((acertos / p.gabarito.length) * 100);
+
+        if (resultadosAlunos[idx].percentual >= 90) resultadosAlunos[idx].nivelCalculado = 'Alto';
+        else if (resultadosAlunos[idx].percentual >= 70) resultadosAlunos[idx].nivelCalculado = 'Médio';
+        else if (resultadosAlunos[idx].percentual >= 50) resultadosAlunos[idx].nivelCalculado = 'Básico';
+        else resultadosAlunos[idx].nivelCalculado = 'Baixo';
+      }
+
+      salvarTudo();
+      fecharModal('modalEditAluno');
+      atualizarTabela();
+      desenharGrafico();
+    }
+  }
+
+  // Modal Detalhes do Raio-X do Aluno
+  function verDetalhesAluno(idReg) {
+    const reg = resultadosAlunos.find(r => r.idReg === idReg);
+    if (!reg) return;
+
+    const p = bancoProvas.find(prova => prova.id == reg.provaId);
+    document.getElementById('detalheAlunoTitulo').innerHTML = `🔍 Raio-X: <strong>${reg.aluno}</strong>`;
+
+    let html = `
+      <p style="font-size:0.85rem; color:var(--text-dim); margin-bottom:12px;">
+        Prova: <strong>${reg.provaNome}</strong> | Acertos: <strong style="color:var(--success);">${reg.acertos}/${reg.totalQuestoes} (${reg.percentual}%)</strong> | Nível: <strong>${reg.nivelCalculado}</strong>
+      </p>
+      <div class="q-detail-grid">
+    `;
+
+    if (p && reg.respostas) {
+      p.gabarito.forEach((correta, idx) => {
+        const respAluno = reg.respostas[idx] || '-';
+        const nivelQ = p.niveis[idx] || 'Básico';
+        const ehCorreta = respAluno === correta;
+
+        html += `
+          <div class="q-card-item ${ehCorreta ? 'certa' : 'errada'}">
+            <strong style="color:var(--accent)">Questão ${idx+1}</strong><br>
+            <small style="color:var(--text-dim)">Nível: ${nivelQ}</small><br>
+            <span style="font-size:0.9rem; font-weight:bold; margin-top:4px; display:inline-block;">
+              ${ehCorreta ? '✅ ' + respAluno : '❌ ' + respAluno + ' (Gabarito: ' + correta + ')'}
+            </span>
+          </div>
+        `;
+      });
+    } else {
+      html += `<p style="color:var(--text-dim)">Dados do gabarito não disponíveis.</p>`;
+    }
+
+    html += `</div>`;
+    document.getElementById('detalhesConteudo').innerHTML = html;
+    document.getElementById('modalDetalhesAluno').classList.add('active');
+  }
+
+  function fecharModal(modalId) {
+    document.getElementById(modalId).classList.remove('active');
   }
 
   function excluirResultado(idReg) {
@@ -472,7 +772,9 @@
   }
 
   // Inicialização
+  recalcularTodosOsResultados();
   atualizarSelects();
+  atualizarTabelaProvas();
 </script>
 </body>
 </html>
