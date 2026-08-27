@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ReagiLab — Profª Raquel Aguiar</title>
 
-<!-- FAVICON SVG EMBUTIDO DIRECTAMENTE NO HTML -->
+<!-- FAVICON SVG EMBUTIDO DIRETO NO HTML -->
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><defs><radialGradient id='bgGrad' cx='50%' cy='50%' r='50%'><stop offset='0%' stop-color='%231b0e36'/><stop offset='100%' stop-color='%2307040d'/></radialGradient><linearGradient id='chemGrad' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' stop-color='%2338bdf8'/><stop offset='100%' stop-color='%2334d399'/></linearGradient><linearGradient id='glassGrad' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' stop-color='rgba(255,255,255,0.8)'/><stop offset='100%' stop-color='rgba(255,255,255,0.2)'/></linearGradient><linearGradient id='goldGrad' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' stop-color='%23fbbf24'/><stop offset='100%' stop-color='%23f59e0b'/></linearGradient></defs><rect width='512' height='512' rx='128' fill='url(%23bgGrad)'/><rect width='496' height='496' x='8' y='8' rx='120' fill='none' stroke='rgba(255,255,255,0.08)' stroke-width='4'/><g transform='translate(140, 100) rotate(15, 100, 150)'><path d='M75,180 L125,180 C125,230 110,250 100,250 C90,250 75,230 75,180 Z' fill='url(%23chemGrad)'/><path d='M70,60 L130,60 L130,200 C130,240 115,260 100,260 C85,260 70,240 70,200 Z' fill='none' stroke='url(%23glassGrad)' stroke-width='14' stroke-linecap='round' stroke-linejoin='round'/><rect x='60' y='48' width='80' height='16' rx='8' fill='url(%23glassGrad)'/><circle cx='92' cy='150' r='7' fill='%23ffffff' opacity='0.8'/><circle cx='110' cy='120' r='5' fill='%23ffffff' opacity='0.6'/></g><path d='M280,210 C280,130 370,110 390,110 C390,190 300,210 280,210 Z' fill='url(%23chemGrad)'/><path d='M380,80 L386,100 L406,106 L386,112 L380,132 L374,112 L354,106 L374,100 Z' fill='url(%23goldGrad)'/></svg>">
 
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800;900&family=DM+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -123,7 +123,7 @@ html,body{height:100%;overflow:hidden;font-family:'DM Sans',sans-serif;backgroun
 </head>
 <body>
 <canvas id="cv"></canvas>
- 
+
 <!-- LOGIN -->
 <div class="scr" id="s-login">
   <div style="position:absolute;inset:0;background:linear-gradient(160deg,#04040f 0%,#0a0a2e 50%,#120820 100%)"></div>
@@ -147,7 +147,7 @@ html,body{height:100%;overflow:hidden;font-family:'DM Sans',sans-serif;backgroun
   </div>
   <div class="l-year">ReagiLab · 2026</div>
 </div>
- 
+
 <!-- HOME -->
 <div class="scr off" id="s-home">
   <div style="position:absolute;inset:0;background:linear-gradient(160deg,#04040f 0%,#0a0a2e 50%,#120820 100%);z-index:-1"></div>
@@ -200,7 +200,7 @@ html,body{height:100%;overflow:hidden;font-family:'DM Sans',sans-serif;backgroun
     </div>
   </div>
 </div>
- 
+
 <!-- MODULE -->
 <div id="s-mod" class="off">
   <div class="m-bar">
@@ -210,7 +210,7 @@ html,body{height:100%;overflow:hidden;font-family:'DM Sans',sans-serif;backgroun
   <iframe id="m-if" allowfullscreen allow="camera; microphone"></iframe>
 </div>
 <div class="tb" id="tb"></div>
- 
+
 <script>
 // PARTICLES
 const cv=document.getElementById('cv'),ct=cv.getContext('2d');
@@ -235,15 +235,15 @@ function draw(){
   requestAnimationFrame(draw);
 }
 draw();
- 
+
 // MODULES
 const MODS={
   corretor:{name:'ReagiNota',sub:'Corretor de Gabaritos',src:'reagiNota.html'},
   biolab:{name:'Notas',sub:'Notas e Desempenho',src:'biolab.html'},
-  planejador:{name:'Planejador',sub:'Planejamento Semanal',src:'planr.html'},
+  planejador:{name:'Planejador',sub:'Planejamento Semanal',src:'planejador.html'},
   externas:{name:'Provas Externas',sub:'CAEd e Simulados',src:'provas_externas.html'}
 };
- 
+
 function abrirMod(id){
   const m=MODS[id];
   document.getElementById('s-home').classList.add('off');
@@ -257,11 +257,11 @@ function voltarHome(){
   document.getElementById('m-if').src='';
   document.getElementById('s-home').classList.remove('off');
 }
- 
+
 // AUTH
 function fbSignIn(){document.getElementById('ls').textContent='⏳ Abrindo login...';window._fbSignIn();}
 function fbSignOut(){window._fbSignOut();document.getElementById('s-home').classList.add('off');document.getElementById('s-mod').classList.add('off');document.getElementById('s-login').classList.remove('off');toast('Você saiu da conta.');}
- 
+
 window._onAuth=function(u){
   if(u){
     document.getElementById('s-login').classList.add('off');
@@ -274,7 +274,7 @@ window._onAuth=function(u){
     document.getElementById('s-home').classList.add('off');
   }
 };
- 
+
 function toast(msg,type=''){const b=document.getElementById('tb');const t=document.createElement('div');t.className='tk '+type;t.textContent=msg;b.appendChild(t);setTimeout(()=>t.remove(),3500);}
 </script>
 </body>
