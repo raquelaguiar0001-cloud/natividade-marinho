@@ -424,16 +424,20 @@
 <div id="relatorioPdfArea"></div>
 
 <script>
-  // --- CONFIGURAÇÃO E CONEXÃO FIREBASE ---
+  // --- CONFIGURAÇÃO FIREBASE ---
   const firebaseConfig = {
     databaseURL: "https://reagilab-default-rtdb.firebaseio.com"
   };
 
-  if (!firebase.apps.length) {
-    firebase.initializeApp(firebaseConfig);
+  let dbRef = null;
+  try {
+    if (!firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
+    }
+    dbRef = firebase.database().ref('reagiLab_natividademarinho_provasExternas');
+  } catch(e) {
+    console.warn("Modo offline ativo ou Firebase não configurado:", e);
   }
-  const db = firebase.database();
-  const dbRef = db.ref('reagiLab_natividademarinho_provasExternas');
 
   // ESCOPO LOCAL DE DADOS
   let turmaSelecionada = null;
@@ -442,6 +446,65 @@
   let listasAlunosPorTurma = { "8º Ano": [], "9º Ano": [] };
   let provaAtivaId = null;
   let meuGrafico = null;
+
+  // --- PERSISTÊNCIA LOCAL + FIREBASE (DUPLO SALVAMENTO) ---
+  function carregarDadosIniciais() {
+    const pSalvas = localStorage.getItem('labAtivo_configProvas');
+    const rSalvos = localStorage.getItem('labAtivo_resultadosProvas');
+    const lSalvas = localStorage.getItem('labAtivo_listasFixasTurmas');
+
+    if (pSalvas) bancoProvas = JSON.parse(pSalvas);
+    if (rSalvos) resultadosAlunos = JSON.parse(rSalvos);
+    if (lSalvas) listasAlunosPorTurma = JSON.parse(lSalvas);
+
+    recalcularTodosOsResultados();
+  }
+
+  function salvarTudo() {
+    // 1. Salva no navegador (Instantâneo)
+    localStorage.setItem('labAtivo_configProvas', JSON.stringify(bancoProvas));
+    localStorage.setItem('labAtivo_resultadosProvas', JSON.stringify(resultadosAlunos));
+    localStorage.setItem('labAtivo_listasFixasTurmas', JSON.stringify(listasAlunosPorTurma));
+
+    // 2. Tenta sincronizar com o Firebase
+    if (dbRef) {
+      dbRef.set({
+        provas: bancoProvas,
+        resultados: resultadosAlunos,
+        listasFixas: listasAlunosPorTurma,
+        ultimaAtualizacao: new Date().toISOString()
+      }).catch(err => {
+        console.warn("Aviso Firebase: Dados salvos com sucesso no computador.", err);
+      });
+    }
+  }
+
+  // Sincronização em Tempo Real do Firebase (se disponível)
+  if (dbRef) {
+    dbRef.on('value', (snapshot) => {
+      const val = snapshot.val();
+      if (val) {
+        if (val.provas) bancoProvas = val.provas;
+        if (val.resultados) resultadosAlunos = val.resultados;
+        if (val.listasFixas) listasAlunosPorTurma = val.listasFixas;
+        
+        // Atualiza LocalStorage
+        localStorage.setItem('labAtivo_configProvas', JSON.stringify(bancoProvas));
+        localStorage.setItem('labAtivo_resultadosProvas', JSON.stringify(resultadosAlunos));
+        localStorage.setItem('labAtivo_listasFixasTurmas', JSON.stringify(listasAlunosPorTurma));
+
+        recalcularTodosOsResultados();
+        if (turmaSelecionada) {
+          atualizarTabelaProvas();
+          atualizarSelects();
+          if (document.getElementById('abaAnalise').classList.contains('active')) {
+            desenharGrafico();
+            atualizarTabela();
+          }
+        }
+      }
+    });
+  }
 
   // --- HIGIENIZAÇÃO RIGOROSA DE RESPOSTAS ---
   function tratarArrayRespostas(entrada) {
@@ -457,7 +520,7 @@
       .filter(item => item !== '');
   }
 
-  // --- ALTERNÂNCIA DE TEMA (CLARO / ESCURO) ---
+  // --- ALTERNÂNCIA DE TEMA ---
   function aplicarTema(tema) {
     document.documentElement.setAttribute('data-theme', tema);
     localStorage.setItem('labAtivo_tema', tema);
@@ -478,39 +541,6 @@
     const temaAtual = document.documentElement.getAttribute('data-theme') || 'dark';
     const novoTema = temaAtual === 'light' ? 'dark' : 'light';
     aplicarTema(novoTema);
-  }
-
-  // --- SINCRONIZAÇÃO EM TEMPO REAL VIA FIREBASE ---
-  dbRef.on('value', (snapshot) => {
-    const val = snapshot.val();
-    if (val) {
-      bancoProvas = val.provas || [];
-      resultadosAlunos = val.resultados || [];
-      listasAlunosPorTurma = val.listasFixas || { "8º Ano": [], "9º Ano": [] };
-    }
-    recalcularTodosOsResultados();
-    if (turmaSelecionada) {
-      atualizarTabelaProvas();
-      atualizarSelects();
-      if (document.getElementById('abaAnalise').classList.contains('active')) {
-        desenharGrafico();
-        atualizarTabela();
-      }
-    }
-  });
-
-  function salvarNoFirebase() {
-    dbRef.set({
-      provas: bancoProvas,
-      resultados: resultadosAlunos,
-      listasFixas: listasAlunosPorTurma,
-      ultimaAtualizacao: new Date().toISOString()
-    }).catch(err => {
-      console.warn("Falha na sincronização online. Gravando localmente...", err);
-      localStorage.setItem('labAtivo_configProvas', JSON.stringify(bancoProvas));
-      localStorage.setItem('labAtivo_resultadosProvas', JSON.stringify(resultadosAlunos));
-      localStorage.setItem('labAtivo_listasFixasTurmas', JSON.stringify(listasAlunosPorTurma));
-    });
   }
 
   // --- NAVEGAÇÃO E FLUXO ---
@@ -592,7 +622,7 @@
 
     recalcularTodosOsResultados();
     resetFormProva();
-    salvarNoFirebase();
+    salvarTudo();
     atualizarTabelaProvas();
     atualizarSelects();
   });
@@ -621,7 +651,7 @@
   function excluirProva(id) {
     if (confirm("Deseja excluir esta prova da turma?")) {
       bancoProvas = bancoProvas.filter(p => p.id != id);
-      salvarNoFirebase();
+      salvarTudo();
       atualizarTabelaProvas();
       atualizarSelects();
     }
@@ -716,7 +746,7 @@
     });
 
     if (processados > 0) {
-      salvarNoFirebase();
+      salvarTudo();
       alert(`Sucesso! ${processados} alunos corrigidos na prova "${provaObj.nome}".`);
       mudarAba('abaAnalise');
     } else {
@@ -865,7 +895,7 @@
     const texto = document.getElementById('txtListaSalvaTurma').value.trim();
     const nomes = texto.split('\n').map(n => n.trim()).filter(n => n !== '');
     listasAlunosPorTurma[turmaSelecionada] = nomes;
-    salvarNoFirebase();
+    salvarTudo();
     fecharModal('modalGerenciarAlunos');
     carregarNomesNaAreaLancamento();
     alert(`Lista do ${turmaSelecionada} salva com sucesso! (${nomes.length} alunos)`);
@@ -891,7 +921,7 @@
       resultadosAlunos[idx].aluno = novoNome;
       resultadosAlunos[idx].respostas = novasRespostas;
       recalcularTodosOsResultados();
-      salvarNoFirebase();
+      salvarTudo();
       fecharModal('modalEditAluno');
       atualizarTabela();
       desenharGrafico();
@@ -947,7 +977,7 @@
   function excluirResultado(idReg) {
     if (confirm("Deseja remover este registro?")) {
       resultadosAlunos = resultadosAlunos.filter(r => String(r.idReg) !== String(idReg));
-      salvarNoFirebase();
+      salvarTudo();
       atualizarTabela();
       desenharGrafico();
     }
@@ -1112,6 +1142,7 @@
   }
 
   // --- INICIALIZAÇÃO ---
+  carregarDadosIniciais();
   const temaSalvo = localStorage.getItem('labAtivo_tema') || 'dark';
   aplicarTema(temaSalvo);
 </script>
